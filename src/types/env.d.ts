@@ -4,6 +4,8 @@ declare namespace NodeJS {
     JWT_SECRET: string
     RESEND_KEY: string
     STRIPE_SECRET_KEY: string
+    NEXTAUTH_URL: string
+    NEXTAUTH_SECRET: string
     OPENAI_API_KEY: string
     CRON_SECRET?: string
     NEXT_PUBLIC_FEATURE_FLAGS?: string
