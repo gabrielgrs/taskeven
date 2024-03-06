@@ -8,6 +8,7 @@ import { toast } from 'sonner'
 import { login } from '~/actions/auth'
 import { emailPattern } from '~/utils/validation'
 import Column from '../shared/Column'
+import Description from '../shared/Description'
 import Grid from '../shared/Grid'
 import { Button } from '../ui/button'
 import { Drawer, DrawerContent } from '../ui/drawer'
@@ -37,7 +38,8 @@ export default function AuthModal() {
         <form onSubmit={handleSubmit(onSubmit)} className="pt-8 px-4 mx-auto max-w-sm w-full flex justify-center">
           <Grid>
             <Column size={12}>
-              <h1>Login</h1>
+              <h1>Welcome back! 👋</h1>
+              <Description>Enter your email to receive an email</Description>
             </Column>
             <Column size={12}>
               <Label>Email</Label>

@@ -18,15 +18,17 @@ type Props = {
   }
 }
 
-export default async function Index(props: Props) {
+export default async function Home(props: Props) {
   const { inviteToken } = props.searchParams
 
   const user = await getAuthenticatedUser()
   if (!user) return <HomeUI />
 
-  if (inviteToken) await validateInvite(inviteToken)
+  if (inviteToken) {
+    const invitedSpace = await validateInvite(inviteToken)
+    return redirect(`/space/${invitedSpace.slug}`)
+  }
 
   const space = await getSpace()
-
   return redirect(`/space/${space.slug}`)
 }

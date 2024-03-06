@@ -1,7 +1,5 @@
 'use client'
 
-import { useTheme } from 'next-themes'
-import { Palette } from 'lucide-react'
 import { logout } from '~/actions/auth'
 import AuthModal from '~/components/AuthModal'
 import FocusMode from '~/components/FocusMode'
@@ -11,7 +9,6 @@ import useAuth from '~/utils/hooks/useAuth'
 import Logo from '../Logo'
 
 export default function Navbar() {
-  const { theme, setTheme } = useTheme()
   const { user, isLoading } = useAuth()
 
   return (
@@ -21,9 +18,6 @@ export default function Navbar() {
       <div className="justify-self-center">{user && <FocusMode />}</div>
 
       <div className="w-max justify-self-end items-center flex gap-2">
-        <Button variant="outline" size="icon" onClick={() => (theme === 'dark' ? setTheme('light') : setTheme('dark'))}>
-          <Palette />
-        </Button>
         {isLoading && <Skeleton className="h-8 w-20" />}
         {!isLoading && !user && <AuthModal />}
         {!isLoading && user && (

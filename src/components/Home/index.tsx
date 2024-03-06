@@ -23,11 +23,9 @@ export default function HomeUI() {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 1, duration: 2 }}
-        className="text-4xl px-[5vw] md:text-5xl text-center leading-[55px] md:leading-[80px] text-foreground/90"
+        className="text-5xl px-[1vw] text-center leading-[55px] md:leading-[80px] text-foreground/90"
       >
-        Unlock the power of <AccentSpan>collaboration</AccentSpan>
-        <br />
-        <AccentSpan>focus on</AccentSpan> <span> what is essential.</span>
+        <AccentSpan>Focus on</AccentSpan> <span> what is essential ~</span>
       </motion.h1>
     </div>
   )

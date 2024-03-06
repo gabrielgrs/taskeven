@@ -20,7 +20,7 @@ export default function Share({ spaceId }: { spaceId: string }) {
   return (
     <Drawer open={Boolean(shareLink)} onOpenChange={(state) => state === false && setShareLink('')}>
       <Button size="icon" variant="ghost" onClick={() => onPressToShare()}>
-        <Share2 size={20} />
+        <Share2 size={20} className="text-muted-foreground" />
       </Button>
       <DrawerContent>
         <Grid className="mx-auto max-w-lg pt-8 relative">

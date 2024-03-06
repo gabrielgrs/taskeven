@@ -5,6 +5,7 @@ import { Poppins as FontSans } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/react'
 import { SpeedInsights } from '@vercel/speed-insights/next'
 import RootProviders from '~/components/providers/Root'
+import Footer from '~/components/shared/Footer'
 import Navbar from '~/components/shared/Navbar'
 import { Toaster } from '~/components/ui/sonner'
 import { isProductionBuild } from '~/utils/env'
@@ -60,6 +61,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           <Toaster richColors closeButton />
           <Navbar />
           <div className="px-4 mx-auto max-w-2xl py-12">{children}</div>
+          <Footer />
         </RootProviders>
         <SpeedInsights />
         <Analytics />

@@ -4,11 +4,13 @@ import { useParams } from 'next/navigation'
 import Spaces from '~/components/Spaces'
 import TasksUI from '~/components/Tasks'
 import { Skeleton } from '~/components/ui/skeleton'
+import useAuth from '~/utils/hooks/useAuth'
 import useSpaces from '~/utils/hooks/useSpaces'
 
 export default function Tasks() {
   const { slug } = useParams()
   const { spaces, isLoading } = useSpaces()
+  const { user } = useAuth()
 
   const found = spaces.find((x) => x.slug === slug)
 
@@ -25,9 +27,9 @@ export default function Tasks() {
   if (!found) return <h1 className="text-center">Space not found</h1>
 
   return (
-    <div>
+    <>
       <Spaces spaces={spaces} />
-      <TasksUI spaceId={found._id} spaceName={found.name} tasks={found.tasks} />
-    </div>
+      <TasksUI spaceId={found._id} spaceName={found.name} tasks={found.tasks} isOwner={user?._id === found.createdBy} />
+    </>
   )
 }

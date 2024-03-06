@@ -15,13 +15,14 @@ type Props = {
   spaceId: string
   spaceName: string
   tasks: TaskSchema[]
+  isOwner: boolean
 }
 
 const filterTypes = ['All', 'Completed', 'Uncompleted'] as const
 
 type FilterType = (typeof filterTypes)[number]
 
-export default function Tasks({ spaceId, spaceName, tasks }: Props) {
+export default function Tasks({ spaceId, spaceName, tasks, isOwner }: Props) {
   const [filterQuery, setFilterQuery] = useQueryParams<FilterType>('filter', 'All')
 
   const { onAddTask, onRemoveTask, onUpdateTask } = useSpaces()
@@ -33,7 +34,7 @@ export default function Tasks({ spaceId, spaceName, tasks }: Props) {
           <Column size={12} className="flex justify-between items-center">
             <h1>{spaceName}</h1>
             {/* <Badge variant="secondary">Free</Badge> */}
-            <Share spaceId={spaceId} />
+            {isOwner && <Share spaceId={spaceId} />}
           </Column>
           <Column size={12}>
             <TaskForm onSubmit={(values) => onAddTask(spaceId, values)} />

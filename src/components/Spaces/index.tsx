@@ -24,16 +24,16 @@ export default function Spaces({ spaces }: { spaces: SpaceSchema[] }) {
   }
 
   return (
-    <div className="flex gap-4">
-      <div className="px-2 pb-4 flex overflow-y-auto w-max gap-4">
+    <div className="p-2 pb-4 flex w-full gap-4">
+      <div className="flex overflow-x-auto">
         {spaces.map((space) => (
           <button
             data-active={slug === space.slug}
             key={space._id}
             onClick={() => push(`/space/${space.slug}`)}
-            className="relative whitespace-nowrap first-letter:rounded p-2 opacity-70 hover:opacity-100 data-[active=true]:opacity-100"
+            className="relative whitespace-nowrap p-2 opacity-70 hover:opacity-100 data-[active=true]:opacity-100"
           >
-            <div className="relative z-10 text-sm flex gap-1 items-center">
+            <div className="relative z-10 text-sm flex gap-4 items-center">
               <span>{space.name}</span>
               <span>
                 ({space.tasks.filter((x) => x.completed).length}/{space.tasks.length})
