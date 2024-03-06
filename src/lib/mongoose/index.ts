@@ -1,5 +1,6 @@
 import mongoose from 'mongoose'
 import space from './schemas/space'
+import user from './schemas/user'
 
 let db: typeof mongoose | null = null
 
@@ -13,6 +14,7 @@ connectDatabase()
 
 const schemas = {
   space,
+  user,
 }
 
 export * from './schemas/types'

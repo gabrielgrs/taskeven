@@ -1,3 +1,10 @@
+export type UserSchema = {
+  _id: string
+  email: string
+  createdAt: Date
+  updatedAt: Date
+}
+
 export type TaskSchema = {
   _id: string
   title: string

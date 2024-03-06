@@ -24,28 +24,30 @@ export default function Spaces({ spaces }: { spaces: SpaceSchema[] }) {
   }
 
   return (
-    <div className="px-2 pb-4 flex flex-wrap gap-4">
-      {spaces.map((space) => (
-        <button
-          data-active={slug === space.slug}
-          key={space._id}
-          onClick={() => push(`/space/${space.slug}`)}
-          className="relative first-letter:rounded p-2 opacity-70 hover:opacity-100 data-[active=true]:opacity-100"
-        >
-          <div className="relative z-10 text-sm flex gap-1 items-center">
-            <span>{space.name}</span>
-            <span>
-              ({space.tasks.filter((x) => x.completed).length}/{space.tasks.length})
-            </span>
-          </div>
-          {slug === space.slug && (
-            <motion.div
-              className="absolute h-full w-full left-0 top-0 bg-muted-foreground/20 rounded-lg"
-              layoutId="spaceHover"
-            />
-          )}
-        </button>
-      ))}
+    <div className="flex gap-4">
+      <div className="px-2 pb-4 flex overflow-y-auto w-max gap-4">
+        {spaces.map((space) => (
+          <button
+            data-active={slug === space.slug}
+            key={space._id}
+            onClick={() => push(`/space/${space.slug}`)}
+            className="relative whitespace-nowrap first-letter:rounded p-2 opacity-70 hover:opacity-100 data-[active=true]:opacity-100"
+          >
+            <div className="relative z-10 text-sm flex gap-1 items-center">
+              <span>{space.name}</span>
+              <span>
+                ({space.tasks.filter((x) => x.completed).length}/{space.tasks.length})
+              </span>
+            </div>
+            {slug === space.slug && (
+              <motion.div
+                className="absolute h-full w-full left-0 top-0 bg-muted-foreground/20 rounded-lg"
+                layoutId="spaceHover"
+              />
+            )}
+          </button>
+        ))}
+      </div>
       <Button disabled={isRedirecting} onClick={() => onCreateRandomSpace()} variant="link">
         {isRedirecting ? (
           <span className="py-4">

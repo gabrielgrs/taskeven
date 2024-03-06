@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation'
-import { getUserIdentifier } from '~/actions/auth'
+import { getAuthenticatedUser } from '~/actions/auth'
 import { createRandomSpace, getSpacesByUserIdentifier, validateInvite } from '~/actions/space'
+import HomeUI from '~/components/Home'
 
 async function getSpace() {
   const userSpaces = await getSpacesByUserIdentifier()
@@ -17,16 +18,13 @@ type Props = {
   }
 }
 
-export default async function Home(props: Props) {
+export default async function Index(props: Props) {
   const { inviteToken } = props.searchParams
 
-  const userIdentifier = await getUserIdentifier()
+  const user = await getAuthenticatedUser()
+  if (!user) return <HomeUI />
 
-  if (!userIdentifier) throw Error('Unauthorized access')
-
-  if (inviteToken) {
-    await validateInvite(inviteToken)
-  }
+  if (inviteToken) await validateInvite(inviteToken)
 
   const space = await getSpace()
 

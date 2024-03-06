@@ -25,9 +25,9 @@ export default function Tasks() {
   if (!found) return <h1 className="text-center">Space not found</h1>
 
   return (
-    <>
+    <div>
       <Spaces spaces={spaces} />
       <TasksUI spaceId={found._id} spaceName={found.name} tasks={found.tasks} />
-    </>
+    </div>
   )
 }
