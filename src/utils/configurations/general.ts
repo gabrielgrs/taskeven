@@ -1,3 +1,0 @@
-export const MAX_ANNOTATION_LENGTH = 500
-
-export const MIN_WAITLIST_TO_BE_DISPLAYED = 50

@@ -4,9 +4,8 @@ import type { Metadata } from 'next'
 import { Poppins as FontSans } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/react'
 import { SpeedInsights } from '@vercel/speed-insights/next'
-import ContactModal from '~/components/Contact'
 import RootProviders from '~/components/providers/Root'
-import ContactButton from '~/components/shared/ContactButton'
+import Navbar from '~/components/shared/Navbar'
 import { Toaster } from '~/components/ui/sonner'
 import { isProductionBuild } from '~/utils/env'
 import { cn } from '~/utils/shadcn'
@@ -50,21 +49,17 @@ export const metadata: Metadata = {
 }
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  const language = 'en' // await getLanguage()
-
   return (
-    <html lang={language} style={{ scrollBehavior: 'smooth' }} suppressHydrationWarning>
+    <html lang="en" style={{ scrollBehavior: 'smooth' }} suppressHydrationWarning>
       <head>
         <meta name="theme-color" content="#f9c890" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
       </head>
       <body className={cn('min-h-screen bg-background font-sans antialiased', fontFamily.variable)}>
-        <RootProviders language={language}>
+        <RootProviders>
           <Toaster richColors closeButton />
-          {children}
-          <ContactModal>
-            <ContactButton />
-          </ContactModal>
+          <Navbar />
+          <div className="px-4 mx-auto max-w-3xl py-12">{children}</div>
         </RootProviders>
         <SpeedInsights />
         <Analytics />

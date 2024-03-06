@@ -19,7 +19,4 @@
 - [TypeScript](https://www.typescriptlang.org/) – language
 - [Tailwind](https://tailwindcss.com/) – CSS
 - [MongoDB](https://mongodb.com/) – database
-- [Resend](https://resend.com/) - email
-- [NextAuth.js](https://next-auth.js.org/) – auth
 - [Stripe](https://stripe.com/) – payments
-- [Vercel Blob](https://vercel.com/) - storage

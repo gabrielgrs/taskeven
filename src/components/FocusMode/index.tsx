@@ -2,8 +2,8 @@
 
 import { useEffect, useMemo, useState } from 'react'
 import { isSameDay } from 'date-fns'
-import { ListSchema } from '~/lib/mongoose'
-import { useListsContext } from '../providers/List'
+import { SpaceSchema } from '~/lib/mongoose'
+import { useSpacesContext } from '../providers/Space'
 import Column from '../shared/Column'
 import Description from '../shared/Description'
 import Grid from '../shared/Grid'
@@ -25,7 +25,7 @@ export default function FocusMode() {
   const [selectedTimer, setSelectedTimer] = useState(timersInMinute[0])
   const [isTimerRunning, setIsTimerRunning] = useState(false)
   const [timerInSeconds, setTimerInSeconds] = useState(-1)
-  const { lists, onUpdateTask } = useListsContext()
+  const { spaces, onUpdateTask } = useSpacesContext()
 
   useEffect(() => {
     if (!isTimerRunning) {
@@ -41,15 +41,13 @@ export default function FocusMode() {
   }, [isTimerRunning])
 
   const todayTasks = useMemo(() => {
-    return lists.reduce((acc: ListSchema[], curr) => {
-      const tasks = curr.tasks.filter(
-        (x) => !x.completed && x.reminderDate && isSameDay(new Date(), new Date(x.reminderDate)),
-      )
+    return spaces.reduce((acc: SpaceSchema[], curr) => {
+      const tasks = curr.tasks.filter((x) => !x.completed && x.date && isSameDay(new Date(), new Date(x.date)))
 
       if (tasks.length > 0) acc.push({ ...curr, tasks })
       return acc
     }, [])
-  }, [lists])
+  }, [spaces])
 
   const hasTasksToday = todayTasks.length > 0
 

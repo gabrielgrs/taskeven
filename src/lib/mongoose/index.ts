@@ -1,8 +1,5 @@
 import mongoose from 'mongoose'
-import checkout from './schemas/checkout'
-import list from './schemas/list'
-import user from './schemas/user'
-import waitList from './schemas/waitList'
+import space from './schemas/space'
 
 let db: typeof mongoose | null = null
 
@@ -15,10 +12,7 @@ export const connectDatabase = async (): Promise<typeof mongoose> => {
 connectDatabase()
 
 const schemas = {
-  user,
-  list,
-  checkout,
-  waitList,
+  space,
 }
 
 export * from './schemas/types'

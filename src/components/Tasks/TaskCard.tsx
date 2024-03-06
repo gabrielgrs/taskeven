@@ -4,33 +4,19 @@ import { motion } from 'framer-motion'
 import { Pencil, Trash, Undo } from 'lucide-react'
 import { Button } from '~/components/ui/button'
 import { Checkbox } from '~/components/ui/checkbox'
-import { Permission } from '~/types/shared'
 import { cn } from '~/utils/shadcn'
 
 type Props = {
   completed: boolean
   onCompleteTask: (completed: boolean) => void
   onRemoveTask: () => void
-  annotations?: string
   title: string
-  reminderDate?: Date
-  permission: Permission
+  date: Date
   onSelectToEdit: () => void
 }
 
-export default function TaskCard({
-  completed,
-  title,
-  reminderDate,
-  annotations = '',
-  onRemoveTask,
-  onCompleteTask,
-  permission,
-  onSelectToEdit,
-}: Props) {
+export default function TaskCard({ completed, title, date, onRemoveTask, onCompleteTask, onSelectToEdit }: Props) {
   const [isSelectedToRemove, setIsSelectedToRemove] = useState(false)
-
-  const hasPermissionToEdit = permission === 'EDIT'
 
   return (
     <motion.div
@@ -42,68 +28,61 @@ export default function TaskCard({
     >
       <div className="flex gap-3 justify-between items-center">
         <div className="flex gap-2 items-center">
-          {permission === 'EDIT' && (
-            <Checkbox
-              aria-label="Task checkbox"
-              checked={completed}
-              onCheckedChange={(status) => onCompleteTask(Boolean(status))}
-              className="h-[18px] w-[18px]"
-            />
-          )}
+          <Checkbox
+            aria-label="Task checkbox"
+            checked={completed}
+            onCheckedChange={(status) => onCompleteTask(Boolean(status))}
+            className="h-[18px] w-[18px]"
+          />
           <label
             data-completed={completed}
             className="data-[completed=true]:line-through text-lg data-[completed=true]:opacity-60 duration-500"
           >
             {title}
           </label>
-          {reminderDate && (
-            <span className="text-sm text-foreground/50">{format(new Date(reminderDate), 'MM/dd/yyyy')}</span>
-          )}
+          {date && <span className="text-sm text-foreground/50">{format(new Date(date), 'MM/dd/yyyy')}</span>}
         </div>
 
-        {hasPermissionToEdit && (
-          <div className="flex gap-2 items-center">
-            {isSelectedToRemove ? (
-              <>
-                <Button
-                  aria-label="Cancel removal"
-                  variant="ghost"
-                  size="icon"
-                  className="hover:text-primary-foreground"
-                  onClick={() => setIsSelectedToRemove(false)}
-                >
-                  <Undo size={16} className="opacity-60" />
-                </Button>
-                <Button aria-label="Confirm removal" variant="destructive" size="icon" onClick={() => onRemoveTask()}>
-                  <Trash size={16} className="opacity-60" />
-                </Button>
-              </>
-            ) : (
-              <>
-                <Button
-                  aria-label="Edit task"
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => onSelectToEdit()}
-                  className="hover:text-primary-foreground"
-                >
-                  <Pencil size={16} className="opacity-60" />
-                </Button>
-                <Button
-                  aria-label="Remove task"
-                  variant="ghost"
-                  size="icon"
-                  className="hover:text-primary-foreground"
-                  onClick={() => setIsSelectedToRemove(true)}
-                >
-                  <Trash size={16} className="opacity-60" />
-                </Button>
-              </>
-            )}
-          </div>
-        )}
+        <div className="flex gap-2 items-center">
+          {isSelectedToRemove ? (
+            <>
+              <Button
+                aria-label="Cancel removal"
+                variant="ghost"
+                size="icon"
+                className="hover:text-primary-foreground"
+                onClick={() => setIsSelectedToRemove(false)}
+              >
+                <Undo size={16} className="opacity-60" />
+              </Button>
+              <Button aria-label="Confirm removal" variant="destructive" size="icon" onClick={() => onRemoveTask()}>
+                <Trash size={16} className="opacity-60" />
+              </Button>
+            </>
+          ) : (
+            <>
+              <Button
+                aria-label="Edit task"
+                variant="ghost"
+                size="icon"
+                onClick={() => onSelectToEdit()}
+                className="hover:text-primary-foreground"
+              >
+                <Pencil size={16} className="opacity-60" />
+              </Button>
+              <Button
+                aria-label="Remove task"
+                variant="ghost"
+                size="icon"
+                className="hover:text-primary-foreground"
+                onClick={() => setIsSelectedToRemove(true)}
+              >
+                <Trash size={16} className="opacity-60" />
+              </Button>
+            </>
+          )}
+        </div>
       </div>
-      {annotations && <div className="py-2 px-8 text-sm text-foreground/70">{annotations}</div>}
     </motion.div>
   )
 }
