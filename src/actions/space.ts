@@ -3,6 +3,7 @@
 import { faker } from '@faker-js/faker'
 import ShortUniqueId from 'short-unique-id'
 import slugify from 'slugify'
+import { createToken, decodeToken } from '~/lib/jwt'
 import schemas, { SpaceSchema } from '~/lib/mongoose'
 import { getUserIdentifier } from './auth'
 import { parseObject } from './helpers'
@@ -45,6 +46,32 @@ export async function updateSpace(spaceId: string, data: Partial<SpaceSchema>) {
 
 export async function getSpacesByUserIdentifier() {
   const userIdentifier = await getUserIdentifier()
-  const spaces = await schemas.space.find({ createdBy: userIdentifier })
+  const spaces = await schemas.space.find({
+    $or: [{ createdBy: userIdentifier }, { members: userIdentifier }],
+  })
   return parseObject(spaces)
+}
+
+export async function generateShareLink(spaceId: string) {
+  const userIdentifier = await getUserIdentifier()
+  const space = await schemas.space.findOne({ _id: spaceId, createdBy: userIdentifier })
+  if (!space) throw Error('Not found')
+
+  const shareToken = await createToken({ identifier: space._id }, '30m')
+  return shareToken
+}
+
+export async function validateInvite(inviteToken: string) {
+  const decodedInviteToken = await decodeToken(inviteToken)
+  if (!decodedInviteToken) throw Error('Invalid invite')
+
+  const userIdentifier = await getUserIdentifier()
+
+  const space = await schemas.space.findOneAndUpdate(
+    { _id: decodedInviteToken.identifier },
+    { $push: { members: userIdentifier } },
+  )
+  if (!space) throw Error('Invalid space')
+
+  return parseObject(space)
 }

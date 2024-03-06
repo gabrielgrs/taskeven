@@ -16,7 +16,7 @@ export default function Spaces({ spaces }: { spaces: SpaceSchema[] }) {
     try {
       setIsRedirecting(true)
       const space = await createRandomSpace()
-      push(`/${space.slug}`)
+      push(`/space/${space.slug}`)
     } catch {
       setIsRedirecting(false)
       toast.error('Something went wrong')
@@ -29,7 +29,7 @@ export default function Spaces({ spaces }: { spaces: SpaceSchema[] }) {
         <button
           data-active={slug === space.slug}
           key={space._id}
-          onClick={() => push(`/${space.slug}`)}
+          onClick={() => push(`/space/${space.slug}`)}
           className="relative first-letter:rounded p-2 opacity-70 hover:opacity-100 data-[active=true]:opacity-100"
         >
           <div className="relative z-10 text-sm flex gap-1 items-center">

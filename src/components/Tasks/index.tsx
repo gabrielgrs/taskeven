@@ -7,6 +7,7 @@ import Grid from '~/components/shared/Grid'
 import { TaskSchema } from '~/lib/mongoose'
 import { useQueryParams } from '~/utils/hooks/useQueryParams'
 import useSpaces from '~/utils/hooks/useSpaces'
+import Share from './Share'
 import TaskCard from './TaskCard'
 import TaskForm from './TaskForm'
 
@@ -32,9 +33,7 @@ export default function Tasks({ spaceId, spaceName, tasks }: Props) {
           <Column size={12} className="flex justify-between items-center">
             <h1>{spaceName}</h1>
             {/* <Badge variant="secondary">Free</Badge> */}
-            {/* <Button size="icon" variant="ghost">
-              <Share2 size={20} />
-            </Button> */}
+            <Share spaceId={spaceId} />
           </Column>
           <Column size={12}>
             <TaskForm onSubmit={(values) => onAddTask(spaceId, values)} />

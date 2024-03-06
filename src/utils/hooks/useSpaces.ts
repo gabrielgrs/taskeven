@@ -1,7 +1,6 @@
 'use client'
 
 import { useCallback } from 'react'
-import { useRouter } from 'next/navigation'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { getSpacesByUserIdentifier, insertSpace, removeSpace, updateSpace } from '~/actions/space'
@@ -9,7 +8,6 @@ import { insertTask, removeTask, updateTask } from '~/actions/task'
 import { SpaceSchema, TaskSchema } from '~/lib/mongoose'
 
 export default function useSpaces() {
-  const { push } = useRouter()
   const queryClient = useQueryClient()
 
   const { data: spaces = [], isLoading } = useQuery({
@@ -68,7 +66,6 @@ export default function useSpaces() {
     async (spaceId: string) => {
       try {
         await removeSpace(spaceId)
-        push('/app')
         onRefetch()
         return Promise.resolve({ message: 'Success' })
       } catch (error) {
@@ -76,7 +73,7 @@ export default function useSpaces() {
         return Promise.reject(error)
       }
     },
-    [onFallbackError, onRefetch, push],
+    [onFallbackError, onRefetch],
   )
 
   const onAddTask = useCallback(
