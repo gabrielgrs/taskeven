@@ -59,7 +59,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <RootProviders>
           <Toaster richColors closeButton />
           <Navbar />
-          <div className="px-4 mx-auto max-w-3xl py-12">{children}</div>
+          <div className="px-4 mx-auto max-w-2xl py-12">{children}</div>
         </RootProviders>
         <SpeedInsights />
         <Analytics />

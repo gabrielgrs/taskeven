@@ -1,7 +1,8 @@
 'use client'
 
 import { useState } from 'react'
-import { useForm, useWatch } from 'react-hook-form'
+import { useController, useForm, useWatch } from 'react-hook-form'
+import { addDays, isSameDay } from 'date-fns'
 import { motion } from 'framer-motion'
 import { CalendarClock, Loader2 } from 'lucide-react'
 import { Button } from '~/components/ui/button'
@@ -42,6 +43,7 @@ export default function TaskForm({ onSubmit: onSubmitFromParent, initialValues, 
   }
 
   const titleRegister = register('title', { required: requiredField, minLength: minLength(1), maxLength: maxLenth(40) })
+  const dateController = useController({ name: 'date', control, rules: { required: requiredField } })
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
@@ -75,12 +77,27 @@ export default function TaskForm({ onSubmit: onSubmitFromParent, initialValues, 
               transition={{ duration: 0.5, delay: 0.1 }}
               className="bg-foreground/5 p-2 flex justify-between items-center rounded-b"
             >
-              <div className="flex gap-2 items-center">
-                <div className="flex gap-2 items-center">
-                  <CalendarClock size={14} />
-                  <button>Today</button>
-                  <button>Tomorrow</button>
-                </div>
+              <div
+                data-error={Boolean(dateController.fieldState.error?.message)}
+                className="pl-2 flex h-full gap-2 items-center data-[error=true]:text-destructive duration-500"
+              >
+                <CalendarClock size={14} />
+                <button
+                  data-active={isSameDay(new Date(), new Date(dateController.field.value!))}
+                  type="button"
+                  className="text-sm opacity-50 data-[active=true]:opacity-100 duration-500"
+                  onClick={() => dateController.field.onChange(new Date())}
+                >
+                  Today
+                </button>
+                <button
+                  data-active={isSameDay(addDays(new Date(), 1), new Date(dateController.field.value!))}
+                  type="button"
+                  className="text-sm opacity-50 data-[active=true]:opacity-100 duration-500"
+                  onClick={() => dateController.field.onChange(addDays(new Date(), 1))}
+                >
+                  Tomorrow
+                </button>
               </div>
 
               <div className="flex gap-2 items-center">

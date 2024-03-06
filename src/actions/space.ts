@@ -1,34 +1,29 @@
 'use server'
 
+import { faker } from '@faker-js/faker'
 import ShortUniqueId from 'short-unique-id'
 import slugify from 'slugify'
 import schemas, { SpaceSchema } from '~/lib/mongoose'
-import { getAuthenticatedUser } from './auth'
+import { getUserIdentifier } from './auth'
 import { parseObject } from './helpers'
-import { getDomain } from './helpers/server'
 
 const uuid = new ShortUniqueId({ length: 10 })
 
 const createSlug = (name: string) => slugify(`${name}-${uuid.rnd()}`, { lower: true, trim: true })
 
-export async function insertSpace(name: string) {
-  const user = await getAuthenticatedUser()
-  if (!user) throw Error('Unauthorized access')
+export async function createRandomSpace() {
+  const randomName = `${faker.color.human()} ${faker.animal.type()}`
+  const createdSpace = await insertSpace(randomName)
+  return createdSpace
+}
 
-  const space = await schemas.space.create({ name, slug: createSlug(name), createdBy: user.identifier })
+export async function insertSpace(name: string) {
+  const userIdentifier = await getUserIdentifier()
+  if (!userIdentifier) throw Error('Unauthorized access')
+
+  const space = await schemas.space.create({ name, slug: createSlug(name), createdBy: userIdentifier })
 
   if (!space) throw Error('Not found')
-
-  const domain = getDomain()
-  const response = await fetch(`${domain}/auth/setAuthSpace`, {
-    method: 'POST',
-    body: JSON.stringify({ spaceId: space._id }),
-  })
-
-  if (!response.ok) {
-    await schemas.space.findOneAndDelete({ _id: space._id })
-    throw Error('Something went wrong')
-  }
 
   return parseObject(space)
 }
@@ -48,9 +43,8 @@ export async function updateSpace(spaceId: string, data: Partial<SpaceSchema>) {
   return parseObject(space)
 }
 
-export async function getSpacesWithTasks() {
-  const lists = await schemas.space.find({})
-  return parseObject(lists)
+export async function getSpacesByUserIdentifier() {
+  const userIdentifier = await getUserIdentifier()
+  const spaces = await schemas.space.find({ createdBy: userIdentifier })
+  return parseObject(spaces)
 }
-
-export type UserSpacesWithTasks = Awaited<ReturnType<typeof getSpacesWithTasks>>

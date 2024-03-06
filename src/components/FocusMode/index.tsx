@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { isSameDay } from 'date-fns'
 import { SpaceSchema } from '~/lib/mongoose'
-import { useSpacesContext } from '../providers/Space'
+import useSpaces from '~/utils/hooks/useSpaces'
 import Column from '../shared/Column'
 import Description from '../shared/Description'
 import Grid from '../shared/Grid'
@@ -25,7 +25,7 @@ export default function FocusMode() {
   const [selectedTimer, setSelectedTimer] = useState(timersInMinute[0])
   const [isTimerRunning, setIsTimerRunning] = useState(false)
   const [timerInSeconds, setTimerInSeconds] = useState(-1)
-  const { spaces, onUpdateTask } = useSpacesContext()
+  const { spaces, onUpdateTask } = useSpaces()
 
   useEffect(() => {
     if (!isTimerRunning) {

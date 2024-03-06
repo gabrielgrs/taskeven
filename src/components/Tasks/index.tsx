@@ -1,13 +1,12 @@
 'use client'
 
-import { useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { Filter } from 'lucide-react'
-import { useSpacesContext } from '~/components/providers/Space'
 import Column from '~/components/shared/Column'
 import Grid from '~/components/shared/Grid'
 import { TaskSchema } from '~/lib/mongoose'
 import { useQueryParams } from '~/utils/hooks/useQueryParams'
+import useSpaces from '~/utils/hooks/useSpaces'
 import TaskCard from './TaskCard'
 import TaskForm from './TaskForm'
 
@@ -24,9 +23,7 @@ type FilterType = (typeof filterTypes)[number]
 export default function Tasks({ spaceId, spaceName, tasks }: Props) {
   const [filterQuery, setFilterQuery] = useQueryParams<FilterType>('filter', 'All')
 
-  const [selectedTaskId, setSelectedTaskId] = useState<string | undefined>(undefined)
-
-  const { onAddTask, onRemoveTask, onUpdateTask } = useSpacesContext()
+  const { onAddTask, onRemoveTask, onUpdateTask } = useSpaces()
 
   return (
     <AnimatePresence>
@@ -76,28 +73,16 @@ export default function Tasks({ spaceId, spaceName, tasks }: Props) {
                     if (filterQuery === 'Uncompleted') return !task.completed
                     return task
                   })
-                  .map((task) =>
-                    selectedTaskId === task._id ? (
-                      <TaskForm
-                        key={`form_${task._id}`}
-                        onSubmit={(values) =>
-                          values._id ? onUpdateTask(spaceId, task._id, values) : onAddTask(spaceId, values)
-                        }
-                        initialValues={task}
-                        onCancel={() => setSelectedTaskId(undefined)}
-                      />
-                    ) : (
-                      <TaskCard
-                        key={`card_${task._id}`}
-                        title={task.title}
-                        completed={task.completed}
-                        date={task.date}
-                        onRemoveTask={() => onRemoveTask(spaceId, task._id)}
-                        onSelectToEdit={() => setSelectedTaskId(task._id)}
-                        onCompleteTask={(completed) => onUpdateTask(spaceId, task._id, { completed })}
-                      />
-                    ),
-                  )
+                  .map((task) => (
+                    <TaskCard
+                      key={`card_${task._id}`}
+                      title={task.title}
+                      completed={task.completed}
+                      date={task.date}
+                      onRemoveTask={() => onRemoveTask(spaceId, task._id)}
+                      onCompleteTask={(completed) => onUpdateTask(spaceId, task._id, { completed })}
+                    />
+                  ))
               )}
             </div>
           </Column>

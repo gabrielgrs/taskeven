@@ -1,7 +1,6 @@
-import { useState } from 'react'
 import { format } from 'date-fns'
 import { motion } from 'framer-motion'
-import { Pencil, Trash, Undo } from 'lucide-react'
+import { Trash } from 'lucide-react'
 import { Button } from '~/components/ui/button'
 import { Checkbox } from '~/components/ui/checkbox'
 import { cn } from '~/utils/shadcn'
@@ -12,12 +11,9 @@ type Props = {
   onRemoveTask: () => void
   title: string
   date: Date
-  onSelectToEdit: () => void
 }
 
-export default function TaskCard({ completed, title, date, onRemoveTask, onCompleteTask, onSelectToEdit }: Props) {
-  const [isSelectedToRemove, setIsSelectedToRemove] = useState(false)
-
+export default function TaskCard({ completed, title, date, onRemoveTask, onCompleteTask }: Props) {
   return (
     <motion.div
       initial={{ opacity: 0, translateX: '-100%' }}
@@ -44,43 +40,9 @@ export default function TaskCard({ completed, title, date, onRemoveTask, onCompl
         </div>
 
         <div className="flex gap-2 items-center">
-          {isSelectedToRemove ? (
-            <>
-              <Button
-                aria-label="Cancel removal"
-                variant="ghost"
-                size="icon"
-                className="hover:text-primary-foreground"
-                onClick={() => setIsSelectedToRemove(false)}
-              >
-                <Undo size={16} className="opacity-60" />
-              </Button>
-              <Button aria-label="Confirm removal" variant="destructive" size="icon" onClick={() => onRemoveTask()}>
-                <Trash size={16} className="opacity-60" />
-              </Button>
-            </>
-          ) : (
-            <>
-              <Button
-                aria-label="Edit task"
-                variant="ghost"
-                size="icon"
-                onClick={() => onSelectToEdit()}
-                className="hover:text-primary-foreground"
-              >
-                <Pencil size={16} className="opacity-60" />
-              </Button>
-              <Button
-                aria-label="Remove task"
-                variant="ghost"
-                size="icon"
-                className="hover:text-primary-foreground"
-                onClick={() => setIsSelectedToRemove(true)}
-              >
-                <Trash size={16} className="opacity-60" />
-              </Button>
-            </>
-          )}
+          <Button aria-label="Confirm removal" variant="ghost" size="icon" onClick={() => onRemoveTask()}>
+            <Trash size={16} className="opacity-60" />
+          </Button>
         </div>
       </div>
     </motion.div>

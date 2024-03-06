@@ -1,16 +1,18 @@
 'use server'
 
-import { decodeToken } from '~/lib/jwt'
-import { getDomain } from './helpers/server'
+import { cookies } from 'next/headers'
+import { redirect } from 'next/navigation'
+import { Types } from 'mongoose'
+import { createToken, decodeToken } from '~/lib/jwt'
 
-export async function getAuthenticatedUser() {
-  const domain = getDomain()
+export async function getUserIdentifier() {
+  const token = cookies().get('token')?.value
 
-  const response = await fetch(`${domain}/api/auth/getAuthToken`)
+  if (!token) {
+    const createdToken = createToken({ identifier: new Types.ObjectId().toString() })
+    return redirect(`/?token=${createdToken}`)
+  }
 
-  if (!response.ok) throw Error('Something went wrong')
-
-  const token = await response.json()
-
-  return decodeToken(token)
+  const decoded = await decodeToken(token)
+  return decoded.identifier
 }

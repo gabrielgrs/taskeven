@@ -16,7 +16,7 @@ export async function getSpaceBySlug(listSlug: string) {
 
   if (!space) throw Error('Space not found')
 
-  return space
+  return parseObject(space)
 }
 
 export async function getTasksBySpaceId(spaceId: string) {
