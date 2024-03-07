@@ -1,8 +1,7 @@
 'use client'
 
 import { useParams } from 'next/navigation'
-import Spaces from '~/components/Spaces'
-import TasksUI from '~/components/Tasks'
+import SpacesAndTasksUI from '~/components/SpacesAndTasks'
 import { Skeleton } from '~/components/ui/skeleton'
 import useAuth from '~/utils/hooks/useAuth'
 import useSpaces from '~/utils/hooks/useSpaces'
@@ -27,9 +26,11 @@ export default function Tasks() {
   if (!found) return <h1 className="text-center">Space not found</h1>
 
   return (
-    <>
-      <Spaces spaces={spaces} />
-      <TasksUI spaceId={found._id} spaceName={found.name} tasks={found.tasks} isOwner={user?._id === found.createdBy} />
-    </>
+    <SpacesAndTasksUI
+      spaceId={found._id}
+      spaceName={found.name}
+      tasks={found.tasks}
+      isOwner={user?._id === found.createdBy}
+    />
   )
 }

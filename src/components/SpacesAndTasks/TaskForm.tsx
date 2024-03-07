@@ -37,7 +37,7 @@ export default function TaskForm({ onSubmit: onSubmitFromParent, initialValues, 
 
   const onSubmit = async (values: typeof defaultValues) => {
     await onSubmitFromParent(values)
-    reset({ title: '' })
+    reset({ title: '', date: undefined })
     setFocused(false)
     if (onCancel) onCancel()
   }

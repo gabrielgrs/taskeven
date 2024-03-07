@@ -23,7 +23,7 @@ export async function login(email: string) {
     to: [email],
     from: 'noreply@taskeven.com',
     subject: 'Login email',
-    text: `Click here to login: ${getDomain()}/auth?token=${token}`,
+    html: `<a href="${getDomain()}/auth?token=${token}" target="_blank">Click here to login</a>`,
   })
 
   return true

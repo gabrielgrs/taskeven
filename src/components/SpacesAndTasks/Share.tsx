@@ -14,7 +14,7 @@ export default function Share({ spaceId }: { spaceId: string }) {
 
   const onPressToShare = async () => {
     const shareToken = await generateShareLink(spaceId)
-    setShareLink(`${window.location.origin}?inviteToken=${shareToken}`)
+    setShareLink(`${window.location.origin}/invite?inviteToken=${shareToken}`)
   }
 
   return (

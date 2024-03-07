@@ -1,13 +1,17 @@
 'use client'
 
+import { useRouter } from 'next/navigation'
 import { AnimatePresence, motion } from 'framer-motion'
 import { Filter } from 'lucide-react'
+import { toast } from 'sonner'
+import { createRandomSpace } from '~/actions/space'
 import Column from '~/components/shared/Column'
 import Grid from '~/components/shared/Grid'
 import { TaskSchema } from '~/lib/mongoose'
 import { useQueryParams } from '~/utils/hooks/useQueryParams'
 import useSpaces from '~/utils/hooks/useSpaces'
 import Share from './Share'
+import Switcher from './Switcher'
 import TaskCard from './TaskCard'
 import TaskForm from './TaskForm'
 
@@ -22,17 +26,30 @@ const filterTypes = ['All', 'Completed', 'Uncompleted'] as const
 
 type FilterType = (typeof filterTypes)[number]
 
-export default function Tasks({ spaceId, spaceName, tasks, isOwner }: Props) {
+export default function SpacesAndTasksUI({ spaceId, spaceName, tasks, isOwner }: Props) {
   const [filterQuery, setFilterQuery] = useQueryParams<FilterType>('filter', 'All')
+  const { push } = useRouter()
 
   const { onAddTask, onRemoveTask, onUpdateTask } = useSpaces()
+
+  const onCreateRandomSpace = async () => {
+    try {
+      const space = await createRandomSpace()
+      push(`/space/${space.slug}`)
+    } catch {
+      toast.error('Something went wrong')
+    }
+  }
 
   return (
     <AnimatePresence>
       <main>
         <Grid>
           <Column size={12} className="flex justify-between items-center">
-            <h1>{spaceName}</h1>
+            <Switcher onCreateTeam={() => onCreateRandomSpace()}>
+              <h1>{spaceName}</h1>
+            </Switcher>
+
             {/* <Badge variant="secondary">Free</Badge> */}
             {isOwner && <Share spaceId={spaceId} />}
           </Column>

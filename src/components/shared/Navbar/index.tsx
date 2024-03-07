@@ -14,13 +14,18 @@ export default function Navbar() {
   const pathname = usePathname()
 
   return (
-    <header className="grid grid-cols-3 px-2 md:px-4 items-center gap-4 h-20 z-50 backdrop-blur-md sticky top-0">
+    <header className="flex justify-between md:grid md:grid-cols-3 px-2 md:px-4 items-center gap-4 h-20 z-50 backdrop-blur-md sticky top-0">
       <Logo />
 
       <div className="justify-self-center">{user && <FocusMode />}</div>
 
       <div className="w-max justify-self-end items-center flex gap-2">
         {isLoading && <Skeleton className="h-8 w-20" />}
+        {user && (
+          <Link href="/space" className={buttonVariants({ variant: 'link' })}>
+            Spaces
+          </Link>
+        )}
         {!isLoading && !user && !pathname.includes('/auth') && (
           <Link href="/auth" className={buttonVariants({ variant: 'link' })}>
             Login
