@@ -8,6 +8,10 @@ async function getSpace() {
 }
 
 export default async function Page() {
-  const space = await getSpace()
-  return redirect(`/space/${space.slug}`)
+  try {
+    const space = await getSpace()
+    return redirect(`/space/${space.slug}`)
+  } catch {
+    return 'Something went wrong'
+  }
 }
