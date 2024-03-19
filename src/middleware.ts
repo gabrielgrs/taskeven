@@ -1,35 +1,18 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest } from 'next/server'
+import { authMiddleware } from './utils/middlewares/auth'
+import { logoutMiddleware } from './utils/middlewares/logout'
+import { sharedMiddleware } from './utils/middlewares/shared'
 
-function getToken(req: NextRequest) {
-  const urlSearchParams = new URLSearchParams(req.nextUrl.search)
-  return urlSearchParams.get('token') || req.cookies.get('token')?.value
-}
-
-export async function middleware(req: NextRequest) {
-  const token = getToken(req)
-
-  if (req.url.includes('/logout')) {
-    const response = NextResponse.redirect(new URL('/', req.url))
-    response.cookies.delete('token')
-    return response
+export async function middleware(request: NextRequest) {
+  if (request.url.includes('/logout')) {
+    return logoutMiddleware(request)
   }
 
-  if (req.url.includes('/auth') && token) {
-    const response = NextResponse.redirect(new URL('/', req.url))
-    response.cookies.set('token', token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV !== 'development',
-      sameSite: 'strict',
-      maxAge: 60 * 60 * 24 * 30,
-      path: '/',
-    })
-    return response
+  if (request.url.includes('/auth')) {
+    return authMiddleware(request)
   }
 
-  const response = NextResponse.next()
-  if (token) response.cookies.set('token', token)
-
-  return response
+  return sharedMiddleware(request)
 }
 
 export const config = {

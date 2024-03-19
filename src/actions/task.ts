@@ -1,6 +1,7 @@
 'use server'
 
-import schemas, { TaskSchema } from '~/lib/mongoose'
+import schemas, { TaskSchema } from '~/libs/mongoose'
+import { PLANS } from '~/utils/constants'
 import { parseObject } from './helpers'
 
 export async function getSpaceById(spaceId: string) {
@@ -32,7 +33,16 @@ export async function getTasksBySpaceId(spaceId: string) {
 }
 
 export async function insertTask(spaceId: string, taskData: Partial<TaskSchema>) {
-  const space = await schemas.space.findOneAndUpdate(
+  const space = await schemas.space.findOne({ _id: spaceId })
+
+  if (!space) throw Error('Not found')
+
+  const { tasksInProject } = PLANS[space.plan]
+
+  if (space.tasks.length >= tasksInProject) throw Error('Tasks limit reached')
+  // if (taskData.text && taskData.text.length >= textLength) throw Error('Text limit reached')
+
+  const updatedSpace = await schemas.space.findOneAndUpdate(
     {
       _id: spaceId,
     },
@@ -40,9 +50,7 @@ export async function insertTask(spaceId: string, taskData: Partial<TaskSchema>)
     { new: true },
   )
 
-  if (!space) throw Error('Not found')
-
-  return parseObject(space.tasks.at(-1)!)
+  return parseObject(updatedSpace!.tasks.at(-1)!)
 }
 
 export async function removeTask(spaceId: string, taskId: string) {
@@ -65,13 +73,17 @@ export async function updateTask(spaceId: string, taskId: string, task: Partial<
     return acc
   }, {})
 
-  const space = await schemas.space.findOneAndUpdate(
+  const space = await schemas.space.findOne({ _id: spaceId })
+
+  if (!space) throw Error('Not found')
+
+  // if (task.text && task.text.length >= tasksInProject) throw Error('Text limit reached')
+
+  const updatedSpace = await schemas.space.findOneAndUpdate(
     { _id: spaceId, 'tasks._id': taskId },
     { $set: dataToSet },
     { new: true },
   )
 
-  if (!space) throw Error('Not found')
-
-  return parseObject(space.tasks)
+  return parseObject(updatedSpace!.tasks)
 }

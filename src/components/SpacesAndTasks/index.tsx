@@ -1,15 +1,20 @@
 'use client'
 
-import { useRouter } from 'next/navigation'
+import { useState } from 'react'
+import Link from 'next/link'
 import { AnimatePresence, motion } from 'framer-motion'
-import { Filter } from 'lucide-react'
+import { Filter, Loader2 } from 'lucide-react'
 import { toast } from 'sonner'
-import { createRandomSpace } from '~/actions/space'
+import { createCheckout } from '~/actions/checkout'
+import { getPrices } from '~/actions/services/stripe'
 import Column from '~/components/shared/Column'
 import Grid from '~/components/shared/Grid'
-import { TaskSchema } from '~/lib/mongoose'
+import { TaskSchema } from '~/libs/mongoose'
+import { PlanName } from '~/utils/constants/types'
 import { useQueryParams } from '~/utils/hooks/useQueryParams'
 import useSpaces from '~/utils/hooks/useSpaces'
+import { Badge, badgeVariants } from '../ui/badge'
+import { Button, buttonVariants } from '../ui/button'
 import Share from './Share'
 import Switcher from './Switcher'
 import TaskCard from './TaskCard'
@@ -20,24 +25,33 @@ type Props = {
   spaceName: string
   tasks: TaskSchema[]
   isOwner: boolean
+  plan: PlanName
 }
 
 const filterTypes = ['All', 'Completed', 'Uncompleted'] as const
 
 type FilterType = (typeof filterTypes)[number]
 
-export default function SpacesAndTasksUI({ spaceId, spaceName, tasks, isOwner }: Props) {
+export default function SpacesAndTasksUI({ spaceId, spaceName, tasks, isOwner, plan }: Props) {
   const [filterQuery, setFilterQuery] = useQueryParams<FilterType>('filter', 'All')
-  const { push } = useRouter()
+  const [redirecting, setRedirecting] = useState(false)
+  const isFree = plan === 'FREE'
 
   const { onAddTask, onRemoveTask, onUpdateTask } = useSpaces()
 
-  const onCreateRandomSpace = async () => {
+  const onUpgradeSpace = async (spaceId: string) => {
     try {
-      const space = await createRandomSpace()
-      push(`/space/${space.slug}`)
+      setRedirecting(true)
+      const prices = await getPrices()
+      // TODO
+      const priceId = prices.find((x) => x.nickname?.toUpperCase() === ('PLUS' satisfies PlanName))?.id!
+      const url = await createCheckout(priceId, spaceId)
+      window.open(url)
+      toast.success('Redirecting you to checkout page!')
     } catch {
-      toast.error('Something went wrong')
+      return toast.error('Something went wrong')
+    } finally {
+      setRedirecting(false)
     }
   }
 
@@ -46,12 +60,29 @@ export default function SpacesAndTasksUI({ spaceId, spaceName, tasks, isOwner }:
       <main>
         <Grid>
           <Column size={12} className="flex justify-between items-center">
-            <Switcher onCreateTeam={() => onCreateRandomSpace()}>
-              <h1>{spaceName}</h1>
+            <Switcher>
+              <Button variant="link">Switch space</Button>
             </Switcher>
-
-            {/* <Badge variant="secondary">Free</Badge> */}
-            {isOwner && <Share spaceId={spaceId} />}
+            <Link href="/space/form" className={buttonVariants({ variant: 'link' })}>
+              Create space
+            </Link>
+          </Column>
+          <Column size={12} className="flex justify-between items-center">
+            <div className="flex justify-between items-center gap-4">
+              <h1>{spaceName}</h1>
+              {isFree ? (
+                <button
+                  disabled={redirecting}
+                  onClick={() => onUpgradeSpace(spaceId)}
+                  className={badgeVariants({ variant: 'secondary' })}
+                >
+                  {redirecting ? <Loader2 size={20} className="animate-spin" /> : 'Upgrade'}
+                </button>
+              ) : (
+                <Badge variant="secondary">{plan}</Badge>
+              )}
+            </div>
+            {isOwner && !isFree && <Share spaceId={spaceId} />}
           </Column>
           <Column size={12}>
             <TaskForm onSubmit={(values) => onAddTask(spaceId, values)} />

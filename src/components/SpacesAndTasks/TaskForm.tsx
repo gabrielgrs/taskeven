@@ -6,8 +6,8 @@ import { addDays, isSameDay } from 'date-fns'
 import { motion } from 'framer-motion'
 import { CalendarClock, Loader2 } from 'lucide-react'
 import { Button } from '~/components/ui/button'
-import { TaskSchema } from '~/lib/mongoose'
-import { maxLenth, minLength, requiredField } from '~/utils/validation'
+import { TaskSchema } from '~/libs/mongoose'
+import { maxLength, minLength, requiredField } from '~/utils/validation'
 
 type Props = {
   onCancel?: () => void
@@ -42,7 +42,11 @@ export default function TaskForm({ onSubmit: onSubmitFromParent, initialValues, 
     if (onCancel) onCancel()
   }
 
-  const titleRegister = register('title', { required: requiredField, minLength: minLength(1), maxLength: maxLenth(40) })
+  const titleRegister = register('title', {
+    required: requiredField,
+    minLength: minLength(1),
+    maxLength: maxLength(32),
+  })
   const dateController = useController({ name: 'date', control, rules: { required: requiredField } })
 
   return (

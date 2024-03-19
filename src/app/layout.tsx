@@ -5,10 +5,8 @@ import { Poppins as FontSans } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/react'
 import { SpeedInsights } from '@vercel/speed-insights/next'
 import RootProviders from '~/components/providers/Root'
-import Footer from '~/components/shared/Footer'
-import Navbar from '~/components/shared/Navbar'
 import { Toaster } from '~/components/ui/sonner'
-import { isProductionBuild } from '~/utils/env'
+import { APP_DOMAIN, APP_NAME, APP_SLOGAN } from '~/utils/constants'
 import { cn } from '~/utils/shadcn'
 
 const fontFamily = FontSans({
@@ -20,17 +18,17 @@ const fontFamily = FontSans({
 const image = 'https://taskeven.vercel.app/_next/image?url=%2Fassets%2Fthumbnail.png'
 
 const meta = {
-  title: 'Taskeven',
-  description: 'Unleash Your Potential with Personal Task Management',
+  title: APP_NAME,
+  description: APP_SLOGAN,
 } as const
 
 export const metadata: Metadata = {
   ...meta,
   title: {
-    default: 'Taskeven',
-    template: `%s - Taskeven`,
+    default: APP_NAME,
+    template: `%s - ${APP_NAME}`,
   },
-  metadataBase: new URL(isProductionBuild ? 'https://taskeven.com' : 'http://localhost:3000'),
+  metadataBase: new URL(APP_DOMAIN),
   manifest: '/manifest.json',
   openGraph: {
     ...meta,
@@ -59,9 +57,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       <body className={cn('min-h-screen bg-background font-sans antialiased', fontFamily.variable)}>
         <RootProviders>
           <Toaster richColors closeButton />
-          <Navbar />
-          <div className="px-4 mx-auto max-w-2xl py-12">{children}</div>
-          <Footer />
+          {children}
         </RootProviders>
         <SpeedInsights />
         <Analytics />

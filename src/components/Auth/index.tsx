@@ -2,7 +2,7 @@
 
 import { useForm } from 'react-hook-form'
 import Link from 'next/link'
-import { Loader2 } from 'lucide-react'
+import { ChevronLeft, Loader2 } from 'lucide-react'
 import { toast } from 'sonner'
 import { login } from '~/actions/auth'
 import { emailPattern } from '~/utils/validation'
@@ -26,8 +26,17 @@ export default function AuthUI() {
   }
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="pt-8 px-4 mx-auto max-w-sm w-full flex justify-center">
+    <form
+      onSubmit={handleSubmit(onSubmit)}
+      className="mt-[15vw] md:mt-0 md:h-screen w-full flex justify-center items-center mx-auto max-w-sm"
+    >
       <Grid>
+        <Column size={12}>
+          <Link href="/" className="flex items-center gap-2 text-foreground/40 hover:text-foreground/90 duration-500">
+            <ChevronLeft size={20} />
+            Back to home
+          </Link>
+        </Column>
         <Column size={12}>
           <h1>Welcome back! 👋</h1>
           <Description>Enter your email to receive an email</Description>

@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react'
 import { isSameDay } from 'date-fns'
-import { SpaceSchema } from '~/lib/mongoose'
+import { SpaceSchema } from '~/libs/mongoose'
 import useSpaces from '~/utils/hooks/useSpaces'
 import Column from '../shared/Column'
 import Description from '../shared/Description'
@@ -59,15 +59,7 @@ export default function FocusMode() {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant="link" className="w-max p-0">
-          {isTimerRunning ? (
-            formatTimeToShow(timerInSeconds)
-          ) : (
-            <div className="flex items-center gap-1">
-              <span>Focus</span>
-            </div>
-          )}
-        </Button>
+        <Button variant="link">{isTimerRunning ? formatTimeToShow(timerInSeconds) : 'Focus mode'}</Button>
       </DialogTrigger>
       <DialogContent>
         <Grid>

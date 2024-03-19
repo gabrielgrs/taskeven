@@ -30,7 +30,7 @@ export const minLength = (quantity: number): Validation => ({
   value: quantity,
 })
 
-export const maxLenth = (quantity: number): Validation => ({
+export const maxLength = (quantity: number): Validation => ({
   message: `Max de ${quantity} characters`,
   value: quantity,
 })

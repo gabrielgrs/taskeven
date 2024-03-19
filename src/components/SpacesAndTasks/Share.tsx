@@ -13,8 +13,13 @@ export default function Share({ spaceId }: { spaceId: string }) {
   const [shareLink, setShareLink] = useState('')
 
   const onPressToShare = async () => {
-    const shareToken = await generateShareLink(spaceId)
-    setShareLink(`${window.location.origin}/invite?inviteToken=${shareToken}`)
+    try {
+      const shareToken = await generateShareLink(spaceId)
+      setShareLink(`${window.location.origin}/invite?inviteToken=${shareToken}`)
+    } catch (error) {
+      if (error instanceof Error) toast.error(error.message)
+      toast.error('Something went wrong')
+    }
   }
 
   return (

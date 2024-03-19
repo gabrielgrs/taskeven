@@ -1,9 +1,10 @@
 'use server'
 
 import { cookies } from 'next/headers'
-import { createToken, decodeToken } from '~/lib/jwt'
-import schemas, { UserSchema } from '~/lib/mongoose'
-import { resend } from '~/lib/resend'
+import { createToken } from '~/libs/jose'
+import schemas, { UserSchema } from '~/libs/mongoose'
+import { resend } from '~/libs/resend'
+import { getTokenData } from '~/utils/auth'
 import { parseObject } from './helpers'
 import { getDomain } from './helpers/server'
 
@@ -15,9 +16,9 @@ export async function findUserOrCreate(email: string, values: Partial<UserSchema
 }
 
 export async function login(email: string) {
-  const { _id } = await findUserOrCreate(email)
+  const { _id, role } = await findUserOrCreate(email)
 
-  const token = createToken({ _id })
+  const token = await createToken({ _id, email, role })
 
   await resend.emails.send({
     to: [email],
@@ -30,11 +31,10 @@ export async function login(email: string) {
 }
 
 export async function getAuthenticatedUser() {
-  const token = cookies().get('token')?.value
-  if (!token) return null
-  const { _id } = await decodeToken(token)
+  const decodedToken = await getTokenData()
+  if (!decodedToken) return null
 
-  const user = await schemas.user.findOne({ _id })
+  const user = await schemas.user.findOne({ _id: decodedToken._id })
   return parseObject(user)
 }
 

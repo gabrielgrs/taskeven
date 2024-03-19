@@ -5,7 +5,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { getSpacesByUserIdentifier, insertSpace, removeSpace, updateSpace } from '~/actions/space'
 import { insertTask, removeTask, updateTask } from '~/actions/task'
-import { SpaceSchema, TaskSchema } from '~/lib/mongoose'
+import { SpaceSchema, TaskSchema } from '~/libs/mongoose'
 
 export default function useSpaces() {
   const queryClient = useQueryClient()
@@ -24,7 +24,7 @@ export default function useSpaces() {
 
   const onFallbackError = useCallback(
     (error: any) => {
-      toast.error('Something went wrong. We will retrieve the data from the server.')
+      toast.error(error.message || 'Something went wrong. We will retrieve the data from the server.')
       // sendErrorEmail(error?.toString?.())
       onRefetch()
       return error
@@ -33,9 +33,9 @@ export default function useSpaces() {
   )
 
   const onAddSpace = useCallback(
-    async (name: string) => {
+    async (name: string, slug: string) => {
       try {
-        const createdSpace = await insertSpace(name)
+        const createdSpace = await insertSpace(name, slug)
         toast.success('Space created!')
         onRefetch()
         return Promise.resolve(createdSpace)
@@ -85,7 +85,7 @@ export default function useSpaces() {
         return Promise.resolve(createdTask)
       } catch (error) {
         onFallbackError(error)
-        return Promise.reject(error)
+        // return Promise.reject(error)
       }
     },
     [onFallbackError, onRefetch],

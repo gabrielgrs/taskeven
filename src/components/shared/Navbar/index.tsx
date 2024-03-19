@@ -1,7 +1,9 @@
 'use client'
 
+import { useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import { Loader2 } from 'lucide-react'
 import { logout } from '~/actions/auth'
 import FocusMode from '~/components/FocusMode'
 import { Button, buttonVariants } from '~/components/ui/button'
@@ -9,34 +11,46 @@ import { Skeleton } from '~/components/ui/skeleton'
 import useAuth from '~/utils/hooks/useAuth'
 import Logo from '../Logo'
 
-export default function Navbar() {
+type Props = {}
+
+function Items({}: Props) {
+  const [redirecting, setRedirecting] = useState(false)
   const { user, isLoading } = useAuth()
+  const isAuthenticated = Boolean(user)
   const pathname = usePathname()
 
+  if (pathname === '/auth') return null
+
+  if (isLoading) return <Skeleton className="h-8 w-28" />
+
+  if (isAuthenticated) {
+    return (
+      <>
+        <FocusMode />
+        <Link href="/spaces" className={buttonVariants({ variant: 'link' })}>
+          Spaces
+        </Link>
+        <form action={() => logout().then(() => (window.location.href = '/'))}>
+          <Button variant="link">Logout</Button>
+        </form>
+      </>
+    )
+  }
+
   return (
-    <header className="flex justify-between md:grid md:grid-cols-3 px-2 md:px-4 items-center gap-4 h-20 z-50 backdrop-blur-md sticky top-0">
+    <Link href="/auth" onClick={() => setRedirecting(true)} className={buttonVariants({ variant: 'link' })}>
+      {redirecting ? <Loader2 size={20} className="animate-spin" /> : 'Login'}
+    </Link>
+  )
+}
+
+export default function Navbar() {
+  return (
+    <header className="flex justify-between px-2 items-center gap-4 h-20 z-50 backdrop-blur-md sticky top-0">
       <Logo />
-
-      <div className="justify-self-center">{user && <FocusMode />}</div>
-
-      <div className="w-max justify-self-end items-center flex gap-2">
-        {isLoading && <Skeleton className="h-8 w-20" />}
-        {user && (
-          <Link href="/space" className={buttonVariants({ variant: 'link' })}>
-            Spaces
-          </Link>
-        )}
-        {!isLoading && !user && !pathname.includes('/auth') && (
-          <Link href="/auth" className={buttonVariants({ variant: 'link' })}>
-            Login
-          </Link>
-        )}
-        {!isLoading && user && (
-          <form action={() => logout().then(() => (window.location.href = '/'))}>
-            <Button variant="link">Logout</Button>
-          </form>
-        )}
-      </div>
+      <nav className="h-full flex items-center">
+        <Items />
+      </nav>
     </header>
   )
 }

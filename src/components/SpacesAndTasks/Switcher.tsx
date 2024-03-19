@@ -3,18 +3,15 @@
 import { ReactNode, useState } from 'react'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
-import { Plus } from 'lucide-react'
-import { Command, CommandList, CommandSeparator } from '~/components/ui/command'
+import { Command, CommandList } from '~/components/ui/command'
 import { Popover, PopoverContent, PopoverTrigger } from '~/components/ui/popover'
 import useSpaces from '~/utils/hooks/useSpaces'
-import { Button } from '../ui/button'
 
 type Props = {
   children: ReactNode
-  onCreateTeam: () => void
 }
 
-export default function Switcher({ children, onCreateTeam }: Props) {
+export default function Switcher({ children }: Props) {
   const [open, setOpen] = useState(false)
   const { slug } = useParams()
 
@@ -22,14 +19,7 @@ export default function Switcher({ children, onCreateTeam }: Props) {
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild className="cursor-pointer flex flex-col">
-        <div>
-          <Button className="text-sm p-0 h-max text-left w-max" variant="link">
-            Switch
-          </Button>
-          {children}
-        </div>
-      </PopoverTrigger>
+      <PopoverTrigger>{children}</PopoverTrigger>
       <PopoverContent className="w-[200px] p-0">
         <Command>
           <CommandList>
@@ -49,13 +39,6 @@ export default function Switcher({ children, onCreateTeam }: Props) {
                 </Link>
               ))}
             </div>
-          </CommandList>
-          <CommandSeparator />
-          <CommandList>
-            <Button size="sm" variant="ghost" className="w-full" onClick={() => onCreateTeam()}>
-              Create Team
-              <Plus size={16} />
-            </Button>
           </CommandList>
         </Command>
       </PopoverContent>

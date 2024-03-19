@@ -1,4 +1,5 @@
 import { Model, Schema, model, models } from 'mongoose'
+import { PlanName } from '~/utils/constants/types'
 import { SpaceSchema } from './types'
 
 const schema = new Schema<SpaceSchema>(
@@ -19,11 +20,17 @@ const schema = new Schema<SpaceSchema>(
       type: String,
       required: true,
     },
+    plan: {
+      type: String,
+      enum: ['FREE', 'PLUS'] satisfies PlanName[],
+      default: 'FREE',
+    },
     tasks: {
       type: [
         {
           title: { type: String, required: true },
           completed: { type: Boolean, default: false },
+          // text: { type: String, required: false },
           date: { type: Date, required: false },
           createdAt: { type: Date, default: Date.now },
         },

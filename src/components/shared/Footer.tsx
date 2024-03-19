@@ -2,12 +2,18 @@
 
 import { useTheme } from 'next-themes'
 import { Mail, Moon, Sun } from 'lucide-react'
+import { cn } from '~/utils/shadcn'
 
-export default function Footer() {
+export default function Footer({ className }: { className?: string }) {
   const { theme, setTheme } = useTheme()
 
   return (
-    <footer className="absolute flex w-full gap-4 justify-between left-0 bottom-0 p-2 text-sm text-muted-foreground/50 bakcdrop-blur-sm">
+    <footer
+      className={cn(
+        'fixed flex w-full gap-4 justify-between left-0 bottom-0 p-2 text-sm text-muted-foreground/50 bakcdrop-blur-sm',
+        className,
+      )}
+    >
       <a href="https://github.com/gabrielgrs" target="_blank">
         Made with love by <span className="text-foreground opacity-70">gabrielgrs</span>
       </a>

@@ -1,9 +1,18 @@
 import { Model, Schema, model, models } from 'mongoose'
-import { UserSchema } from './types'
+import { Role as UserRole, UserSchema } from './types'
 
 const schema = new Schema<UserSchema>(
   {
-    email: { type: String, required: true, unique: true },
+    email: {
+      type: String,
+      required: true,
+      unique: true,
+    },
+    role: {
+      type: String,
+      enum: ['USER', 'ADMIN'] as UserRole[],
+      default: 'USER',
+    },
   },
   {
     timestamps: { createdAt: 'createdAt', updatedAt: 'updatedAt' },
