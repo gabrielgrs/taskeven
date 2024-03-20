@@ -5,6 +5,8 @@ import { Poppins as FontSans } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/react'
 import { SpeedInsights } from '@vercel/speed-insights/next'
 import RootProviders from '~/components/providers/Root'
+import Footer from '~/components/shared/Footer'
+import Navbar from '~/components/shared/Navbar'
 import { Toaster } from '~/components/ui/sonner'
 import { APP_DOMAIN, APP_NAME, APP_SLOGAN } from '~/utils/constants'
 import { cn } from '~/utils/shadcn'
@@ -57,7 +59,9 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       <body className={cn('min-h-screen bg-background font-sans antialiased', fontFamily.variable)}>
         <RootProviders>
           <Toaster richColors closeButton />
-          {children}
+          <Navbar />
+          <div className="mx-auto max-w-xl">{children}</div>
+          <Footer className="px-4 bg-background/80 backdrop-blur-sm" />
         </RootProviders>
         <SpeedInsights />
         <Analytics />

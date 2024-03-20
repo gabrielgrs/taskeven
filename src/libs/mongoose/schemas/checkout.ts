@@ -4,8 +4,7 @@ import { CheckoutSchema } from './types'
 const schema = new Schema<CheckoutSchema>(
   {
     payer: {
-      type: Schema.Types.ObjectId,
-      ref: 'User',
+      type: String,
       required: true,
     },
     status: {

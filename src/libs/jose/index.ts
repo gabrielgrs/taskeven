@@ -1,7 +1,6 @@
 import * as jose from 'jose'
-import { UserSchema } from '../mongoose'
 
-export type TokenData = Pick<UserSchema, '_id' | 'email' | 'role'>
+export type TokenData = { email: string }
 
 export const decodeToken = async (token: string) => {
   return jose

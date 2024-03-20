@@ -31,7 +31,7 @@ export default function Tasks() {
       spaceName={found.name}
       tasks={found.tasks}
       plan={found.plan}
-      isOwner={user?._id === found.createdBy}
+      isOwner={user?.email === found.createdBy}
     />
   )
 }

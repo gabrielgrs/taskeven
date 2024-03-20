@@ -1,6 +1,7 @@
 'use client'
 
 import { useCallback } from 'react'
+import { useParams } from 'next/navigation'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { getSpacesByUserIdentifier, insertSpace, removeSpace, updateSpace } from '~/actions/space'
@@ -9,6 +10,7 @@ import { SpaceSchema, TaskSchema } from '~/libs/mongoose'
 
 export default function useSpaces() {
   const queryClient = useQueryClient()
+  const { slug } = useParams()
 
   const { data: spaces = [], isLoading } = useQuery({
     queryKey: ['spaces'],
@@ -122,8 +124,11 @@ export default function useSpaces() {
     [onFallbackError, onRefetch],
   )
 
+  const currentSpace = spaces.find((space) => space.slug === slug)
+
   return {
     spaces,
+    currentSpace,
     isLoading,
     onAddSpace,
     onUpdateSpace,

@@ -12,10 +12,6 @@ const schema = new Schema<SpaceSchema>(
       type: String,
       required: true,
     },
-    members: {
-      type: [String],
-      default: [],
-    },
     createdBy: {
       type: String,
       required: true,

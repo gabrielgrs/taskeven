@@ -1,29 +1,39 @@
 'use server'
 
+import { randomUUID } from 'crypto'
 import { ClientSession } from 'mongoose'
+import slugify from 'slugify'
 import schemas, { connectDatabase } from '~/libs/mongoose'
 import stripeClient from '~/libs/stripe'
 import { PlanName } from '~/utils/constants/types'
-import { getAuthenticatedUser } from '../auth'
+import { formatToSlug } from '~/utils/formattars'
+import { getTokenData } from '../auth'
 import { parseObject } from '../helpers'
 import { getDomain } from '../helpers/server'
 
-export async function createCheckout(priceId: string, spaceId: string) {
-  const authenticatedUser = await getAuthenticatedUser()
-  if (!authenticatedUser) throw Error('Unauthorized access')
+const createSlug = (name: string) => slugify(`${name}-${randomUUID()}`, { lower: true, trim: true })
+
+export async function createCheckout(priceId: string, spaceId?: string) {
+  const user = await getTokenData()
+  if (!user) throw Error('Unauthorized access')
+
+  const createdSpace = await schemas.space.create({
+    name: 'Personal Space',
+    slug: formatToSlug(createSlug('Personal Space')),
+  })
 
   const {
     url,
     id: checkoutId,
     amount_total,
   } = await stripeClient.checkout.sessions.create({
-    success_url: `${getDomain()}/checkout?spaceId=${spaceId}&type=success&checkoutSessionId={CHECKOUT_SESSION_ID}`,
+    success_url: `${getDomain()}/checkout?spaceId=${spaceId || createdSpace._id}&type=success&checkoutSessionId={CHECKOUT_SESSION_ID}`,
     mode: 'payment',
     line_items: [{ price: priceId, quantity: 1 }],
   })
 
   const checkout = await schemas.checkout.create({
-    payer: authenticatedUser._id,
+    payer: user.email,
     status: 'PENDING',
     checkoutId,
     price: amount_total,
@@ -47,8 +57,8 @@ export async function checkoutSuccess(checkoutSessionId: string, spaceId: string
   // let stripeCheckoutId: string | null = null
 
   try {
-    const authenticatedUser = await getAuthenticatedUser()
-    if (!authenticatedUser) throw Error('Unauthorized access')
+    const tokenData = await getTokenData()
+    if (!tokenData) throw Error('Unauthorized access')
 
     const databaseConnection = await connectDatabase()
     session = await databaseConnection.startSession()

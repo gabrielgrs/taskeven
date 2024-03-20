@@ -15,7 +15,6 @@ import { useQueryParams } from '~/utils/hooks/useQueryParams'
 import useSpaces from '~/utils/hooks/useSpaces'
 import { Badge, badgeVariants } from '../ui/badge'
 import { Button, buttonVariants } from '../ui/button'
-import Share from './Share'
 import Switcher from './Switcher'
 import TaskCard from './TaskCard'
 import TaskForm from './TaskForm'
@@ -32,7 +31,7 @@ const filterTypes = ['All', 'Completed', 'Uncompleted'] as const
 
 type FilterType = (typeof filterTypes)[number]
 
-export default function SpacesAndTasksUI({ spaceId, spaceName, tasks, isOwner, plan }: Props) {
+export default function SpacesAndTasksUI({ spaceId, spaceName, tasks, plan }: Props) {
   const [filterQuery, setFilterQuery] = useQueryParams<FilterType>('filter', 'All')
   const [redirecting, setRedirecting] = useState(false)
   const isFree = plan === 'FREE'
@@ -68,21 +67,18 @@ export default function SpacesAndTasksUI({ spaceId, spaceName, tasks, isOwner, p
             </Link>
           </Column>
           <Column size={12} className="flex justify-between items-center">
-            <div className="flex justify-between items-center gap-4">
-              <h1>{spaceName}</h1>
-              {isFree ? (
-                <button
-                  disabled={redirecting}
-                  onClick={() => onUpgradeSpace(spaceId)}
-                  className={badgeVariants({ variant: 'secondary' })}
-                >
-                  {redirecting ? <Loader2 size={20} className="animate-spin" /> : 'Upgrade'}
-                </button>
-              ) : (
-                <Badge variant="secondary">{plan}</Badge>
-              )}
-            </div>
-            {isOwner && !isFree && <Share spaceId={spaceId} />}
+            <h1>{spaceName}</h1>
+            {isFree ? (
+              <button
+                disabled={redirecting}
+                onClick={() => onUpgradeSpace(spaceId)}
+                className={badgeVariants({ variant: 'secondary' })}
+              >
+                {redirecting ? <Loader2 size={20} className="animate-spin" /> : 'Upgrade'}
+              </button>
+            ) : (
+              <Badge variant="secondary">{plan}</Badge>
+            )}
           </Column>
           <Column size={12}>
             <TaskForm onSubmit={(values) => onAddTask(spaceId, values)} />

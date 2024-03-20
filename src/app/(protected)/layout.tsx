@@ -1,13 +1,10 @@
 import { ReactNode } from 'react'
-import Footer from '~/components/shared/Footer'
-import Navbar from '~/components/shared/Navbar'
+import { redirect } from 'next/navigation'
+import { getTokenData } from '~/actions/auth'
 
-export default function PublicLayout({ children }: { children: ReactNode }) {
-  return (
-    <>
-      <Navbar />
-      <div className="mx-auto max-w-xl">{children}</div>
-      <Footer className="px-4 bg-background/80 backdrop-blur-sm" />
-    </>
-  )
+export default async function PublicLayout({ children }: { children: ReactNode }) {
+  const user = await getTokenData()
+  if (!user) return redirect('/logout')
+
+  return <>{children}</>
 }

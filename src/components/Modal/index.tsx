@@ -16,7 +16,7 @@ export type ModalProps = {
 function Content({ title, description, children }: Pick<ModalProps, 'title' | 'description' | 'children'>) {
   return (
     <>
-      <div className="bg-card py-8 px-6 rounded-t-lg">
+      <div className="py-8 px-6 rounded-t-lg bg-muted-foreground/5">
         <h1 className="text-3xl font-normal">{title}</h1>
         {description && <p className="text-muted-foreground pt-2 underline-offset-4">{description}</p>}
       </div>
