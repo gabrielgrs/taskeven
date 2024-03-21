@@ -32,12 +32,10 @@ const filterTypes = ['All', 'Completed', 'Uncompleted'] as const
 
 type FilterType = (typeof filterTypes)[number]
 
-export default function SpacesAndTasksUI({ spaceId, spaceName, tasks, isPaid }: Props) {
-  const [filterQuery, setFilterQuery] = useQueryParams<FilterType>('filter', 'All')
-  const [redirecting, setRedirecting] = useState(false)
-
-  const { onAddTask, onRemoveTask, onUpdateTask } = useSpaces()
+function Status({ isPaid = false }) {
   const { user } = useAuth()
+  const [redirecting, setRedirecting] = useState(false)
+  const { currentSpace } = useSpaces()
 
   const onUpgradeSpace = async (spaceId: string) => {
     try {
@@ -52,6 +50,52 @@ export default function SpacesAndTasksUI({ spaceId, spaceName, tasks, isPaid }: 
       setRedirecting(false)
     }
   }
+
+  if (!user) {
+    return (
+      <TooltipProvider delayDuration={100}>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Link
+              href="/auth"
+              onClick={() => setRedirecting(true)}
+              className={badgeVariants({ variant: 'destructive' })}
+            >
+              {redirecting ? <Loader2 size={20} className="animate-spin" /> : 'Offline'}
+            </Link>
+          </TooltipTrigger>
+          <TooltipContent>Login to sync space</TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
+    )
+  }
+
+  if (!isPaid)
+    return (
+      <TooltipProvider delayDuration={100}>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <button
+              disabled={redirecting || !user}
+              onClick={() => onUpgradeSpace(currentSpace!._id)}
+              className={badgeVariants({ variant: 'secondary' })}
+            >
+              {redirecting ? <Loader2 size={20} className="animate-spin" /> : 'Upgrade'}
+            </button>
+          </TooltipTrigger>
+          <TooltipContent>{user ? <p>Upgrade your account</p> : <p>Login to sync space</p>}</TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
+    )
+
+  return <Badge variant="secondary">Plus</Badge>
+}
+
+export default function SpacesAndTasksUI({ spaceId, spaceName, tasks, isPaid }: Props) {
+  const [filterQuery, setFilterQuery] = useQueryParams<FilterType>('filter', 'All')
+
+  const { onAddTask, onRemoveTask, onUpdateTask } = useSpaces()
+  const { user } = useAuth()
 
   return (
     <main className="pt-8">
@@ -71,24 +115,7 @@ export default function SpacesAndTasksUI({ spaceId, spaceName, tasks, isPaid }: 
           )}
           <Column size={12} className="flex justify-between items-center">
             <h1>{spaceName}</h1>
-            {!isPaid ? (
-              <TooltipProvider delayDuration={100}>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <button
-                      disabled={redirecting || !user}
-                      onClick={() => onUpgradeSpace(spaceId)}
-                      className={badgeVariants({ variant: 'secondary' })}
-                    >
-                      {redirecting ? <Loader2 size={20} className="animate-spin" /> : 'Upgrade'}
-                    </button>
-                  </TooltipTrigger>
-                  <TooltipContent>{user ? <p>Upgrade your account</p> : <p>Login to sync space</p>}</TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            ) : (
-              <Badge variant="secondary">Plus</Badge>
-            )}
+            <Status isPaid={isPaid} />
           </Column>
           <Column size={12}>
             <TaskForm onSubmit={(values) => onAddTask(spaceId, values)} />
