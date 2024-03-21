@@ -1,26 +1,8 @@
-'use client'
-
 import { redirect } from 'next/navigation'
-import { Skeleton } from '~/components/ui/skeleton'
-import useSpaces from '~/utils/hooks/useSpaces'
+import { getSpacesByUserIdentifier } from '~/actions/space'
 
-export default function Home() {
-  const { isLoading, spaces = [] } = useSpaces()
+export default async function Home() {
+  const spaces = await getSpacesByUserIdentifier()
 
-  if (isLoading) {
-    if (spaces.length === 0) {
-      return (
-        <div className="flex flex-col gap-4">
-          <Skeleton className="w-full h-12" />
-          <Skeleton className="w-full h-16" />
-          <Skeleton className="w-full h-20" />
-          <Skeleton className="w-full h-20" />
-        </div>
-      )
-    }
-  }
-
-  const [space] = spaces
-
-  return redirect(space.slug)
+  return redirect(spaces[0].slug)
 }
