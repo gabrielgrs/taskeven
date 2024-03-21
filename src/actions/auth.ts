@@ -6,6 +6,12 @@ import { resend } from '~/libs/resend'
 import AuthEmail from '../../emails/auth'
 import { getDomain } from './helpers/server'
 
+export async function getMyIP() {
+  return fetch('https://api.ipify.org?format=json')
+    .then((res) => res.json())
+    .then((res) => res.ip)
+}
+
 export async function getTokenData() {
   return decodeToken(cookies().get('token')?.value!)
 }

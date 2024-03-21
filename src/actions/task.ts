@@ -1,7 +1,6 @@
 'use server'
 
 import schemas, { TaskSchema } from '~/libs/mongoose'
-import { PLANS } from '~/utils/constants'
 import { parseObject } from './helpers'
 
 export async function getSpaceById(spaceId: string) {
@@ -37,15 +36,10 @@ export async function insertTask(spaceId: string, taskData: Partial<TaskSchema>)
 
   if (!space) throw Error('Not found')
 
-  const { tasksInProject } = PLANS[space.plan]
-
-  if (space.tasks.length >= tasksInProject) throw Error('Tasks limit reached')
-  // if (taskData.text && taskData.text.length >= textLength) throw Error('Text limit reached')
+  if (!space.isPaid && space.tasks.length >= 5) throw Error('Tasks limit reached. Upgrade to continue')
 
   const updatedSpace = await schemas.space.findOneAndUpdate(
-    {
-      _id: spaceId,
-    },
+    { _id: spaceId },
     { $push: { tasks: { ...taskData } } },
     { new: true },
   )

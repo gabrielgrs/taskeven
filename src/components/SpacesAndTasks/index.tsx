@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import { TooltipContent } from '@radix-ui/react-tooltip'
 import { AnimatePresence, motion } from 'framer-motion'
 import { Filter, Loader2 } from 'lucide-react'
 import { toast } from 'sonner'
@@ -10,11 +11,12 @@ import { getPrices } from '~/actions/services/stripe'
 import Column from '~/components/shared/Column'
 import Grid from '~/components/shared/Grid'
 import { TaskSchema } from '~/libs/mongoose'
-import { PlanName } from '~/utils/constants/types'
+import useAuth from '~/utils/hooks/useAuth'
 import { useQueryParams } from '~/utils/hooks/useQueryParams'
 import useSpaces from '~/utils/hooks/useSpaces'
 import { Badge, badgeVariants } from '../ui/badge'
 import { Button, buttonVariants } from '../ui/button'
+import { Tooltip, TooltipProvider, TooltipTrigger } from '../ui/tooltip'
 import Switcher from './Switcher'
 import TaskCard from './TaskCard'
 import TaskForm from './TaskForm'
@@ -23,28 +25,25 @@ type Props = {
   spaceId: string
   spaceName: string
   tasks: TaskSchema[]
-  isOwner: boolean
-  plan: PlanName
+  isPaid: boolean
 }
 
 const filterTypes = ['All', 'Completed', 'Uncompleted'] as const
 
 type FilterType = (typeof filterTypes)[number]
 
-export default function SpacesAndTasksUI({ spaceId, spaceName, tasks, plan }: Props) {
+export default function SpacesAndTasksUI({ spaceId, spaceName, tasks, isPaid }: Props) {
   const [filterQuery, setFilterQuery] = useQueryParams<FilterType>('filter', 'All')
   const [redirecting, setRedirecting] = useState(false)
-  const isFree = plan === 'FREE'
 
   const { onAddTask, onRemoveTask, onUpdateTask } = useSpaces()
+  const { user } = useAuth()
 
   const onUpgradeSpace = async (spaceId: string) => {
     try {
       setRedirecting(true)
       const prices = await getPrices()
-      // TODO
-      const priceId = prices.find((x) => x.nickname?.toUpperCase() === ('PLUS' satisfies PlanName))?.id!
-      const url = await createCheckout(priceId, spaceId)
+      const url = await createCheckout(prices[0].id, spaceId)
       window.open(url)
       toast.success('Redirecting you to checkout page!')
     } catch {
@@ -55,29 +54,40 @@ export default function SpacesAndTasksUI({ spaceId, spaceName, tasks, plan }: Pr
   }
 
   return (
-    <AnimatePresence>
-      <main>
+    <main className="pt-8">
+      <AnimatePresence>
         <Grid>
-          <Column size={12} className="flex justify-between items-center">
-            <Switcher>
-              <Button variant="link">Switch space</Button>
-            </Switcher>
-            <Link href="/space/form" className={buttonVariants({ variant: 'link' })}>
-              Create space
-            </Link>
-          </Column>
+          {user && (
+            <>
+              <Column size={12} className="flex justify-between items-center">
+                <Switcher>
+                  <Button variant="link">Switch space</Button>
+                </Switcher>
+                <Link href="/space/form" className={buttonVariants({ variant: 'link' })}>
+                  Create space
+                </Link>
+              </Column>
+            </>
+          )}
           <Column size={12} className="flex justify-between items-center">
             <h1>{spaceName}</h1>
-            {isFree ? (
-              <button
-                disabled={redirecting}
-                onClick={() => onUpgradeSpace(spaceId)}
-                className={badgeVariants({ variant: 'secondary' })}
-              >
-                {redirecting ? <Loader2 size={20} className="animate-spin" /> : 'Upgrade'}
-              </button>
+            {!isPaid ? (
+              <TooltipProvider delayDuration={100}>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button
+                      disabled={redirecting || !user}
+                      onClick={() => onUpgradeSpace(spaceId)}
+                      className={badgeVariants({ variant: 'secondary' })}
+                    >
+                      {redirecting ? <Loader2 size={20} className="animate-spin" /> : 'Upgrade'}
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent>{user ? <p>Upgrade your account</p> : <p>Login to sync space</p>}</TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
             ) : (
-              <Badge variant="secondary">{plan}</Badge>
+              <Badge variant="secondary">Plus</Badge>
             )}
           </Column>
           <Column size={12}>
@@ -122,7 +132,7 @@ export default function SpacesAndTasksUI({ spaceId, spaceName, tasks, plan }: Pr
                       key={`card_${task._id}`}
                       title={task.title}
                       completed={task.completed}
-                      date={task.date}
+                      reminderDate={task.reminderDate}
                       onRemoveTask={() => onRemoveTask(spaceId, task._id)}
                       onCompleteTask={(completed) => onUpdateTask(spaceId, task._id, { completed })}
                     />
@@ -131,7 +141,7 @@ export default function SpacesAndTasksUI({ spaceId, spaceName, tasks, plan }: Pr
             </div>
           </Column>
         </Grid>
-      </main>
-    </AnimatePresence>
+      </AnimatePresence>
+    </main>
   )
 }

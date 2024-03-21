@@ -11,15 +11,10 @@ import { Skeleton } from '~/components/ui/skeleton'
 import useAuth from '~/utils/hooks/useAuth'
 import Logo from '../Logo'
 
-type Props = {}
-
-function Items({}: Props) {
+function Items() {
   const [redirecting, setRedirecting] = useState(false)
   const { user, isLoading } = useAuth()
   const isAuthenticated = Boolean(user)
-  const pathname = usePathname()
-
-  if (pathname === '/auth') return null
 
   if (isLoading) return <Skeleton className="h-8 w-28" />
 
@@ -27,9 +22,6 @@ function Items({}: Props) {
     return (
       <>
         <FocusMode />
-        <Link href="/spaces" className={buttonVariants({ variant: 'link' })}>
-          Spaces
-        </Link>
         <form action={() => logout().then(() => (window.location.href = '/'))}>
           <Button variant="link">Logout</Button>
         </form>
@@ -45,6 +37,10 @@ function Items({}: Props) {
 }
 
 export default function Navbar() {
+  const pathname = usePathname()
+
+  if (pathname.includes('/auth')) return null
+
   return (
     <header className="flex justify-between px-2 items-center gap-4 h-20 z-50 backdrop-blur-md sticky top-0">
       <Logo />

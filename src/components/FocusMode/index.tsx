@@ -42,7 +42,9 @@ export default function FocusMode() {
 
   const todayTasks = useMemo(() => {
     return spaces.reduce((acc: SpaceSchema[], curr) => {
-      const tasks = curr.tasks.filter((x) => !x.completed && x.date && isSameDay(new Date(), new Date(x.date)))
+      const tasks = curr.tasks.filter(
+        (x) => !x.completed && x.reminderDate && isSameDay(new Date(), new Date(x.reminderDate)),
+      )
 
       if (tasks.length > 0) acc.push({ ...curr, tasks })
       return acc

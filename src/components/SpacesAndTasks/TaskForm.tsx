@@ -17,11 +17,11 @@ type Props = {
 
 const defaultValues: Partial<TaskSchema> = {
   title: '',
-  date: undefined,
+  reminderDate: undefined,
 }
 
 function getInitialValues(iinitialValues: Partial<TaskSchema> = {}) {
-  const defaultValues: Partial<TaskSchema> = { title: '', date: undefined }
+  const defaultValues: Partial<TaskSchema> = { title: '', reminderDate: undefined }
   return { ...defaultValues, ...iinitialValues }
 }
 
@@ -37,7 +37,7 @@ export default function TaskForm({ onSubmit: onSubmitFromParent, initialValues, 
 
   const onSubmit = async (values: typeof defaultValues) => {
     await onSubmitFromParent(values)
-    reset({ title: '', date: undefined })
+    reset({ title: '', reminderDate: undefined })
     setFocused(false)
     if (onCancel) onCancel()
   }
@@ -47,7 +47,7 @@ export default function TaskForm({ onSubmit: onSubmitFromParent, initialValues, 
     minLength: minLength(1),
     maxLength: maxLength(32),
   })
-  const dateController = useController({ name: 'date', control, rules: { required: requiredField } })
+  const dateController = useController({ name: 'reminderDate', control, rules: { required: requiredField } })
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>

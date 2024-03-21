@@ -46,7 +46,7 @@ export default function AuthUI() {
           <Input
             {...register('email', { required: true, pattern: emailPattern })}
             disabled={formState.isSubmitting}
-            placeholder="johndoe@gmail.com"
+            placeholder="johndoe@email.com"
           />
         </Column>
         <Column size={12}>

@@ -4,10 +4,10 @@ import SpacesAndTasksUI from '~/components/SpacesAndTasks'
 import { Skeleton } from '~/components/ui/skeleton'
 import useSpaces from '~/utils/hooks/useSpaces'
 
-export default function Tasks() {
+export default function Home() {
   const { isLoading, currentSpace } = useSpaces()
 
-  if (isLoading)
+  if (isLoading) {
     return (
       <div className="flex flex-col gap-4">
         <Skeleton className="w-full h-12" />
@@ -16,15 +16,16 @@ export default function Tasks() {
         <Skeleton className="w-full h-20" />
       </div>
     )
+  }
 
-  if (!currentSpace) return <h1 className="text-center">Space not found</h1>
+  if (!currentSpace) throw Error('Invalid')
 
   return (
     <SpacesAndTasksUI
+      isPaid={currentSpace.isPaid}
+      tasks={currentSpace.tasks}
       spaceId={currentSpace._id}
       spaceName={currentSpace.name}
-      tasks={currentSpace.tasks}
-      isPaid={currentSpace.isPaid}
     />
   )
 }

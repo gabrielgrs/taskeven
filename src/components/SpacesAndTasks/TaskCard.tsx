@@ -10,10 +10,10 @@ type Props = {
   onCompleteTask: (completed: boolean) => void
   onRemoveTask: () => void
   title: string
-  date: Date
+  reminderDate: Date
 }
 
-export default function TaskCard({ completed, title, date, onRemoveTask, onCompleteTask }: Props) {
+export default function TaskCard({ completed, title, reminderDate, onRemoveTask, onCompleteTask }: Props) {
   return (
     <motion.div
       initial={{ opacity: 0, translateX: '-100%' }}
@@ -36,7 +36,9 @@ export default function TaskCard({ completed, title, date, onRemoveTask, onCompl
           >
             {title}
           </label>
-          {date && <span className="text-sm text-foreground/50">{format(new Date(date), 'MM/dd/yyyy')}</span>}
+          {reminderDate && (
+            <span className="text-sm text-foreground/50">{format(new Date(reminderDate), 'MM/dd/yyyy')}</span>
+          )}
         </div>
 
         <div className="flex gap-2 items-center">
