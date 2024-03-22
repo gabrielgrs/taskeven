@@ -11,7 +11,12 @@ export const APP_SLOGAN = 'Unleash Your Potential with Personal Task Management'
 export const APP_DOMAIN = isProductionBuild ? 'https://taskeven.com' : `http://localhost:3000`
 
 export const PLANS: Record<PlanName, Plan> = {
-  PRO: {
+  PLUS: {
     price: 3_99,
+    maxTasks: 20,
+  },
+  FREE: {
+    price: 0,
+    maxTasks: 5,
   },
 } as const

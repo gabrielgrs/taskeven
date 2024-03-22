@@ -1,5 +1,6 @@
 export type Plan = {
   price: number
+  maxTasks: number
 }
 
-export type PlanName = 'PRO'
+export type PlanName = 'FREE' | 'PLUS'

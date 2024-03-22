@@ -22,6 +22,9 @@ function Items() {
     return (
       <>
         <FocusMode />
+        <Link href="/spaces" className={buttonVariants({ variant: 'link' })}>
+          Spaces
+        </Link>
         <form action={() => logout().then(() => (window.location.href = '/'))}>
           <Button variant="link">Logout</Button>
         </form>

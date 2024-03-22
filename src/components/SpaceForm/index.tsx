@@ -10,6 +10,8 @@ import Column from '~/components/shared/Column'
 import Grid from '~/components/shared/Grid'
 import { Button } from '~/components/ui/button'
 import { Input } from '~/components/ui/input'
+import { PLANS } from '~/utils/constants'
+import { PlanName } from '~/utils/constants/types'
 import { formatCurrency, formatToSlug } from '~/utils/formattars'
 import { cn } from '~/utils/shadcn'
 import { maxLength, minLength, requiredField } from '~/utils/validation'
@@ -105,8 +107,13 @@ export default function SpaceFormUI({ prices }: Props) {
                 <span className="absolute flex justify-center items-center -bottom-2 px-2 rounded-full -right-4 bg-background text-primary border-primary/50 border-[1px]">
                   {price.nickname}
                 </span>
-                <div className="flex justify-between w-full">
+                <div className="flex justify-start gap-8 w-full">
                   <p className="font-thin font-mono text-primary text-4xl">{totalPrice}</p>
+                  <ul className="text-sm text-muted-foreground flex flex-wrap gap-x-8 list-disc">
+                    {price.unit_amount === 0 && <li>No payment required</li>}
+                    <li>Up to {PLANS[price.nickname as PlanName].maxTasks} tasks in the space</li>
+                    {price.nickname === 'PLUS' && <li>Previous access to new features</li>}
+                  </ul>
                 </div>
               </button>
             </Column>
@@ -115,7 +122,11 @@ export default function SpaceFormUI({ prices }: Props) {
 
         {selectedPriceId && (
           <Column size={12} className="flex justify-end">
-            <Button disabled={formState.isSubmitting}>Go to checkout</Button>
+            <Button disabled={formState.isSubmitting}>
+              {prices.find((x) => x.nickname === 'FREE')?.id === selectedPriceId
+                ? 'Create free space'
+                : 'Go to checkout'}
+            </Button>
           </Column>
         )}
       </Grid>

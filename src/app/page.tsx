@@ -1,8 +1,5 @@
-import { redirect } from 'next/navigation'
-import { getSpacesByUserIdentifier } from '~/actions/space'
+import HomeUI from '~/components/Home'
 
 export default async function Home() {
-  const spaces = await getSpacesByUserIdentifier()
-
-  return redirect(spaces[0].slug)
+  return <HomeUI />
 }

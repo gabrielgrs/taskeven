@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getDomain } from '~/actions/helpers/server'
 import { decodeToken } from '~/libs/jose'
 import { getMiddlewareToken } from './helpers'
 
@@ -8,12 +7,6 @@ export async function authMiddleware(request: NextRequest) {
     const token = getMiddlewareToken(request) || ''
     const tokenData = await decodeToken(token)
     if (!tokenData) throw Error('Unauthorized access')
-
-    await fetch(`${getDomain()}/api/space/sync`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email: tokenData.email }),
-    })
 
     const response = NextResponse.redirect(new URL('/', request.url))
     response.cookies.set('token', token)

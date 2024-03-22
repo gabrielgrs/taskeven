@@ -10,6 +10,7 @@ const schema = new Schema<SpaceSchema>(
     slug: {
       type: String,
       required: true,
+      unique: true,
     },
     createdBy: {
       type: String,
