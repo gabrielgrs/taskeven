@@ -10,6 +10,7 @@ import { cn } from '@/lib/utils'
 
 type Props = {
 	options: { value: string; label: string }[]
+	onChange: (value: string) => void
 }
 
 export function Combobox({ options }: Props) {

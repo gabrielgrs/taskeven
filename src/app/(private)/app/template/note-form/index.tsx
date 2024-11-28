@@ -1,6 +1,6 @@
 'use client'
 
-import { Combobox } from '@/components/combobox'
+// import { Combobox } from '@/components/combobox'
 import { DatePicker } from '@/components/date-picker'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
@@ -153,7 +153,7 @@ export function NoteForm({
 									name="tags"
 									render={() => <Combobox options={tagOptions.map((tag) => ({ value: tag._id, label: tag.name }))} />}
 								/> */}
-								{tagsFieldArray.fields.map((field, index) => {
+								{/* {tagsFieldArray.fields.map((field, index) => {
 									return (
 										<Combobox
 											key={field.id}
@@ -161,14 +161,14 @@ export function NoteForm({
 												value: tag._id,
 												label: tag.name,
 											}))}
-											value={field.value}
+											value={field._id}
 											onChange={(value) => {
 												tagsFieldArray.remove(index)
 												tagsFieldArray.append({ _id: value })
 											}}
 										/>
 									)
-								})}
+								})} */}
 								<button
 									type="button"
 									onClick={() =>
