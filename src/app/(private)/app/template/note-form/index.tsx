@@ -39,13 +39,7 @@ function getInitialValues(initialValues: Partial<NoteSchema> = {}) {
 	return { ...defaultValues, ...initialValues }
 }
 
-export function NoteForm({
-	onSubmit: onSubmitFromParent,
-	initialValues,
-	onCancel,
-	tagOptions,
-	forceOpen = false,
-}: Props) {
+export function NoteForm({ onSubmit: onSubmitFromParent, initialValues, onCancel, forceOpen = false }: Props) {
 	const [isOpen, setIsOpen] = useState(forceOpen)
 	const { handleSubmit, register, control, reset, formState } = useForm({
 		mode: 'all',
