@@ -1,13 +1,21 @@
 'use client'
 
+import { authWithEmail } from '@/actions/auth'
 import Grid from '@/components/Grid'
 import Column from '@/components/Grid/Column'
 import { Button } from '@/components/ui/button'
+import { Checkbox } from '@/components/ui/checkbox'
 import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 import { cn } from '@/lib/utils'
+import { requiredField } from '@/utils/messages'
 import { Check, Mail, MailOpen } from 'lucide-react'
 import { AnimatePresence, motion } from 'motion/react'
+import { useRouter } from 'next/navigation'
 import { useState } from 'react'
+import { useForm } from 'react-hook-form'
+import { toast } from 'sonner'
+import { useServerAction } from 'zsa-react'
 
 const AnimatedButton = motion.create(Button)
 
@@ -17,10 +25,39 @@ export default function Page() {
 	const [isWaitingCode, setIsWaitingCode] = useState(false)
 	const [isButtonHover, setIsButtonHover] = useState(false)
 	const [needRegister, setNeedRegister] = useState(false)
+	const { register, handleSubmit } = useForm({ defaultValues: { email: '', name: '', terms: false, code: '' } })
+	const { push } = useRouter()
+
+	const { execute, isPending, data } = useServerAction(authWithEmail, {
+		onSuccess: ({ data }) => {
+			if (data.codeSentToEmail) {
+				setIsWaitingCode(true)
+				return toast.info('Code sent to your e-mail')
+			}
+
+			if (data.success) {
+				push('/app')
+				return toast.success('Success! Redirecting you...')
+			}
+		},
+		onError: (data) => {
+			if (data.err.message === 'NOT_FOUND') {
+				setNeedRegister(true)
+				return toast.error('Finish your signup to continue!')
+			}
+
+			if (data.err.message === 'UNAUHTHORIZED') {
+				return toast.error('Unauthorized')
+			}
+		},
+	})
 
 	return (
 		<main className="flex items-center justify-center min-h-[calc(100vh-200px)]">
-			<div className="bg-card min-w-80 px-4 py-10 rounded-lg shadow-md">
+			<form
+				onSubmit={handleSubmit((data) => execute(data))}
+				className="bg-card min-w-80 px-4 py-10 rounded-lg shadow-md"
+			>
 				<Grid>
 					<Column size={12}>
 						<motion.h1
@@ -33,32 +70,54 @@ export default function Page() {
 							Auth
 						</motion.h1>
 					</Column>
-					<Column size={12} className={cn('flex flex-col gap-4 duration-500', needRegister ? 'h-36' : 'h-10')}>
-						<Input placeholder="Type your e-mail" />
+					<Column
+						key={String(isWaitingCode)}
+						size={12}
+						className={cn('flex flex-col gap-4 duration-500', needRegister ? 'h-36' : 'h-10')}
+					>
+						{isWaitingCode ? (
+							<AnimatedInput
+								initial={{ x: 100, opacity: 0 }}
+								animate={{ x: 0, opacity: 1 }}
+								exit={{ x: -100, opacity: 0 }}
+								{...register('code', { required: requiredField })}
+								placeholder="Insert verification code"
+							/>
+						) : (
+							<AnimatedInput
+								initial={{ x: -100, opacity: 0 }}
+								animate={{ x: 0, opacity: 1 }}
+								exit={{ x: 100, opacity: 0 }}
+								{...register('email', { required: requiredField })}
+								placeholder="Type your e-mail"
+							/>
+						)}
 						{needRegister && (
 							<>
 								<AnimatedInput
+									{...register('name', { required: needRegister && requiredField })}
 									initial={{ scale: 0 }}
 									animate={{ scale: 1, type: 'spring', transition: { delay: 0.1 } }}
 									placeholder="Type your full name"
 								/>
-								<AnimatedInput
+								<motion.div
 									initial={{ scale: 0 }}
 									animate={{ scale: 1, type: 'spring', transition: { delay: 0.3 } }}
-									placeholder="Type your full name"
-								/>
+									className="flex items-center gap-1 justify-center py-1"
+								>
+									<Checkbox {...register('terms', { required: needRegister && requiredField })} />
+									<Label>I read and agree to the terms</Label>
+								</motion.div>
 							</>
 						)}
 					</Column>
 					<Column size={12}>
 						<AnimatedButton
+							loading={isPending || Boolean(data?.success)}
+							type="submit"
 							layoutId="main-cta"
 							onMouseEnter={() => setIsButtonHover(true)}
 							onMouseLeave={() => setIsButtonHover(false)}
-							onClick={() => {
-								setIsWaitingCode((p) => !p)
-								setNeedRegister(true)
-							}}
 							className="w-full group"
 							initial={{ x: -100, opacity: 0 }}
 							animate={{ x: 0, opacity: 1 }}
@@ -86,8 +145,9 @@ export default function Page() {
 							)}
 
 							<span className={cn('duration-500', !isWaitingCode ? 'translate-x-2' : '-translate-x-2')}>
-								Sign in with email
+								{isWaitingCode ? 'Verify code' : `Sign ${needRegister ? 'up' : 'in'} with email`}
 							</span>
+
 							{isWaitingCode && (
 								<motion.div initial={{ opacity: 0, translateY: '-10px' }} animate={{ opacity: 1, translateY: '0px' }}>
 									<Check
@@ -99,7 +159,7 @@ export default function Page() {
 						</AnimatedButton>
 					</Column>
 				</Grid>
-			</div>
+			</form>
 		</main>
 	)
 }
