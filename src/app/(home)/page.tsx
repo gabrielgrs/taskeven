@@ -2,10 +2,13 @@
 
 import Grid from '@/components/Grid'
 import Column from '@/components/Grid/Column'
+import Link from '@/components/Link'
+import { buttonVariants } from '@/components/ui/button'
 import { useMainCTA } from '@/hooks/use-main-cta'
 import { faker } from '@faker-js/faker'
-import { ArrowRight } from 'lucide-react'
+import { ArrowRight, Check, Flame, Wind } from 'lucide-react'
 import { motion } from 'motion/react'
+import Image from 'next/image'
 import NextLink from 'next/link'
 import { NoteCard } from '../(private)/app/template/notes/note-card'
 import { Note, Tag } from '../(private)/app/template/types'
@@ -119,73 +122,104 @@ export default function Home() {
 					</Column>
 
 					<Column size={8}>
-						<motion.div
-							whileInView={{ opacity: [0, 1], y: [100, 0] }}
-							transition={{ duration: 0.5 }}
-							className="bg-foreground/5 p-4 rounded-lg shadow-sm"
-						>
-							<h1 className="text-center  text-5xl font-medium mb-8">Frequently Asked Questions</h1>
-
-							<motion.div
-								whileInView={{ opacity: [0, 1], x: [-100, 0] }}
-								transition={{ duration: 0.5, delay: 0.3 }}
-								className="flex flex-col gap-4"
-							>
-								<div className="bg-white p-4 rounded-lg shadow-sm">
-									<h2 className="text-2xl font-medium">What is Taskeven?</h2>
-									<p className="text-lg">
-										Taskeven is a simple task management tool that helps you organize your day and stay focused.
-									</p>
-								</div>
-								<div className="bg-white p-4 rounded-lg shadow-sm">
-									<h2 className="text-2xl font-medium">How does it work?</h2>
-									<p className="text-lg">
-										Taskeven is very simple to use. You just add tasks, set a deadline and you will receive reminders
-										until the task is completed.
-									</p>
-								</div>
-								<div className="bg-white p-4 rounded-lg shadow-sm">
-									<h2 className="text-2xl font-medium">How much does it cost?</h2>
-									<p className="text-lg">
-										Taskeven is free for personal use. For teams, we offer a simple pricing plan that is based on the
-										number of users.
-									</p>
-								</div>
-							</motion.div>
-						</motion.div>
+						<div className="bg-emerald-100 h-full rounded-lg p-4">
+							<h2 className="text-3xl font-semibold">Welcome to Taskeven</h2>
+							<br />
+							<p className="font-medium">
+								Stay organized with your notes, categorize them however you want using tags and don't lose focus with
+								the timeline
+							</p>
+							<br />
+							<Image
+								src="https://placehold.co/900x500"
+								alt="Placeholder image"
+								width={900}
+								height={500}
+								className="rounded-sm"
+							/>
+						</div>
 					</Column>
 				</Grid>
 			</section>
 
-			<section className="my-12 bg-foreground/5 shadow-sm p-8 rounded-lg" id="pricing">
+			<section className="my-12 bg-card shadow-sm p-8 rounded-lg" id="pricing">
 				<h1 className="text-center  text-red-800 text-5xl font-medium mb-8">Pricing</h1>
 				<Grid>
-					<Column size={6} className="bg-primary-foreground p-4 rounded-lg shadow-sm h-max">
-						<h2 className="text-2xl font-medium">Personal</h2>
-						<p className="text-lg">Limited to 1 user</p>
-						<p className="text-3xl font-medium">$3.99/mo</p>
-						<ul className="list-disc pl-4">
-							<li>Unlimited notes</li>
-							<li>Timeline view</li>
-							<li>Tags</li>
-							<li>Mobile app</li>
-						</ul>
-						<button className="bg-primary text-primary-foreground rounded-full px-4 py-2 mt-4 w-full">Buy</button>
+					<Column size={6}>
+						<div className="rounded-lg border-2 border-foreground/10 p-4">
+							<div className="flex items-center text-lg gap-2">
+								<span className="bg-foreground/5 p-2 rounded">
+									<Wind />
+								</span>
+								Free
+							</div>
+							<br />
+							<div className="flex items-center gap-2">
+								<span className="text-4xl font-semibold">$ 0</span>
+								<span className="opacity-50">/ month</span>
+							</div>
+							<p className="py-2 text-sm">All the basics for start a organized life</p>
+							<ul>
+								{[
+									'Unlimited use time',
+									'Full customized note',
+									'Full customized tags',
+									'30 notes',
+									'5 tags',
+									'5 reminders',
+								].map((item) => {
+									return (
+										<li key={item} className="flex items-center gap-1">
+											<Check />
+											{item}
+										</li>
+									)
+								})}
+							</ul>
+							<br />
+							<Link href="/app" className={buttonVariants({ variant: 'secondary', className: 'w-full' })}>
+								Start using for free
+							</Link>
+						</div>
 					</Column>
 
-					<Column size={6} className="bg-primary text-primary-foreground p-4 rounded-lg shadow-sm">
-						<h2 className="text-2xl font-medium">Professional</h2>
-						<p className="text-lg">Limited to 5 users</p>
-						<p className="text-3xl font-medium">$9.99/mo</p>
-						<ul className="list-disc pl-4">
-							<li>Unlimited notes</li>
-							<li>Timeline view</li>
-							<li>Tags</li>
-							<li>Mobile app</li>
-							<li>Integration with Google Drive</li>
-							<li>Unlimited storage</li>
-						</ul>
-						<button className="bg-primary-foreground text-primary rounded-full px-4 py-2 mt-4 w-full">Buy</button>
+					<Column size={6}>
+						<div className="rounded-lg border-4 border-red-300 p-4">
+							<div className="flex items-center text-lg gap-2">
+								<span className="bg-red-100 p-2 rounded">
+									<Flame />
+								</span>
+								Paid
+							</div>
+
+							<br />
+							<div className="flex items-center gap-2">
+								<span className="text-4xl font-semibold">$ 9,99</span>
+								<span className="opacity-50">/ month</span>
+							</div>
+							<p className="py-2 text-sm">Get full control of your life</p>
+							<ul>
+								{[
+									'All free resources',
+									'Unlimited notes',
+									'Unlimited tags',
+									'Unlimited reminders',
+									'Early access to new features',
+									'Priority support',
+								].map((item) => {
+									return (
+										<li key={item} className="flex items-center gap-1">
+											<Check />
+											{item}
+										</li>
+									)
+								})}
+							</ul>
+							<br />
+							<Link href="/app" className={buttonVariants({ variant: 'default', className: 'w-full' })}>
+								Start the entire experience
+							</Link>
+						</div>
 					</Column>
 				</Grid>
 			</section>
