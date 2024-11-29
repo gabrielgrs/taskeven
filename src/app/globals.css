@@ -2,11 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-body {
-	font-family: Arial, Helvetica, sans-serif;
-	--background: 0 8% 97%;
-	--foreground: 26 8% 18%;
-}
+
 
 @layer base {
 	:root {
@@ -29,7 +25,7 @@ body {
 		--destructive: 0 90.6% 70.78%;
 		--destructive-foreground: 0 0% 98%;
 		--ring: 17.14 6.8% 20.2%;
-		--radius: 1rem;
+		--radius: 1.5rem;
 	}
 
 	.dark {
@@ -55,6 +51,7 @@ body {
 	}
 }
 
+
 @layer base {
 	* {
 		@apply border-border;
@@ -62,4 +59,9 @@ body {
 	body {
 		@apply bg-background text-foreground;
 	}
+}
+
+
+html {
+	scroll-behavior: smooth;
 }

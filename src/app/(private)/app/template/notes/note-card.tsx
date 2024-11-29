@@ -12,7 +12,7 @@ import type { Note } from '../types'
 type Props = Pick<Note, 'title' | 'content' | 'tags' | 'date'> & {
 	identifier: string
 	setShowOverlay: Dispatch<SetStateAction<boolean>>
-	notesView: 'grid' | 'timeline'
+	notesView: 'grid' | 'timeline' | 'demo'
 }
 
 export function NoteCard({ identifier, title, content, tags, date, setShowOverlay, notesView }: Props) {
@@ -53,30 +53,37 @@ export function NoteCard({ identifier, title, content, tags, date, setShowOverla
 		<motion.div
 			layoutId={identifier}
 			className={cn(
-				'flex flex-col gap-4 bg-card p-4 rounded-3xl z-0',
+				'flex flex-col gap-4 bg-card p-4 rounded-3xl z-0 shadow',
 				isExpanded && notesView === 'grid' && 'z-20 col-span-1 md:col-span-2 lg:col-span-3',
 				isExpanded && notesView === 'timeline' && 'z-20',
 			)}
 		>
 			<div className="grid grid-cols-[auto,40px] gap-2">
 				<div>
+					<span className="font-medium opacity-50 text-sm">{date ? dayjs(date).format('DD/MM/YYYY') : '-'}</span>
 					<div className="font-semibold">{title}</div>
-					<p className={cn('opacity-70 duration-500', isExpanded ? 'h-40 overflow-auto p-1' : 'h-16 overflow-hidden')}>
+					<p
+						className={cn(
+							'opacity-70 duration-500',
+							isExpanded ? 'h-auto overflow-auto p-1' : 'h-auto max-h-12 overflow-hidden',
+						)}
+					>
 						{content}
 					</p>
 				</div>
-				<Button
-					size="icon"
-					onClick={() => {
-						setShowOverlay((p) => !p)
-						setIsExpanded((p) => !p)
-					}}
-				>
-					{isExpanded ? <X /> : <Expand />}
-				</Button>
+				{notesView !== 'demo' && (
+					<Button
+						size="icon"
+						onClick={() => {
+							setShowOverlay((p) => !p)
+							setIsExpanded((p) => !p)
+						}}
+					>
+						{isExpanded ? <X /> : <Expand />}
+					</Button>
+				)}
 			</div>
 			<div className="flex items-center gap-2 flex-wrap">
-				{date && <Tag backgroundColor="#f1f5f9">{dayjs(date).format('DD/MM/YYYY')}</Tag>}
 				{tags.map((tag) => (
 					<Tag key={tag._id} backgroundColor={tag.backgroundColor}>
 						{tag.name}

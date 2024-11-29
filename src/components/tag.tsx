@@ -19,7 +19,7 @@ export function Tag({ children, backgroundColor }: Props) {
 	const fontColor = getContrastColor(backgroundColor)
 
 	return (
-		<div style={{ backgroundColor, color: fontColor }} className={cn('px-3 py-2 font-semibold text-sm rounded-lg')}>
+		<div style={{ backgroundColor, color: fontColor }} className={cn('px-2 py-1 font-medium text-sm rounded-lg')}>
 			{children}
 		</div>
 	)
