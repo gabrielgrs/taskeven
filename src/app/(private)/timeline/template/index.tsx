@@ -1,13 +1,19 @@
 'use client'
+
+import { createNote } from '@/actions/note'
 import Grid from '@/components/Grid'
 import Column from '@/components/Grid/Column'
 import { useTags } from '@/hooks/use-tags'
 import { cn } from '@/lib/utils'
+import { Note } from '@/types'
 import { getMonthsOfYear } from '@/utils/date/months'
+import { sortNotes } from '@/utils/sort'
+import { useQueryClient } from '@tanstack/react-query'
 import dayjs from 'dayjs'
 import { useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
-import { NoteForm } from './note-form'
+import { useServerAction } from 'zsa-react'
+import { NoteForm } from '../../../../components/note-form'
 import { Notes } from './notes'
 import { Tags } from './tags'
 import type { DefaultValues } from './types'
@@ -21,8 +27,16 @@ const DAYS_TO_SHOW = 7
 export function Template() {
 	const form = useForm({ defaultValues })
 	const [currentDate, setCurrentDate] = useState(new Date())
-	const [notesView, setNotesView] = useState<'grid' | 'timeline'>('grid')
+	const { setQueryData } = useQueryClient()
+
 	const { tags } = useTags()
+	const { execute } = useServerAction(createNote, {
+		onSuccess: ({ data }) => {
+			setQueryData(['notes'], (previous: Note[] = []) => {
+				return sortNotes([...previous, data.note])
+			})
+		},
+	})
 
 	return (
 		<main>
@@ -31,31 +45,22 @@ export function Template() {
 					<Column size={12}>
 						<h1 className="text-5xl font-semibold">Tasks</h1>
 					</Column>
-					<Column size={12} className="flex items-center gap-8">
-						<button
-							type="button"
-							className={cn('text-4xl font-semibold opacity-50 duration-500', notesView === 'grid' && 'opacity-100')}
-							onClick={() => setNotesView('grid')}
-						>
-							Grid
-						</button>
 
-						<button
-							type="button"
-							className={cn(
-								'text-4xl font-semibold opacity-50 duration-500',
-								notesView === 'timeline' && 'opacity-100',
-							)}
-							onClick={() => setNotesView('timeline')}
-						>
-							Timeline
-						</button>
-					</Column>
 					<Column size={12}>
 						<Tags />
 					</Column>
 					<Column size={12}>
-						<NoteForm onSubmit={() => {}} tagOptions={tags} />
+						<NoteForm
+							onSubmit={(note) =>
+								execute({
+									title: note.title!,
+									tags: note.tags ?? [],
+									content: note.content,
+									date: note.date,
+								})
+							}
+							tagOptions={tags}
+						/>
 					</Column>
 					<Column size={12} className="flex items-center justify-center gap-4">
 						{getMonthsOfYear().map((month, index) => {
@@ -98,7 +103,7 @@ export function Template() {
 							})}
 					</Column>
 					<Column size={12}>
-						<Notes notesView={notesView} />
+						<Notes />
 					</Column>
 				</Grid>
 			</FormProvider>

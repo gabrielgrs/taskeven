@@ -1,6 +1,7 @@
 'use client'
 
-import type { Note, Tag } from '@/app/(private)/app/template/types'
+import type { Note, Tag } from '@/types'
+import { sortNotes } from '@/utils/sort'
 import { faker } from '@faker-js/faker'
 import { useQuery } from '@tanstack/react-query'
 const randomNumber = (min: number, max: number) => {
@@ -31,12 +32,7 @@ export function useNotes() {
 	const { data: notes = [] } = useQuery({
 		queryKey: ['notes'],
 		queryFn: async () => {
-			return mockedNotes.sort((a, b) => {
-				if (a.date && b.date) return b.date.getTime() - a.date.getTime()
-				if (a.date) return -1
-				if (b.date) return 1
-				return 0
-			})
+			return sortNotes(mockedNotes)
 		},
 	})
 

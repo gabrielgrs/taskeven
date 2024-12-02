@@ -1,6 +1,6 @@
 'use client'
 
-import type { Tag } from '@/app/(private)/app/template/types'
+import type { Tag } from '@/types'
 import { faker } from '@faker-js/faker'
 import { useQuery } from '@tanstack/react-query'
 

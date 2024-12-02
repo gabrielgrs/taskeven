@@ -3,15 +3,15 @@
 import Grid from '@/components/Grid'
 import Column from '@/components/Grid/Column'
 import Link from '@/components/Link'
+import { NoteCard } from '@/components/note-card'
 import { buttonVariants } from '@/components/ui/button'
 import { useMainCTA } from '@/hooks/use-main-cta'
+import { Note, Tag } from '@/types'
 import { faker } from '@faker-js/faker'
 import { ArrowRight, Check, Flame, Wind } from 'lucide-react'
 import { motion } from 'motion/react'
 import Image from 'next/image'
 import NextLink from 'next/link'
-import { NoteCard } from '../(private)/app/template/notes/note-card'
-import { Note, Tag } from '../(private)/app/template/types'
 
 const AnimatedLink = motion.create(NextLink)
 
@@ -113,9 +113,11 @@ export default function Home() {
 									title={item.title}
 									tags={item.tags}
 									content={item.content}
-									setShowOverlay={() => {}}
 									date={item.date}
-									notesView="demo"
+									isExpanded={false}
+									onClickExpand={() => {}}
+									screenStatus={null}
+									setScreenStatus={() => {}}
 								/>
 							</motion.div>
 						))}

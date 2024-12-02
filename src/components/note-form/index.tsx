@@ -4,12 +4,11 @@
 import { DatePicker } from '@/components/date-picker'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
+import type { Tag } from '@/types'
 import { motion } from 'framer-motion'
 import { Loader2 } from 'lucide-react'
 import { useState } from 'react'
-import { Controller, useController, useFieldArray, useForm, useWatch } from 'react-hook-form'
-import type { Tag } from '../types'
-import { Editor } from './editor'
+import { Controller, useController, useForm, useWatch } from 'react-hook-form'
 
 type NoteSchema = {
 	_id: string
@@ -19,31 +18,33 @@ type NoteSchema = {
 	date: Date | undefined
 }
 
+type FormNote = Pick<NoteSchema, 'title' | 'content' | 'date'> & { tags: string[] }
+
 type Props = {
 	onCancel?: () => void
-	onSubmit: (values: Partial<NoteSchema>) => void
+	onSubmit: (values: FormNote & { tags: string[] }) => void
 	initialValues?: Partial<NoteSchema>
 	tagOptions: Tag[]
 	forceOpen?: boolean
 }
 
-const defaultValues: Partial<NoteSchema> = {
+const defaultValues: FormNote = {
 	title: '',
 	content: '',
 	tags: [],
 	date: undefined,
 }
 
-function getInitialValues(initialValues: Partial<NoteSchema> = {}) {
-	const defaultValues: Partial<NoteSchema> = { title: '', date: undefined }
-	return { ...defaultValues, ...initialValues }
-}
+// function getInitialValues(initialValues: FormNote = {}) {
+// 	const defaultValues: FormNote = { title: '', date: undefined, tags: [], content: '' }
+// 	return { ...defaultValues, ...initialValues }
+// }
 
 export function NoteForm({ onSubmit: onSubmitFromParent, initialValues, onCancel, forceOpen = false }: Props) {
 	const [isOpen, setIsOpen] = useState(forceOpen)
 	const { handleSubmit, register, control, reset, formState } = useForm({
 		mode: 'all',
-		defaultValues: getInitialValues(initialValues),
+		defaultValues,
 	})
 
 	const taskValue = useWatch({ name: 'title', control })
@@ -67,22 +68,42 @@ export function NoteForm({ onSubmit: onSubmitFromParent, initialValues, onCancel
 		rules: { required: 'Required field' },
 	})
 	const contentValue = useWatch({ name: 'content', control })
-	const tagsFieldArray = useFieldArray({ control, name: 'tags' })
 
 	const isInteractinve = isOpen || Boolean(taskValue || contentValue)
 
 	return (
-		<form onSubmit={handleSubmit(onSubmit)}>
+		<form onSubmit={handleSubmit((values) => onSubmit(values))}>
 			<fieldset
 				data-focus={isOpen}
 				className="border-2 border-primary/10 data-[focus=true]:border-primary/70 duration-500 rounded-lg bg-background"
 			>
+				<motion.div
+					className={cn(
+						'overflow-hidden duration-500',
+						isInteractinve ? 'scale-y-100 px-4 py-2 ' : 'scale-y-0 max-h-0 p-0',
+					)}
+				>
+					<Controller
+						control={control}
+						name="date"
+						render={({ field }) => {
+							return (
+								<DatePicker
+									name={field.name}
+									value={field.value}
+									onChange={(event) => field.onChange(event.target.value)}
+									triggerClassName="w-[160px]"
+								/>
+							)
+						}}
+					/>
+				</motion.div>
 				<div className="relative">
 					<input
 						{...titleRegister}
 						placeholder="Type note title here"
 						type="text"
-						className="flex h-12 w-full rounded-lg border-none bg-background px-3 py-2 ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-none  disabled:cursor-not-allowed disabled:opacity-60"
+						className="flex font-semibold h-12 w-full rounded-lg border-none bg-background px-3 py-2 ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-none  disabled:cursor-not-allowed disabled:opacity-60"
 						onFocus={() => setIsOpen(true)}
 						onBlur={(event) => {
 							titleRegister.onBlur(event)
@@ -90,26 +111,11 @@ export function NoteForm({ onSubmit: onSubmitFromParent, initialValues, onCancel
 					/>
 				</div>
 				{isInteractinve && (
-					<motion.div
-						initial={{ padding: 0, scale: 0 }}
-						animate={{ padding: '4px 8px', scale: 1 }}
-						exit={{ padding: 0, scale: 0 }}
-						className={cn('duration-500', isInteractinve ? 'scale-100 p-2' : 'scale-0 p-0')}
-					>
-						<Controller
-							control={control}
-							name="content"
-							render={({ field }) => {
-								return (
-									<Editor
-										value={field.value ?? ''}
-										onChange={(value) => field.onChange(value)}
-										onFocus={() => setIsOpen(true)}
-									/>
-								)
-							}}
-						/>
-					</motion.div>
+					<textarea
+						{...register('content', { maxLength: 280 })}
+						placeholder="Place aditional content, if neccesary"
+						className="w-full h-full bg-background px-3"
+					/>
 				)}
 				{isInteractinve && (
 					<motion.div
@@ -128,61 +134,7 @@ export function NoteForm({ onSubmit: onSubmitFromParent, initialValues, onCancel
 								data-error={Boolean(dateController.fieldState.error?.message)}
 								className="pl-2 flex h-full gap-2 items-center data-[error=true]:text-destructive duration-500"
 							>
-								<Controller
-									control={control}
-									name="date"
-									render={({ field }) => {
-										return (
-											<DatePicker
-												name={field.name}
-												value={field.value}
-												onChange={(event) => field.onChange(event.target.value)}
-												triggerClassName="w-[160px]"
-											/>
-										)
-									}}
-								/>
-								{/* <Controller
-									control={control}
-									name="tags"
-									render={() => <Combobox options={tagOptions.map((tag) => ({ value: tag._id, label: tag.name }))} />}
-								/> */}
-								{/* {tagsFieldArray.fields.map((field, index) => {
-									return (
-										<Combobox
-											key={field.id}
-											options={tagOptions.map((tag) => ({
-												value: tag._id,
-												label: tag.name,
-											}))}
-											value={field._id}
-											onChange={(value) => {
-												tagsFieldArray.remove(index)
-												tagsFieldArray.append({ _id: value })
-											}}
-										/>
-									)
-								})} */}
-								<button
-									type="button"
-									onClick={() =>
-										tagsFieldArray.append({
-											_id: '',
-											backgroundColor: '',
-											name: '',
-										})
-									}
-								>
-									Add
-								</button>
-								{/* <button
-									data-active={isSameDay(new Date(), new Date(dateController.field.value!))}
-									type="button"
-									className="text-sm opacity-50 data-[active=true]:opacity-100 duration-500"
-									onClick={() => dateController.field.onChange(new Date())}
-								>
-									Today
-								</button> */}
+								Tags
 							</div>
 
 							<div className="flex gap-2 items-center">

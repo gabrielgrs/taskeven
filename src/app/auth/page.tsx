@@ -36,7 +36,7 @@ export default function Page() {
 			}
 
 			if (data.success) {
-				push('/app')
+				push('/timeline')
 				return toast.success('Success! Redirecting you...')
 			}
 		},

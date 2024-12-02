@@ -57,7 +57,7 @@ export function Editor({ value, onChange, onFocus, onBlur }: Props) {
 				</BubbleMenu>
 			)}
 
-			<EditorContent placeholder="Teste" editor={editor} className="[&>.ProseMirror]:outline-none h-full text-lg" />
+			<EditorContent editor={editor} className="[&>.ProseMirror]:outline-none h-full text-base" />
 		</div>
 	)
 }

@@ -33,14 +33,9 @@ export function Tags() {
 					}
 
 					return (
-						<button
-							key={tag.id}
-							type="button"
-							disabled={inEditionTagId !== ''}
-							onClick={() => setInEditionTagId(tag._id)}
-						>
-							<Tag backgroundColor={tag.backgroundColor}>{tag.name}</Tag>
-						</button>
+						<Tag key={tag._id} backgroundColor={tag.backgroundColor}>
+							{tag.name}
+						</Tag>
 					)
 				})}
 				{inEditionTagId !== '' ? (
