@@ -1,8 +1,7 @@
 'use client'
 
-import Grid from '@/components/Grid'
-import Column from '@/components/Grid/Column'
 import Link from '@/components/Link'
+import { Column, Grid } from '@/components/grid'
 import { TaskCard } from '@/components/task-card'
 import { buttonVariants } from '@/components/ui/button'
 import { useMainCTA } from '@/hooks/use-main-cta'

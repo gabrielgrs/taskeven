@@ -1,8 +1,7 @@
 'use client'
 
-import Grid from '@/components/Grid'
-import Column from '@/components/Grid/Column'
-import { TaskCard } from '../../../../../components/task-card'
+import { Column, Grid } from '@/components/grid'
+import { TaskCard } from '@/components/task-card'
 
 import { getAuthenticatedUser } from '@/actions/auth'
 import { removeTask, updateTask } from '@/actions/task'

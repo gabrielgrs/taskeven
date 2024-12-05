@@ -1,8 +1,7 @@
 'use client'
 
 import { authWithEmail } from '@/actions/auth'
-import Grid from '@/components/Grid'
-import Column from '@/components/Grid/Column'
+import { Column, Grid } from '@/components/grid'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Input } from '@/components/ui/input'

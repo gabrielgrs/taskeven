@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import { type ReactNode, forwardRef } from 'react'
 
 // Must be in the code to be transpiled of tailwind
 type Columns =
@@ -21,9 +21,11 @@ type ColumnProps = {
 	className?: string
 }
 
-function Column({ children, size, className }: ColumnProps) {
+export const Column = forwardRef<HTMLDivElement, ColumnProps>(({ size, className, children }, ref) => {
 	const cols = `md:col-span-${size}` as Columns
-	return <div className={`col-span-12 ${cols} ${className}`}>{children}</div>
-}
-
-export default Column
+	return (
+		<div ref={ref} className={`col-span-12 ${cols} ${className}`}>
+			{children}
+		</div>
+	)
+})
