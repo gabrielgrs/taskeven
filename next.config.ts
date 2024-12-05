@@ -6,6 +6,9 @@ const nextConfig: NextConfig = {
 		dangerouslyAllowSVG: true,
 		remotePatterns: [{ hostname: 'placehold.co', protocol: 'https' }],
 	},
+	experimental: {
+		reactCompiler: true,
+	},
 }
 
 export default nextConfig

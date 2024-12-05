@@ -2,7 +2,7 @@
 
 import { getAuthenticatedUser } from '@/actions/auth'
 import { createTask } from '@/actions/task'
-import { Column, Grid } from '@/components/grid-and-column'
+import { Column, Grid } from '@/components/grid'
 import { Tag } from '@/components/tag'
 import { useAuth } from '@/hooks/use-auth'
 import { cn } from '@/libs/utils'
