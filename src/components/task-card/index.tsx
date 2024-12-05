@@ -36,7 +36,7 @@ export function TaskCard({
 		>
 			<div className="grid grid-cols-[auto,40px] gap-2">
 				<div>
-					<span className="font-medium opacity-50 text-sm">{date ? dayjs(date).format('DD/MM/YYYY') : '-'}</span>
+					<span className="font-medium opacity-50 text-sm">{date ? dayjs(date).format('MM/DD/YYYY') : '-'}</span>
 					<div className="font-semibold">{title}</div>
 					<p
 						className={cn(

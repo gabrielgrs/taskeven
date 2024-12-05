@@ -21,7 +21,7 @@ export type Props = {
 
 const MotionColumn = motion.create(Column)
 
-export function Template({ tasks: initialTasks }: Props) {
+export function Template() {
 	const [filterTags, setFilterTags] = useState<string[]>([])
 	const [currentDate, setCurrentDate] = useState(new Date())
 	const firstDayOfYear = dayjs(currentDate).startOf('year').toDate()
@@ -36,8 +36,8 @@ export function Template({ tasks: initialTasks }: Props) {
 		<main>
 			<Grid>
 				<Column size={12} className="flex justify-between gap-2">
-					<h1 className="text-5xl font-semibold">Tasks</h1>
-					<div className="flex items-center border p-1 rounded-lg gap-2">
+					<h1 className="text-5xl font-semiboldd">Tasks</h1>
+					<div className="flex items-center border p-1 rounded-lg gap-2 font-semibold">
 						<button className={cn('w-full h-full rounded-sm px-2 relative')} onClick={() => setShowCalendar(false)}>
 							{!showCalendar && (
 								<motion.div
@@ -95,18 +95,27 @@ export function Template({ tasks: initialTasks }: Props) {
 											{Array(daysInMonth)
 												.fill(null)
 												.map((_, index) => {
+													const day = dayjs(firstDayOfMonth).add(index, 'day')
+													const tasksQuantity = tasks
+														.filter((item) => item.date)
+														.filter((item) => dayjs(item.date).isSame(day, 'day')).length
+
 													return (
 														<button
 															key={`day_${index}`}
 															className={cn(
-																'w-6 h-6 flex text-sm text-foreground/70 items-center justify-center rounded bg-foreground/10 border border-bg-foreground/20',
+																'duration-500 hover:opacity-90 hover:translate-x-0.5 hover:-translate-y-0.5 w-8 h-8 flex text-sm text-foreground/70 items-center justify-center rounded bg-foreground/10 border border-bg-foreground/20',
+																dayjs(new Date()).isSame(day, 'day') && 'font-bold',
+																tasksQuantity === 1 && 'border-b-2 border-b-green-500',
+																tasksQuantity === 2 && 'border-b-2 border-b-yellow-500',
+																tasksQuantity >= 3 && 'border-b-2 border-b-red-500',
 															)}
 															onClick={() => {
-																setCurrentDate(dayjs(firstDayOfMonth).add(index, 'day').toDate())
+																setCurrentDate(day.toDate())
 																setShowCalendar(false)
 															}}
 														>
-															{index + 1}
+															{day.format('D')}
 														</button>
 													)
 												})}
@@ -184,7 +193,7 @@ export function Template({ tasks: initialTasks }: Props) {
 							transition={{ duration: 0.5 }}
 						>
 							<TaskList
-								list={(tasks.length > 0 ? tasks : initialTasks)
+								list={tasks
 									.filter((x) => {
 										if (filterTags.length === 0) return true
 										return x.tags.some((tag) => filterTags.includes(tag))
