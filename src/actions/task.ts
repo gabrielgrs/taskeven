@@ -40,3 +40,20 @@ export const updateTask = authProcedure
 		if (!updated) throw new Error('NOT_FOUND')
 		return parseData(updated)
 	})
+
+export const removeTask = authProcedure
+	.input(
+		z.object({
+			_id: z.string(),
+		}),
+	)
+	.handler(async ({ input, ctx }) => {
+		await db.user.findOneAndUpdate(
+			{
+				_id: ctx.user._id,
+			},
+			{ $pull: { tasks: { _id: input._id } } },
+		)
+
+		return true
+	})

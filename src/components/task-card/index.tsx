@@ -14,6 +14,7 @@ type Props = Pick<TaskSchema, 'title' | 'content' | 'tags' | 'date'> & {
 	setScreenStatus: Dispatch<ScreenStatus | null>
 	screenStatus: ScreenStatus | null
 	isExpanded: boolean
+	onRemove: () => void
 }
 
 export function TaskCard({
@@ -23,6 +24,7 @@ export function TaskCard({
 	tags,
 	date,
 	onClickExpand,
+	onRemove,
 	setScreenStatus,
 	isExpanded,
 	screenStatus,
@@ -72,13 +74,13 @@ export function TaskCard({
 							<Button size="icon" variant="outline" onClick={() => setScreenStatus('editing')}>
 								<Edit />
 							</Button>
-							<Button size="icon" variant="outline" onClick={() => setScreenStatus('deleting')}>
+							<Button size="icon" variant="outline" onClick={() => setScreenStatus('selected_to_delete')}>
 								<Trash className="text-destructive" />
 							</Button>
 						</motion.div>
 					)}
 
-					{screenStatus === 'deleting' && (
+					{(screenStatus === 'selected_to_delete' || screenStatus === 'deleting') && (
 						<motion.div
 							initial={{ opacity: 0, x: 50 }}
 							animate={{ opacity: 1, x: 0 }}
@@ -89,7 +91,12 @@ export function TaskCard({
 							<Button variant="outline" onClick={() => setScreenStatus(null)}>
 								Cancel
 							</Button>
-							<Button variant="outline" className="text-destructive">
+							<Button
+								variant="outline"
+								onClick={() => onRemove()}
+								className="text-destructive"
+								loading={screenStatus === 'deleting'}
+							>
 								Confirm
 							</Button>
 						</motion.div>

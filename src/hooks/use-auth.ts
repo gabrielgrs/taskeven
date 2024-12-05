@@ -5,21 +5,37 @@ import { sortTasks } from '@/utils/sort'
 import { useQuery } from '@tanstack/react-query'
 
 export function useAuth() {
-	const { data: user, refetch } = useQuery({
+	const { data, refetch } = useQuery({
 		queryKey: ['auth'],
 		queryFn: async () => {
-			const [data, err] = await getAuthenticatedUser()
+			const [user, err] = await getAuthenticatedUser()
 			if (err) return null
-			const sortedTasks = sortTasks(data.tasks)
+			const tasks = sortTasks(user.tasks)
+			const tags = user.tasks.reduce((acc: string[], curr) => {
+				curr.tags.forEach((x) => {
+					if (!acc.includes(x)) acc.push(x)
+				})
+				return acc
+			}, [])
 			return {
-				...data,
-				tasks: sortedTasks,
+				user,
+				tasks,
+				tags,
 			}
 		},
 	})
 
+	if (!data) {
+		return {
+			user: null,
+			tags: [],
+			tasks: [],
+			refetch,
+		}
+	}
+
 	return {
-		user,
+		...data,
 		refetch,
 	}
 }

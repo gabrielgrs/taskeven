@@ -4,6 +4,7 @@ import type { ReactNode } from 'react'
 type Props = {
 	children: ReactNode
 	// backgroundColor: string
+	className?: string
 }
 
 export function getContrastColor(bgColor: string): string {
@@ -15,11 +16,11 @@ export function getContrastColor(bgColor: string): string {
 	return brightness > 128 ? '#010101' : '#f5f5f5'
 }
 
-export function Tag({ children }: Props) {
+export function Tag({ children, className }: Props) {
 	// const fontColor = getContrastColor(backgroundColor)
 
 	return (
-		<div className={cn('px-2 py-1 font-medium text-sm rounded-lg', 'bg-foreground/5 text-foreground/90')}>
+		<div className={cn('px-2 py-1 font-medium text-sm rounded-lg', 'bg-foreground/5 text-foreground/90', className)}>
 			{children}
 		</div>
 	)

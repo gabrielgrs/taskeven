@@ -114,6 +114,7 @@ export default function Home() {
 									onClickExpand={() => {}}
 									screenStatus={null}
 									setScreenStatus={() => {}}
+									onRemove={() => {}}
 								/>
 							</motion.div>
 						))}

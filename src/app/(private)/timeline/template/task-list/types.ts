@@ -1,1 +1,1 @@
-export type ScreenStatus = 'editing' | 'deleting'
+export type ScreenStatus = 'editing' | 'selected_to_delete' | 'deleting'

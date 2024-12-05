@@ -5,15 +5,14 @@ import Column from '@/components/Grid/Column'
 import { TaskCard } from '../../../../../components/task-card'
 
 import { getAuthenticatedUser } from '@/actions/auth'
-import { updateTask } from '@/actions/task'
+import { removeTask, updateTask } from '@/actions/task'
 import { useAuth } from '@/hooks/use-auth'
 import { cn } from '@/libs/utils'
-import { combineTags } from '@/utils/tags'
 import { AnimatePresence, motion } from 'motion/react'
 import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
 import { useServerAction } from 'zsa-react'
-import { NoteForm } from '../../../../../components/task-form'
+import { TaskForm } from '../../../../../components/task-form'
 import { ScreenStatus } from './types'
 
 type Props = {
@@ -24,13 +23,23 @@ export function TaskList({ list }: Props) {
 	const [showOverlay, setShowOverlay] = useState(false)
 	const [expandedNoteId, setExpandedNoteId] = useState('')
 	const [screenStatus, setScreenStatus] = useState<ScreenStatus | null>(null)
-	const { user, refetch } = useAuth()
-
-	const tagOptions = combineTags(user?.tasks.map((item) => item.tags))
+	const { refetch, tags } = useAuth()
 
 	const { execute } = useServerAction(updateTask, {
 		onError: () => toast.error('Failed to update task'),
 		onSuccess: () => refetch(),
+	})
+	const removeTaskAction = useServerAction(removeTask, {
+		onStart: () => setScreenStatus('deleting'),
+		onError: () => {
+			setScreenStatus('selected_to_delete')
+			toast.error('Failed to remove task')
+		},
+		onSuccess: async () => {
+			await refetch()
+			setScreenStatus(null)
+			toast.success('Task removed with success')
+		},
 	})
 
 	useEffect(() => {
@@ -48,6 +57,14 @@ export function TaskList({ list }: Props) {
 		}
 	}, [])
 
+	if (list.length === 0) {
+		return (
+			<div className="flex items-center justify-center h-full">
+				<p className="text-center">No tasks found</p>
+			</div>
+		)
+	}
+
 	return (
 		<Grid>
 			<Column size={12} className={cn('relative grid gap-4 bg-foreground/5 p-4 rounded-3xl')}>
@@ -62,11 +79,11 @@ export function TaskList({ list }: Props) {
 						/>
 					)}
 				</AnimatePresence>
-				{(user?.tasks || list).map((task) => {
+				{list.map((task) => {
 					if (expandedNoteId === task._id && screenStatus === 'editing') {
 						return (
 							<motion.div key={task._id} layoutId={task._id} className="z-10">
-								<NoteForm
+								<TaskForm
 									onSubmit={(values) => {
 										execute({
 											...values,
@@ -75,9 +92,12 @@ export function TaskList({ list }: Props) {
 										})
 									}}
 									onCancel={() => setScreenStatus(null)}
-									tagOptions={tagOptions}
+									suggestions={tags}
 									forceOpen
-									initialValues={task}
+									initialValues={{
+										...task,
+										tags: task.tags.map((tag) => ({ text: tag, id: tag })),
+									}}
 								/>
 							</motion.div>
 						)
@@ -97,6 +117,7 @@ export function TaskList({ list }: Props) {
 								setExpandedNoteId((p) => (p === task._id ? '' : task._id))
 								setShowOverlay((p) => !p)
 							}}
+							onRemove={() => removeTaskAction.execute({ _id: task._id })}
 						/>
 					)
 				})}

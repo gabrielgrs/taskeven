@@ -1,22 +1,25 @@
 'use client'
 
-// import { Combobox } from '@/components/combobox'
 import { DatePicker } from '@/components/date-picker'
 import { Button } from '@/components/ui/button'
 import { TaskSchema } from '@/libs/mongoose/schemas/user'
 import { cn } from '@/libs/utils'
+import { requiredField } from '@/utils/messages'
+// import { Combobox } from '@/components/combobox'
+import { type Tag as TypeTag } from 'emblor'
 import { motion } from 'framer-motion'
 import { Loader2 } from 'lucide-react'
 import { useState } from 'react'
 import { Controller, useController, useForm, useWatch } from 'react-hook-form'
+import { InputTags } from '../input-tags'
 
-type TaskForm = Pick<TaskSchema, 'title' | 'content' | 'date'> & { tags: string[] }
+type TaskForm = Pick<TaskSchema, 'title' | 'content' | 'date'> & { tags: TypeTag[]; _id?: string }
 
 type Props = {
 	onCancel?: () => void
-	onSubmit: (values: TaskForm & { tags: string[] }) => void
-	initialValues?: Partial<TaskSchema>
-	tagOptions: string[]
+	onSubmit: (values: Omit<TaskForm, 'tags'> & { tags: string[] }) => void
+	initialValues?: Partial<TaskForm>
+	suggestions: string[]
 	forceOpen?: boolean
 }
 
@@ -27,7 +30,13 @@ const defaultValues: TaskForm = {
 	date: undefined,
 }
 
-export function NoteForm({ onSubmit: onSubmitFromParent, initialValues, onCancel, forceOpen = false }: Props) {
+export function TaskForm({
+	onSubmit: onSubmitFromParent,
+	initialValues,
+	onCancel,
+	forceOpen = false,
+	suggestions,
+}: Props) {
 	const [isOpen, setIsOpen] = useState(forceOpen)
 	const { handleSubmit, register, control, reset, formState } = useForm<typeof defaultValues>({
 		mode: 'all',
@@ -43,21 +52,21 @@ export function NoteForm({ onSubmit: onSubmitFromParent, initialValues, onCancel
 	// const dateValue = useWatch({ name: 'date', control })
 
 	const onSubmit = async (values: typeof defaultValues) => {
-		await onSubmitFromParent(values)
+		await onSubmitFromParent({
+			...values,
+			tags: values.tags.map((tag) => tag.text),
+		})
 		reset({ title: '', date: undefined })
 		setIsOpen(false)
 		if (onCancel) onCancel()
 	}
 
 	const titleRegister = register('title', {
-		required: 'Required field',
-		// minLength: minLength(1),
-		// maxLength: maxLength(32),
+		required: requiredField,
 	})
 	const dateController = useController({
 		name: 'date',
 		control,
-		rules: { required: 'Required field' },
 	})
 	const contentValue = useWatch({ name: 'content', control })
 
@@ -127,7 +136,19 @@ export function NoteForm({ onSubmit: onSubmitFromParent, initialValues, onCancel
 								data-error={Boolean(dateController.fieldState.error?.message)}
 								className="pl-2 flex h-full gap-2 items-center data-[error=true]:text-destructive duration-500"
 							>
-								Tags
+								<Controller
+									control={control}
+									name="tags"
+									render={({ field }) => {
+										return (
+											<InputTags
+												suggestions={suggestions.map((item) => ({ text: item, id: item }))}
+												value={field.value}
+												onChange={(tags) => field.onChange(tags)}
+											/>
+										)
+									}}
+								/>
 							</div>
 
 							<div className="flex gap-2 items-center">
