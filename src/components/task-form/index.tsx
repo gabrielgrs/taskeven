@@ -3,8 +3,8 @@
 // import { Combobox } from '@/components/combobox'
 import { DatePicker } from '@/components/date-picker'
 import { Button } from '@/components/ui/button'
-import { cn } from '@/lib/utils'
-import type { Tag } from '@/types'
+import { TagSchema } from '@/libs/mongoose/schemas/user'
+import { cn } from '@/libs/utils'
 import { motion } from 'framer-motion'
 import { Loader2 } from 'lucide-react'
 import { useState } from 'react'
@@ -14,7 +14,7 @@ type NoteSchema = {
 	_id: string
 	title: string
 	content: string
-	tags: Tag[]
+	tags: TagSchema[]
 	date: Date | undefined
 }
 
@@ -24,7 +24,7 @@ type Props = {
 	onCancel?: () => void
 	onSubmit: (values: FormNote & { tags: string[] }) => void
 	initialValues?: Partial<NoteSchema>
-	tagOptions: Tag[]
+	tagOptions: { name: string; backgroundColor: string }[]
 	forceOpen?: boolean
 }
 

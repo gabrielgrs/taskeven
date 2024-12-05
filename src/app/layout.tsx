@@ -19,7 +19,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
 			<body className={`${font.className} min-h-screen bg-background text-foreground antialiased`}>
 				<ClientLayout>
 					<Navbar />
-					<div className="mx-auto max-w-7xl p-8">{children}</div>
+					<div className="mx-auto max-w-7xl px-8 py-16">{children}</div>
 					<Toaster />
 				</ClientLayout>
 			</body>

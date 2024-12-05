@@ -7,13 +7,13 @@ import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { cn } from '@/lib/utils'
+import { cn } from '@/libs/utils'
 import { requiredField } from '@/utils/messages'
 import { Check, Mail, MailOpen } from 'lucide-react'
 import { AnimatePresence, motion } from 'motion/react'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
-import { useForm } from 'react-hook-form'
+import { Controller, useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import { useServerAction } from 'zsa-react'
 
@@ -25,11 +25,18 @@ export default function Page() {
 	const [isWaitingCode, setIsWaitingCode] = useState(false)
 	const [isButtonHover, setIsButtonHover] = useState(false)
 	const [needRegister, setNeedRegister] = useState(false)
-	const { register, handleSubmit } = useForm({ defaultValues: { email: '', name: '', terms: false, code: '' } })
+	const { register, handleSubmit, control } = useForm({
+		defaultValues: { email: '', name: '', terms: false, code: '' },
+	})
 	const { push } = useRouter()
 
 	const { execute, isPending, data } = useServerAction(authWithEmail, {
 		onSuccess: ({ data }) => {
+			if (data.needRegister) {
+				setNeedRegister(true)
+				return toast.info('Finish your register')
+			}
+
 			if (data.codeSentToEmail) {
 				setIsWaitingCode(true)
 				return toast.info('Code sent to your e-mail')
@@ -41,14 +48,11 @@ export default function Page() {
 			}
 		},
 		onError: (data) => {
-			if (data.err.message === 'NOT_FOUND') {
-				setNeedRegister(true)
-				return toast.error('Finish your signup to continue!')
-			}
-
 			if (data.err.message === 'UNAUHTHORIZED') {
 				return toast.error('Unauthorized')
 			}
+
+			return toast.error('Failed to authenticate')
 		},
 	})
 
@@ -105,7 +109,20 @@ export default function Page() {
 									animate={{ scale: 1, type: 'spring', transition: { delay: 0.3 } }}
 									className="flex items-center gap-1 justify-center py-1"
 								>
-									<Checkbox {...register('terms', { required: needRegister && requiredField })} />
+									<Controller
+										control={control}
+										name="terms"
+										rules={{ required: needRegister && requiredField }}
+										render={({ field }) => {
+											return (
+												<Checkbox
+													name={field.name}
+													checked={Boolean(field.value)}
+													onCheckedChange={(checked) => field.onChange(checked)}
+												/>
+											)
+										}}
+									/>
 									<Label>I read and agree to the terms</Label>
 								</motion.div>
 							</>

@@ -1,7 +1,7 @@
 'use client'
 
 import { useMainCTA } from '@/hooks/use-main-cta'
-import { cn } from '@/lib/utils'
+import { cn } from '@/libs/utils'
 import { ArrowRight } from 'lucide-react'
 import { motion } from 'motion/react'
 import { useTheme } from 'next-themes'

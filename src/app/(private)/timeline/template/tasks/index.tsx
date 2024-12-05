@@ -2,22 +2,28 @@
 
 import Grid from '@/components/Grid'
 import Column from '@/components/Grid/Column'
-import { NoteCard } from '../../../../../components/note-card'
+import { TaskCard } from '../../../../../components/task-card'
 
-import { useNotes } from '@/hooks/use-notes'
-import { useTags } from '@/hooks/use-tags'
-import { cn } from '@/lib/utils'
+import { getAuthenticatedUser } from '@/actions/auth'
+import { useAuth } from '@/hooks/use-tasks'
+import { cn } from '@/libs/utils'
+import { combineTags } from '@/utils/tags'
 import { AnimatePresence, motion } from 'motion/react'
 import { useEffect, useState } from 'react'
-import { NoteForm } from '../../../../../components/note-form'
+import { NoteForm } from '../../../../../components/task-form'
 import { ScreenStatus } from './types'
 
-export function Notes() {
+type Props = {
+	list: NonNullable<Awaited<ReturnType<typeof getAuthenticatedUser>>['0']>['tasks']
+}
+
+export function Tasks({ list }: Props) {
 	const [showOverlay, setShowOverlay] = useState(false)
 	const [expandedNoteId, setExpandedNoteId] = useState('')
 	const [screenStatus, setScreenStatus] = useState<ScreenStatus | null>(null)
-	const { notes } = useNotes()
-	const { tags } = useTags()
+	const { user } = useAuth()
+
+	const tagOptions = combineTags(user?.tasks.map((item) => item.tags))
 
 	useEffect(() => {
 		const keyDownListener = (event: KeyboardEvent) => {
@@ -48,33 +54,33 @@ export function Notes() {
 						/>
 					)}
 				</AnimatePresence>
-				{notes.map((note) => {
-					if (expandedNoteId === note._id && screenStatus === 'editing') {
+				{(user?.tasks || list).map((task) => {
+					if (expandedNoteId === task._id && screenStatus === 'editing') {
 						return (
-							<motion.div key={note._id} layoutId={note._id} className="z-10">
+							<motion.div key={task._id} layoutId={task._id} className="z-10">
 								<NoteForm
 									onSubmit={() => {}}
 									onCancel={() => setScreenStatus(null)}
-									tagOptions={tags}
+									tagOptions={tagOptions}
 									forceOpen
-									initialValues={note}
+									initialValues={task}
 								/>
 							</motion.div>
 						)
 					}
 					return (
-						<NoteCard
-							key={note._id}
-							identifier={note._id}
-							title={note.title}
-							content={note.content}
-							tags={note.tags}
-							date={note.date}
-							isExpanded={expandedNoteId === note._id}
+						<TaskCard
+							key={task._id}
+							identifier={task._id}
+							title={task.title}
+							content={task.content}
+							tags={task.tags}
+							date={task.date}
+							isExpanded={expandedNoteId === task._id}
 							screenStatus={screenStatus}
 							setScreenStatus={setScreenStatus}
 							onClickExpand={() => {
-								setExpandedNoteId((p) => (p === note._id ? '' : note._id))
+								setExpandedNoteId((p) => (p === task._id ? '' : task._id))
 								setShowOverlay((p) => !p)
 							}}
 						/>

@@ -3,10 +3,10 @@
 import Grid from '@/components/Grid'
 import Column from '@/components/Grid/Column'
 import Link from '@/components/Link'
-import { NoteCard } from '@/components/note-card'
+import { TaskCard } from '@/components/task-card'
 import { buttonVariants } from '@/components/ui/button'
 import { useMainCTA } from '@/hooks/use-main-cta'
-import { Note, Tag } from '@/types'
+import { TagSchema, TaskSchema } from '@/libs/mongoose/schemas/user'
 import { faker } from '@faker-js/faker'
 import { ArrowRight, Check, Flame, Wind } from 'lucide-react'
 import { motion } from 'motion/react'
@@ -15,7 +15,7 @@ import NextLink from 'next/link'
 
 const AnimatedLink = motion.create(NextLink)
 
-const tags: Tag[] = [
+const tags: TagSchema[] = [
 	{
 		_id: Math.random().toString(),
 		name: 'Travel',
@@ -38,7 +38,7 @@ const tags: Tag[] = [
 	},
 ]
 
-const notes: Note[] = [
+const tasks: TaskSchema[] = [
 	{
 		_id: Math.random().toString(),
 		title: 'Book a hotel for vacation',
@@ -102,13 +102,13 @@ export default function Home() {
 			<section className="my-12">
 				<Grid>
 					<Column size={4} className="flex flex-col gap-4">
-						{notes.map((item, index) => (
+						{tasks.map((item, index) => (
 							<motion.div
 								key={item._id}
 								whileInView={{ opacity: [0, 1], x: [-100, 0] }}
 								transition={{ duration: 0.5, delay: index * 0.3 }}
 							>
-								<NoteCard
+								<TaskCard
 									identifier={item._id}
 									title={item.title}
 									tags={item.tags}
@@ -123,12 +123,12 @@ export default function Home() {
 						))}
 					</Column>
 
-					<Column size={8}>
+					<Column size={8} className="text-neutral-950">
 						<div className="bg-emerald-100 h-full rounded-lg p-4">
 							<h2 className="text-3xl font-semibold">Welcome to Taskeven</h2>
 							<br />
 							<p className="font-medium">
-								Stay organized with your notes, categorize them however you want using tags and don't lose focus with
+								Stay organized with your tasks, categorize them however you want using tags and don't lose focus with
 								the timeline
 							</p>
 							<br />
@@ -166,7 +166,7 @@ export default function Home() {
 									'Unlimited use time',
 									'Full customized note',
 									'Full customized tags',
-									'30 notes',
+									'30 tasks',
 									'5 tags',
 									'5 reminders',
 								].map((item) => {
@@ -203,7 +203,7 @@ export default function Home() {
 							<ul>
 								{[
 									'All free resources',
-									'Unlimited notes',
+									'Unlimited tasks',
 									'Unlimited tags',
 									'Unlimited reminders',
 									'Early access to new features',

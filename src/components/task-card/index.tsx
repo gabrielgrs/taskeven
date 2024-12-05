@@ -1,14 +1,14 @@
 import { Tag } from '@/components/tag'
 import { Button } from '@/components/ui/button'
-import { cn } from '@/lib/utils'
-import type { Note } from '@/types'
+import { TaskSchema } from '@/libs/mongoose/schemas/user'
+import { cn } from '@/libs/utils'
 import dayjs from 'dayjs'
 import { Edit, Expand, Trash, X } from 'lucide-react'
 import { motion } from 'motion/react'
 import { Dispatch } from 'react'
-import { ScreenStatus } from '../../app/(private)/timeline/template/notes/types'
+import { ScreenStatus } from '../../app/(private)/timeline/template/tasks/types'
 
-type Props = Pick<Note, 'title' | 'content' | 'tags' | 'date'> & {
+type Props = Pick<TaskSchema, 'title' | 'content' | 'tags' | 'date'> & {
 	identifier: string
 	onClickExpand: () => void
 	setScreenStatus: Dispatch<ScreenStatus | null>
@@ -16,7 +16,7 @@ type Props = Pick<Note, 'title' | 'content' | 'tags' | 'date'> & {
 	isExpanded: boolean
 }
 
-export function NoteCard({
+export function TaskCard({
 	identifier,
 	title,
 	content,
