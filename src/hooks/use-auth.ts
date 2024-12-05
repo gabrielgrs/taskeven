@@ -5,8 +5,8 @@ import { sortTasks } from '@/utils/sort'
 import { useQuery } from '@tanstack/react-query'
 
 export function useAuth() {
-	const { data: user } = useQuery({
-		queryKey: ['notes'],
+	const { data: user, refetch } = useQuery({
+		queryKey: ['auth'],
 		queryFn: async () => {
 			const [data, err] = await getAuthenticatedUser()
 			if (err) return null
@@ -20,5 +20,6 @@ export function useAuth() {
 
 	return {
 		user,
+		refetch,
 	}
 }

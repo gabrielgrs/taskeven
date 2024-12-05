@@ -6,7 +6,7 @@ import dayjs from 'dayjs'
 import { Edit, Expand, Trash, X } from 'lucide-react'
 import { motion } from 'motion/react'
 import { Dispatch } from 'react'
-import { ScreenStatus } from '../../app/(private)/timeline/template/tasks/types'
+import { ScreenStatus } from '../../app/(private)/timeline/template/task-list/types'
 
 type Props = Pick<TaskSchema, 'title' | 'content' | 'tags' | 'date'> & {
 	identifier: string
@@ -28,7 +28,10 @@ export function TaskCard({
 	screenStatus,
 }: Props) {
 	return (
-		<motion.div layoutId={identifier} className={cn('flex flex-col gap-4 bg-card p-4 rounded-3xl z-0 shadow h-max')}>
+		<motion.div
+			layoutId={identifier}
+			className={cn('flex flex-col gap-4 bg-card p-4 rounded-3xl z-0 shadow h-max', isExpanded ? 'z-50' : 'z-10')}
+		>
 			<div className="grid grid-cols-[auto,40px] gap-2">
 				<div>
 					<span className="font-medium opacity-50 text-sm">{date ? dayjs(date).format('DD/MM/YYYY') : '-'}</span>
@@ -52,10 +55,8 @@ export function TaskCard({
 				</Button>
 			</div>
 			<div className="flex items-center gap-2 flex-wrap">
-				{tags.map((tag) => (
-					<Tag key={tag._id} backgroundColor={tag.backgroundColor}>
-						{tag.name}
-					</Tag>
+				{tags.map((tag, index) => (
+					<Tag key={`${tag}_${index}`}>{tag}</Tag>
 				))}
 			</div>
 			{isExpanded && (

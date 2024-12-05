@@ -30,7 +30,6 @@ type Props = {
 
 export function DatePicker({ name, value: selectedDate, onChange, placeholder = 'Select', triggerClassName }: Props) {
 	const [open, setOpen] = useState(false)
-	// const { date, setDate, month, setMonth, year, setYear } = useCalendarPicker()
 
 	return (
 		<Popover open={open} onOpenChange={setOpen}>
@@ -38,7 +37,7 @@ export function DatePicker({ name, value: selectedDate, onChange, placeholder = 
 				<Button
 					variant={'outline'}
 					className={cn(
-						'w-full justify-start text-left font-normal bg-slate-100',
+						'w-full justify-start text-left font-normal bg-background',
 						!dayjs(selectedDate).isValid() && 'text-muted-foreground',
 						triggerClassName,
 					)}
@@ -50,7 +49,7 @@ export function DatePicker({ name, value: selectedDate, onChange, placeholder = 
 			<PopoverContent className="w-auto p-0">
 				<div className="flex items-center justify-between space-x-2 p-3">
 					<Select
-						value={selectedDate ? selectedDate.getMonth().toString() : undefined}
+						value={selectedDate ? new Date(selectedDate).getMonth().toString() : undefined}
 						onValueChange={(monthIndex) => {
 							const date = new Date(selectedDate || new Date())
 
@@ -74,7 +73,7 @@ export function DatePicker({ name, value: selectedDate, onChange, placeholder = 
 						</SelectContent>
 					</Select>
 					<Select
-						value={selectedDate ? selectedDate.getFullYear().toString() : undefined}
+						value={selectedDate ? new Date(selectedDate).getFullYear().toString() : undefined}
 						onValueChange={(value) => {
 							onChange({ target: { name, value: new Date(value) } })
 						}}

@@ -3,48 +3,40 @@
 // import { Combobox } from '@/components/combobox'
 import { DatePicker } from '@/components/date-picker'
 import { Button } from '@/components/ui/button'
-import { TagSchema } from '@/libs/mongoose/schemas/user'
+import { TaskSchema } from '@/libs/mongoose/schemas/user'
 import { cn } from '@/libs/utils'
 import { motion } from 'framer-motion'
 import { Loader2 } from 'lucide-react'
 import { useState } from 'react'
 import { Controller, useController, useForm, useWatch } from 'react-hook-form'
 
-type NoteSchema = {
-	_id: string
-	title: string
-	content: string
-	tags: TagSchema[]
-	date: Date | undefined
-}
-
-type FormNote = Pick<NoteSchema, 'title' | 'content' | 'date'> & { tags: string[] }
+type TaskForm = Pick<TaskSchema, 'title' | 'content' | 'date'> & { tags: string[] }
 
 type Props = {
 	onCancel?: () => void
-	onSubmit: (values: FormNote & { tags: string[] }) => void
-	initialValues?: Partial<NoteSchema>
-	tagOptions: { name: string; backgroundColor: string }[]
+	onSubmit: (values: TaskForm & { tags: string[] }) => void
+	initialValues?: Partial<TaskSchema>
+	tagOptions: string[]
 	forceOpen?: boolean
 }
 
-const defaultValues: FormNote = {
+const defaultValues: TaskForm = {
 	title: '',
 	content: '',
 	tags: [],
 	date: undefined,
 }
 
-// function getInitialValues(initialValues: FormNote = {}) {
-// 	const defaultValues: FormNote = { title: '', date: undefined, tags: [], content: '' }
-// 	return { ...defaultValues, ...initialValues }
-// }
-
 export function NoteForm({ onSubmit: onSubmitFromParent, initialValues, onCancel, forceOpen = false }: Props) {
 	const [isOpen, setIsOpen] = useState(forceOpen)
-	const { handleSubmit, register, control, reset, formState } = useForm({
+	const { handleSubmit, register, control, reset, formState } = useForm<typeof defaultValues>({
 		mode: 'all',
-		defaultValues,
+		defaultValues: {
+			tags: initialValues?.tags || [],
+			title: initialValues?.title ?? '',
+			content: initialValues?.content || '',
+			date: initialValues?.date ?? undefined,
+		},
 	})
 
 	const taskValue = useWatch({ name: 'title', control })
@@ -114,7 +106,8 @@ export function NoteForm({ onSubmit: onSubmitFromParent, initialValues, onCancel
 					<textarea
 						{...register('content', { maxLength: 280 })}
 						placeholder="Place aditional content, if neccesary"
-						className="w-full h-full bg-background px-3"
+						className="w-full h-full bg-background px-3 focus:ring-0 focus:outline-none"
+						rows={5}
 					/>
 				)}
 				{isInteractinve && (

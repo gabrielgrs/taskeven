@@ -1,5 +1,3 @@
-'use client'
-
 import { getAuthenticatedUser } from '@/actions/auth'
 import { Template } from './template'
 

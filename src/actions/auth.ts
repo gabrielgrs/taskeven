@@ -60,6 +60,6 @@ export const authWithEmail = createServerAction()
 		throw new Error('Unauthorized')
 	})
 
-export const getAuthenticatedUser = authProcedure().handler(async ({ ctx }) => {
+export const getAuthenticatedUser = authProcedure.handler(async ({ ctx }) => {
 	return parseData(ctx.user)
 })

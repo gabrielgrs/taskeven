@@ -3,7 +3,7 @@ import type { ReactNode } from 'react'
 
 type Props = {
 	children: ReactNode
-	backgroundColor: string
+	// backgroundColor: string
 }
 
 export function getContrastColor(bgColor: string): string {
@@ -15,11 +15,11 @@ export function getContrastColor(bgColor: string): string {
 	return brightness > 128 ? '#010101' : '#f5f5f5'
 }
 
-export function Tag({ children, backgroundColor }: Props) {
-	const fontColor = getContrastColor(backgroundColor)
+export function Tag({ children }: Props) {
+	// const fontColor = getContrastColor(backgroundColor)
 
 	return (
-		<div style={{ backgroundColor, color: fontColor }} className={cn('px-2 py-1 font-medium text-sm rounded-lg')}>
+		<div className={cn('px-2 py-1 font-medium text-sm rounded-lg', 'bg-foreground/5 text-foreground/90')}>
 			{children}
 		</div>
 	)

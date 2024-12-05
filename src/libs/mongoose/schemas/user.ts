@@ -4,15 +4,15 @@ import { createMongooseSchema } from '../helpers'
 const roles = ['ADMIN', 'USER'] as const
 type Role = (typeof roles)[number]
 
-export type TagSchema = {
-	_id: string
-	name: string
-	backgroundColor: string
-}
+// export type TagSchema = {
+// 	_id: string
+// 	name: string
+// 	backgroundColor: string
+// }
 
 export type TaskSchema = {
 	_id: string
-	tags: TagSchema[]
+	tags: string[]
 	title: string
 	content?: string
 	date?: Date
@@ -28,20 +28,12 @@ export type UserSchema = {
 	updatedAt: Date
 }
 
-const tagSchema = new Schema<TagSchema>({
-	name: {
-		type: String,
-		required: true,
-		unique: true,
-	},
-})
-
 const taskSchema = new Schema<TaskSchema>({
 	title: {
 		type: String,
 		required: true,
 	},
-	tags: [tagSchema],
+	tags: [String],
 	content: String,
 	date: Date,
 })

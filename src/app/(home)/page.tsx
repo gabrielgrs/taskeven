@@ -6,7 +6,7 @@ import Link from '@/components/Link'
 import { TaskCard } from '@/components/task-card'
 import { buttonVariants } from '@/components/ui/button'
 import { useMainCTA } from '@/hooks/use-main-cta'
-import { TagSchema, TaskSchema } from '@/libs/mongoose/schemas/user'
+import { TaskSchema } from '@/libs/mongoose/schemas/user'
 import { faker } from '@faker-js/faker'
 import { ArrowRight, Check, Flame, Wind } from 'lucide-react'
 import { motion } from 'motion/react'
@@ -15,24 +15,20 @@ import NextLink from 'next/link'
 
 const AnimatedLink = motion.create(NextLink)
 
-const tags: TagSchema[] = [
+const tags: { name: string; backgroundColor: string }[] = [
 	{
-		_id: Math.random().toString(),
 		name: 'Travel',
 		backgroundColor: '#d9f99d',
 	},
 	{
-		_id: Math.random().toString(),
 		name: 'Business',
 		backgroundColor: '#c7d2fe',
 	},
 	{
-		_id: Math.random().toString(),
 		name: 'Fitness',
 		backgroundColor: '#ffe4e6',
 	},
 	{
-		_id: Math.random().toString(),
 		name: 'Home',
 		backgroundColor: '#0ea5e9',
 	},
@@ -43,7 +39,7 @@ const tasks: TaskSchema[] = [
 		_id: Math.random().toString(),
 		title: 'Book a hotel for vacation',
 		content: 'Search for a beachfront hotel in Bali and check reviews. ',
-		tags: [tags[0]],
+		tags: [tags[0].name],
 		date: new Date('2024-11-10'),
 	},
 
@@ -51,14 +47,14 @@ const tasks: TaskSchema[] = [
 		_id: Math.random().toString(),
 		title: 'Fix the leaky faucet',
 		content: 'Buy replacement parts for the kitchen faucet from the hardware store. ',
-		tags: [tags[3]],
+		tags: [tags[3].name],
 		date: new Date('2024-11-15'),
 	},
 	{
 		_id: Math.random().toString(),
 		title: 'Plan next hiking trip',
 		content: 'Research trails in the Rockies.',
-		tags: [tags[0], tags[2]],
+		tags: [tags[0].name, tags[2].name],
 		date: new Date('2024-11-22'),
 	},
 ]
