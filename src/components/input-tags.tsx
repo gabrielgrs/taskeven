@@ -10,7 +10,7 @@ type Props = {
 	onChange: (tags: [TypeTag, ...TypeTag[]]) => void
 }
 
-export function InputTags({ suggestions, value, onChange }: Props) {
+export function InputTags({ suggestions, value = [], onChange }: Props) {
 	const [activeTagIndex, setActiveTagIndex] = useState<number | null>(null)
 
 	return (

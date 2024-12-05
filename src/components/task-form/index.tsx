@@ -9,7 +9,7 @@ import { requiredField } from '@/utils/messages'
 import { type Tag as TypeTag } from 'emblor'
 import { motion } from 'framer-motion'
 import { Loader2 } from 'lucide-react'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Controller, useController, useForm, useWatch } from 'react-hook-form'
 import { InputTags } from '../input-tags'
 
@@ -47,6 +47,21 @@ export function TaskForm({
 			date: initialValues?.date ?? undefined,
 		},
 	})
+
+	useEffect(() => {
+		const event = (event: KeyboardEvent) => {
+			if (event.code === 'Escape') {
+				if (onCancel) onCancel()
+				reset({ title: '' })
+				setIsOpen(false)
+			}
+		}
+
+		window.addEventListener('keydown', event)
+		return () => {
+			window.removeEventListener('keydown', event)
+		}
+	}, [onCancel, reset])
 
 	const taskValue = useWatch({ name: 'title', control })
 	// const dateValue = useWatch({ name: 'date', control })
