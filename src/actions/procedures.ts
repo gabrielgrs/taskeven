@@ -1,6 +1,6 @@
 import { decodeToken } from '@/libs/jose'
 import { db } from '@/libs/mongoose'
-import { parseData } from '@/utils/actiont'
+import { parseData } from '@/utils/action'
 import { cookies } from 'next/headers'
 import { createServerActionProcedure } from 'zsa'
 

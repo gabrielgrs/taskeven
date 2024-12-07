@@ -12,9 +12,9 @@ type Role = (typeof roles)[number]
 
 export type TaskSchema = {
 	_id: string
+	completed: boolean
 	tags: string[]
 	title: string
-	content?: string
 	date?: Date
 }
 
@@ -33,8 +33,11 @@ const taskSchema = new Schema<TaskSchema>({
 		type: String,
 		required: true,
 	},
+	completed: {
+		type: Boolean,
+		default: false,
+	},
 	tags: [String],
-	content: String,
 	date: Date,
 })
 

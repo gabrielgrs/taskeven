@@ -4,6 +4,8 @@ import { getAuthenticatedUser } from '@/actions/auth'
 import { createTask } from '@/actions/task'
 import { Column, Grid } from '@/components/grid'
 import { Tag } from '@/components/tag'
+import { TaskForm } from '@/components/tasks/form'
+import { TaskList } from '@/components/tasks/list'
 import { useAuth } from '@/hooks/use-auth'
 import { cn } from '@/libs/utils'
 import { getMonthsOfYear } from '@/utils/date/months'
@@ -12,8 +14,6 @@ import { Calendar, X } from 'lucide-react'
 import { motion } from 'motion/react'
 import { useState } from 'react'
 import { useServerAction } from 'zsa-react'
-import { TaskForm } from '../../../../components/task-form'
-import { TaskList } from './task-list'
 
 export type Props = {
 	tasks: NonNullable<Awaited<ReturnType<typeof getAuthenticatedUser>>['0']>['tasks']
@@ -89,7 +89,7 @@ export function Template() {
 								const daysInMonth = dayjs(firstDayOfMonth).daysInMonth()
 
 								return (
-									<Column size={3} key={month}>
+									<Column size={6} key={month}>
 										<span>{month}</span>
 										<div className="grid grid-cols-7 gap-2">
 											{Array(daysInMonth)
@@ -135,34 +135,38 @@ export function Template() {
 							animate={{ opacity: 1, x: 0 }}
 							exit={{ opacity: 0, x: 250 }}
 							transition={{ duration: 0.5 }}
-							className="flex items-center gap-2 flex-wrap overflow-hidden"
+							className="overflow-hidden"
 						>
-							{tags.map((tag) => (
-								<button
-									key={tag}
-									onClick={() => {
-										setFilterTags((p) => (p.includes(tag) ? p.filter((x) => x !== tag) : [...p, tag]))
-									}}
-									className="cursor-pointer"
-								>
-									<Tag
-										className={cn(
-											'flex items-center gap-1',
-											filterTags.includes(tag) ? 'bg-primary text-primary-foreground' : 'opacity-90',
-										)}
+							<span className="font-semibold">Tags</span>
+							<div className="flex items-center gap-2 flex-wrap">
+								{tags.length === 0 && <span className="text-muted-foreground">Start creating tags on task</span>}
+								{tags.map((tag) => (
+									<button
+										key={tag}
+										onClick={() => {
+											setFilterTags((p) => (p.includes(tag) ? p.filter((x) => x !== tag) : [...p, tag]))
+										}}
+										className="cursor-pointer"
 									>
-										{tag}
-										{filterTags.includes(tag) && (
-											<motion.span
-												initial={{ opacity: 0, scale: 0 }}
-												animate={{ opacity: 1, scale: 1, transition: { duration: 1 } }}
-											>
-												<X size={12} />
-											</motion.span>
-										)}
-									</Tag>
-								</button>
-							))}
+										<Tag
+											className={cn(
+												'flex items-center gap-1',
+												filterTags.includes(tag) ? 'bg-primary text-primary-foreground' : 'opacity-90',
+											)}
+										>
+											{tag}
+											{filterTags.includes(tag) && (
+												<motion.span
+													initial={{ opacity: 0, scale: 0 }}
+													animate={{ opacity: 1, scale: 1, transition: { duration: 1 } }}
+												>
+													<X size={12} />
+												</motion.span>
+											)}
+										</Tag>
+									</button>
+								))}
+							</div>
 						</MotionColumn>
 
 						<MotionColumn
@@ -177,7 +181,6 @@ export function Template() {
 									execute({
 										title: note.title!,
 										tags: note.tags,
-										content: note.content,
 										date: note.date,
 									})
 								}}
@@ -193,6 +196,7 @@ export function Template() {
 							transition={{ duration: 0.5 }}
 						>
 							<TaskList
+								currentDate={currentDate}
 								list={tasks
 									.filter((x) => {
 										if (filterTags.length === 0) return true

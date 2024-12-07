@@ -4,11 +4,11 @@ import { Navbar } from '@/components/navbar'
 import NextTopLoader from 'nextjs-toploader'
 
 import type { Metadata } from 'next'
-import { Poppins } from 'next/font/google'
+import { Source_Code_Pro } from 'next/font/google'
 import type { ReactNode } from 'react'
 import { Toaster } from 'sonner'
 
-const font = Poppins({ weight: ['400', '500', '600'], subsets: ['latin'] })
+const font = Source_Code_Pro({ weight: ['400', '500', '600'], subsets: ['latin'] })
 
 export const metadata: Metadata = {
 	title: 'Taskeven',
@@ -18,12 +18,12 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: ReactNode }) {
 	return (
 		<html lang="en">
-			<body className={`${font.className} min-h-screen bg-background text-foreground antialiased`}>
+			<body className={`${font.className} min-h-screen bg-background text-foreground antialiased tracking-tighter	`}>
 				<ClientLayout>
 					<NextTopLoader color="hsl(var(--primary))" showSpinner={false} />
 
 					<Navbar />
-					<div className="mx-auto max-w-7xl px-8 py-16">{children}</div>
+					<div className="mx-auto max-w-7xl px-4 pt-16 pb-4">{children}</div>
 					<Toaster />
 				</ClientLayout>
 			</body>

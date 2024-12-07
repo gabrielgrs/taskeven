@@ -27,14 +27,6 @@ function Section({ children, className }: { children: ReactNode; className?: str
 const navItemStyles =
 	'relative hover:bg-foreground/10 duration-500 h-full px-4 rounded-full flex items-center justify-center'
 
-function NavItem({ children, href }: { children: ReactNode; href: string }) {
-	return (
-		<Link href={href} className={navItemStyles}>
-			{children}
-		</Link>
-	)
-}
-
 export function Navbar() {
 	const { theme, setTheme } = useTheme()
 	const { showOnNavbar } = useMainCTA()
@@ -49,14 +41,12 @@ export function Navbar() {
 			</Section>
 			<div className="flex items-center gap-2 h-full">
 				<Section>
-					<NavItem href="/">Home</NavItem>
-					<NavItem href="#pricing">Pricing</NavItem>
 					<button
 						type="button"
 						className={cn(navItemStyles, 'h-8')}
 						onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}
 					>
-						{theme === 'dark' ? 'Lighten' : 'Darken'}
+						{theme === 'dark' ? 'Turn on lights' : 'Turn off lights'}
 					</button>
 				</Section>
 				{showOnNavbar && (

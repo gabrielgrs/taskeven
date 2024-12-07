@@ -3,7 +3,7 @@
 import { createToken } from '@/libs/jose'
 import { db } from '@/libs/mongoose'
 import { sendEmail } from '@/libs/resend'
-import { parseData } from '@/utils/actiont'
+import { parseData } from '@/utils/action'
 import { cookies } from 'next/headers'
 import { z } from 'zod'
 import { createServerAction } from 'zsa'

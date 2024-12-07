@@ -1,6 +1,4 @@
 'use client'
-
-import { Calendar as CalendarIcon } from 'lucide-react'
 import { useState } from 'react'
 
 import { Button } from '@/components/ui/button'
@@ -40,9 +38,9 @@ export function DatePicker({ name, value: selectedDate, onChange, placeholder = 
 						'w-full justify-start text-left font-normal bg-background',
 						!dayjs(selectedDate).isValid() && 'text-muted-foreground',
 						triggerClassName,
+						open && 'ring-2 ring-ring ring-offset-2',
 					)}
 				>
-					<CalendarIcon className="mr-2 h-4 w-4" />
 					{selectedDate ? dayjs(new Date(selectedDate)).format('MM/DD/YYYY') : <span>{placeholder}</span>}
 				</Button>
 			</PopoverTrigger>

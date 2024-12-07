@@ -1,7 +1,7 @@
 'use server'
 
 import { db } from '@/libs/mongoose'
-import { parseData } from '@/utils/actiont'
+import { parseData } from '@/utils/action'
 import { z } from 'zod'
 import { authProcedure } from './procedures'
 
@@ -9,7 +9,6 @@ export const createTask = authProcedure
 	.input(
 		z.object({
 			title: z.string(),
-			content: z.string().optional(),
 			date: z.date().optional(),
 			tags: z.array(z.string()),
 		}),
@@ -25,7 +24,6 @@ export const updateTask = authProcedure
 		z.object({
 			_id: z.string(),
 			title: z.string().optional(),
-			content: z.string().optional(),
 			date: z.date().optional(),
 			tags: z.array(z.string()),
 		}),
