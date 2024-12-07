@@ -2,8 +2,9 @@
 
 import { DatePicker } from '@/components/date-picker'
 import { Button } from '@/components/ui/button'
-import { TaskSchema } from '@/libs/mongoose/schemas/user'
+import { TaskSchema } from '@/libs/mongoose/schemas/task'
 import { requiredField } from '@/utils/messages'
+import { X } from 'lucide-react'
 // import { Combobox } from '@/components/combobox'
 import { useEffect } from 'react'
 import { Controller, useForm } from 'react-hook-form'
@@ -18,6 +19,7 @@ type Props = {
 	initialValues?: Partial<TaskForm>
 	suggestions: string[]
 	isExpanded?: boolean
+	isSubmitting: boolean
 }
 
 const defaultValues: TaskForm = {
@@ -26,8 +28,8 @@ const defaultValues: TaskForm = {
 	date: undefined,
 }
 
-export function TaskForm({ onSubmit: onSubmitFromParent, initialValues, onCancel, suggestions }: Props) {
-	const { handleSubmit, register, control, reset, formState } = useForm<typeof defaultValues>({
+export function TaskForm({ onSubmit: onSubmitFromParent, initialValues, onCancel, suggestions, isSubmitting }: Props) {
+	const { handleSubmit, register, control, reset } = useForm<typeof defaultValues>({
 		mode: 'all',
 		defaultValues: {
 			tags: initialValues?.tags || [],
@@ -35,6 +37,8 @@ export function TaskForm({ onSubmit: onSubmitFromParent, initialValues, onCancel
 			date: initialValues?.date ?? undefined,
 		},
 	})
+
+	const isEdition = Boolean(initialValues?._id)
 
 	useEffect(() => {
 		const event = (event: KeyboardEvent) => {
@@ -51,16 +55,23 @@ export function TaskForm({ onSubmit: onSubmitFromParent, initialValues, onCancel
 	}, [onCancel, reset])
 
 	const onSubmit = async (values: typeof defaultValues) => {
-		await onSubmitFromParent({
-			...values,
-			tags: values.tags.map((tag) => tag.label),
-		})
-		reset({ title: '', date: undefined })
-		if (onCancel) onCancel()
+		try {
+			await onSubmitFromParent({
+				...values,
+				tags: values.tags.map((tag) => tag.label),
+			})
+			reset()
+			if (onCancel) onCancel()
+		} catch {}
 	}
 
 	return (
 		<form onSubmit={handleSubmit((values) => onSubmit(values))} className="relative flex gap-2 flex-col">
+			{isEdition && onCancel && (
+				<button className="text-muted-foreground  flex items-center text-sm place-self-end" onClick={() => onCancel()}>
+					Close <X size={16} />
+				</button>
+			)}
 			<Input
 				{...register('title', { required: requiredField })}
 				placeholder="Type your task"
@@ -97,8 +108,8 @@ export function TaskForm({ onSubmit: onSubmitFromParent, initialValues, onCancel
 					}}
 				/>
 
-				<Button loading={formState.isSubmitting} className="col-span-2 w-full md:w-max">
-					{initialValues?._id ? 'Update' : 'Add'} task
+				<Button loading={isSubmitting} className="col-span-2 w-full md:w-max">
+					{isEdition ? 'Update' : 'Add'} task
 				</Button>
 			</div>
 		</form>

@@ -5,6 +5,12 @@ import { parseData } from '@/utils/action'
 import { z } from 'zod'
 import { authProcedure } from './procedures'
 
+export const getTasks = authProcedure.handler(async ({ ctx }) => {
+	const tasks = await db.task.find({ $or: [{ email: ctx.email }, { ip: ctx.ip }] })
+
+	return parseData(tasks)
+})
+
 export const createTask = authProcedure
 	.input(
 		z.object({
@@ -14,9 +20,30 @@ export const createTask = authProcedure
 		}),
 	)
 	.handler(async ({ input, ctx }) => {
-		const data = await db.user.findOneAndUpdate({ email: ctx.user.email }, { $push: { tasks: [input] } })
+		const data = await db.task.create({
+			...input,
+			email: ctx.email,
+			ip: ctx.ip,
+		})
 
-		return parseData(data?.tasks.at(-1)!)
+		return parseData(data)
+	})
+
+export const onCompleteOrUncompleteTask = authProcedure
+	.input(
+		z.object({
+			_id: z.string(),
+			completed: z.boolean(),
+		}),
+	)
+	.handler(async ({ input, ctx }) => {
+		const data = await db.task.findOneAndUpdate(
+			{ $and: [{ _id: input._id }, { $or: [{ email: ctx.email }, { ip: ctx.ip }] }] },
+			{ completed: input.completed },
+			{ new: true },
+		)
+
+		return parseData(data)
 	})
 
 export const updateTask = authProcedure
@@ -29,14 +56,13 @@ export const updateTask = authProcedure
 		}),
 	)
 	.handler(async ({ input, ctx }) => {
-		const data = await db.user.findOneAndUpdate(
-			{ email: ctx.user.email, 'tasks._id': input._id },
-			{ $set: { 'tasks.$': input } },
+		const data = await db.task.findOneAndUpdate(
+			{ $and: [{ _id: input._id }, { $or: [{ email: ctx.email }, { ip: ctx.ip }] }] },
+			{ title: input.title, date: input.date, tags: input.tags },
 			{ new: true },
 		)
-		const updated = data?.tasks.find((x) => x._id.toString() === input._id)
-		if (!updated) throw new Error('NOT_FOUND')
-		return parseData(updated)
+
+		return parseData(data)
 	})
 
 export const removeTask = authProcedure
@@ -46,12 +72,7 @@ export const removeTask = authProcedure
 		}),
 	)
 	.handler(async ({ input, ctx }) => {
-		await db.user.findOneAndUpdate(
-			{
-				_id: ctx.user._id,
-			},
-			{ $pull: { tasks: { _id: input._id } } },
-		)
+		await db.task.findOneAndDelete({ $and: [{ _id: input._id }, { $or: [{ email: ctx.email }, { ip: ctx.ip }] }] })
 
 		return true
 	})

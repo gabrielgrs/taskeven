@@ -1,8 +1,8 @@
-import { removeTask, updateTask } from '@/actions/task'
+import { onCompleteOrUncompleteTask, removeTask, updateTask } from '@/actions/task'
 import { TaskCard } from '@/components/tasks/card'
 import { TaskForm } from '@/components/tasks/form'
-import { useAuth } from '@/hooks/use-auth'
-import { TaskSchema } from '@/libs/mongoose/schemas/user'
+import { useTasks } from '@/hooks/use-tasks'
+import { TaskSchema } from '@/libs/mongoose/schemas/task'
 import { motion } from 'motion/react'
 import { Dispatch } from 'react'
 import { toast } from 'sonner'
@@ -19,11 +19,22 @@ type Props = {
 }
 
 export function TaskItem({ screenStatus, isExpanded, onCancel, task, setScreenStatus, onExpand }: Props) {
-	const { refetch, tags } = useAuth()
+	const { refetch, tags } = useTasks()
 
-	const { execute } = useServerAction(updateTask, {
+	const onCompleteOrUncompleteTaskAction = useServerAction(onCompleteOrUncompleteTask, {
 		onError: () => toast.error('Failed to update task'),
-		onSuccess: () => refetch(),
+		onSuccess: async () => {
+			await refetch()
+			toast.success('Task updated with success')
+		},
+	})
+
+	const updateTaskAction = useServerAction(updateTask, {
+		onError: () => toast.error('Failed to update task'),
+		onSuccess: async () => {
+			await refetch()
+			toast.success('Task updated with success')
+		},
 	})
 
 	const removeTaskAction = useServerAction(removeTask, {
@@ -42,8 +53,9 @@ export function TaskItem({ screenStatus, isExpanded, onCancel, task, setScreenSt
 		return (
 			<motion.div layoutId={task._id} className="z-10">
 				<TaskForm
+					isSubmitting={updateTaskAction.isPending}
 					onSubmit={(values) => {
-						execute({
+						updateTaskAction.execute({
 							...values,
 							_id: task._id,
 							date: task.date ? new Date(task.date) : undefined,
@@ -66,10 +78,17 @@ export function TaskItem({ screenStatus, isExpanded, onCancel, task, setScreenSt
 			title={task.title}
 			tags={task.tags}
 			date={task.date}
+			completed={task.completed}
 			isExpanded={isExpanded}
 			screenStatus={screenStatus}
 			setScreenStatus={setScreenStatus}
 			onClickExpand={() => onExpand()}
+			onComplete={(complete) =>
+				onCompleteOrUncompleteTaskAction.execute({
+					_id: task._id,
+					completed: complete,
+				})
+			}
 			onRemove={() => removeTaskAction.execute({ _id: task._id })}
 		/>
 	)

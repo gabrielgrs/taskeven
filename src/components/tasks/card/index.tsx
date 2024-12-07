@@ -1,17 +1,18 @@
 import { Tag } from '@/components/tag'
 import { Button } from '@/components/ui/button'
-import { TaskSchema } from '@/libs/mongoose/schemas/user'
+import { TaskSchema } from '@/libs/mongoose/schemas/task'
 import { cn } from '@/libs/utils'
 import dayjs from 'dayjs'
-import { Edit, Pencil, Trash, X } from 'lucide-react'
+import { Edit, Ellipsis, Trash, X } from 'lucide-react'
 import { motion } from 'motion/react'
 import { Dispatch } from 'react'
 import { Checkbox } from '../../ui/checkbox'
 import { ScreenStatus } from '../list/types'
 
-type Props = Pick<TaskSchema, 'title' | 'tags' | 'date'> & {
+type Props = Pick<TaskSchema, 'title' | 'tags' | 'date' | 'completed'> & {
 	identifier: string
 	onClickExpand: () => void
+	onComplete: (complete: boolean) => void
 	setScreenStatus: Dispatch<ScreenStatus | null>
 	screenStatus: ScreenStatus | null
 	isExpanded: boolean
@@ -23,6 +24,8 @@ export function TaskCard({
 	title,
 	tags,
 	date,
+	completed,
+	onComplete,
 	onClickExpand,
 	onRemove,
 	setScreenStatus,
@@ -38,8 +41,8 @@ export function TaskCard({
 			)}
 		>
 			<div className="flex items-center gap-2">
-				<Checkbox className="w-5 h-5" />
-				<div className="font-semibold">{title}</div>
+				<Checkbox className="w-5 h-5" checked={completed} onCheckedChange={onComplete} />
+				<div className={cn('font-semibold', completed && 'line-through text-muted-foreground')}>{title}</div>
 				<span className="font-medium opacity-50 text-sm">{date ? dayjs(date).format('MM/DD/YYYY') : '-'}</span>
 				{tags.map((tag, index) => (
 					<Tag key={`${tag}_${index}`}>{tag}</Tag>
@@ -92,10 +95,9 @@ export function TaskCard({
 					size="icon"
 					onClick={() => {
 						onClickExpand()
-						setScreenStatus('editing')
 					}}
 				>
-					{isExpanded ? <X /> : <Pencil />}
+					{isExpanded ? <X /> : <Ellipsis />}
 				</Button>
 			</div>
 		</motion.div>

@@ -1,13 +1,9 @@
 'use client'
 
-import { TaskSchema } from '@/libs/mongoose/schemas/user'
+import { TaskSchema } from '@/libs/mongoose/schemas/task'
 import { cn } from '@/libs/utils'
-import { getMonthsOfYear } from '@/utils/date/months'
 import dayjs from 'dayjs'
-import { motion } from 'motion/react'
 import { Column, Grid } from '../grid'
-
-const MotionColumn = motion.create(Column)
 
 type Props = {
 	selectedDate: Date
@@ -15,60 +11,57 @@ type Props = {
 	onChangeDate: (date: Date) => void
 }
 
+function getDaysOfMonth(selectedDate: Date, tasks: TaskSchema[]) {
+	const firstDayOfMonth = dayjs(selectedDate).startOf('month').toDate()
+	const daysInMonth = dayjs(firstDayOfMonth).daysInMonth()
+
+	return Array(daysInMonth)
+		.fill(null)
+		.map((_, index) => {
+			const date = dayjs(firstDayOfMonth).add(index + 1, 'day')
+			return {
+				date,
+				tasksQuantity: tasks.filter((item) => item.date).filter((item) => dayjs(item.date).isSame(date, 'day')).length,
+			}
+		})
+}
+
 export function Calendar({ selectedDate, tasks, onChangeDate }: Props) {
-	const firstDayOfYear = dayjs(selectedDate).startOf('year').toDate()
-	const currentYear = dayjs(selectedDate).year()
+	const [month, _, year] = dayjs(selectedDate).format('MMMM/DD/YYYY').split('/')
+
+	const calendar = getDaysOfMonth(
+		selectedDate,
+		tasks.filter((x) => x.date),
+	)
 
 	return (
-		<MotionColumn
-			size={12}
-			className="overflow-hidden"
-			initial={{ opacity: 0, x: -250 }}
-			animate={{ opacity: 1, x: 0 }}
-			exit={{ opacity: 0, x: -250 }}
-			transition={{ duration: 0.5 }}
-		>
-			<div className="text-center text-2xl">{currentYear}</div>
-			<Grid>
-				{getMonthsOfYear().map((month, index) => {
-					const firstDayOfMonth = dayjs(firstDayOfYear).add(index, 'month')
-					const daysInMonth = dayjs(firstDayOfMonth).daysInMonth()
-
+		<Grid>
+			<Column size={12}>
+				<div className="text-center text-2xl">
+					{month} / {year}
+				</div>
+			</Column>
+			<Column size={12} className="grid grid-cols-7 gap-4">
+				{calendar.map((item) => {
 					return (
-						<Column size={6} key={month}>
-							<span>{month}</span>
-							<div className="grid grid-cols-7 gap-2">
-								{Array(daysInMonth)
-									.fill(null)
-									.map((_, index) => {
-										const day = dayjs(firstDayOfMonth).add(index, 'day')
-										const tasksQuantity = tasks
-											.filter((item) => item.date)
-											.filter((item) => dayjs(item.date).isSame(day, 'day')).length
-
-										return (
-											<button
-												key={`day_${index}`}
-												className={cn(
-													'duration-500 hover:opacity-90 hover:translate-x-0.5 hover:-translate-y-0.5 w-8 h-8 flex text-sm text-foreground/70 items-center justify-center rounded bg-foreground/10 border border-bg-foreground/20',
-													dayjs(new Date()).isSame(day, 'day') && 'font-bold',
-													tasksQuantity === 1 && 'border-b-2 border-b-green-500',
-													tasksQuantity === 2 && 'border-b-2 border-b-yellow-500',
-													tasksQuantity >= 3 && 'border-b-2 border-b-red-500',
-												)}
-												onClick={() => {
-													onChangeDate(day.toDate())
-												}}
-											>
-												{day.format('D')}
-											</button>
-										)
-									})}
-							</div>
-						</Column>
+						<button
+							key={`day_${item.date.toISOString()}`}
+							className={cn(
+								'duration-500 hover:opacity-90 hover:translate-x-0.5 hover:-translate-y-0.5 w-8 h-8 md:w-12 md:h-12 flex text-foreground/70 items-center justify-center rounded bg-foreground/10 border border-bg-foreground/20',
+								dayjs(new Date()).isSame(item.date, 'day') && 'font-bold',
+								item.tasksQuantity === 1 && 'border-b-2 border-b-green-500',
+								item.tasksQuantity === 2 && 'border-b-2 border-b-yellow-500',
+								item.tasksQuantity >= 3 && 'border-b-2 border-b-red-500',
+							)}
+							onClick={() => {
+								onChangeDate(item.date.toDate())
+							}}
+						>
+							{item.date.format('D')}
+						</button>
 					)
 				})}
-			</Grid>
-		</MotionColumn>
+			</Column>
+		</Grid>
 	)
 }

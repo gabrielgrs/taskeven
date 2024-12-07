@@ -35,13 +35,17 @@ export function DatePicker({ name, value: selectedDate, onChange, placeholder = 
 				<Button
 					variant={'outline'}
 					className={cn(
-						'w-full justify-start text-left font-normal bg-background',
+						'w-full justify-start text-left font-normal bg-background hover:bg-secondary',
 						!dayjs(selectedDate).isValid() && 'text-muted-foreground',
 						triggerClassName,
 						open && 'ring-2 ring-ring ring-offset-2',
 					)}
 				>
-					{selectedDate ? dayjs(new Date(selectedDate)).format('MM/DD/YYYY') : <span>{placeholder}</span>}
+					{selectedDate ? (
+						dayjs(new Date(selectedDate)).format('MM/DD/YYYY')
+					) : (
+						<span className="text-muted-foreground">{placeholder}</span>
+					)}
 				</Button>
 			</PopoverTrigger>
 			<PopoverContent className="w-auto p-0">

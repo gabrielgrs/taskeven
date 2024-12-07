@@ -1,4 +1,4 @@
-import { type TaskSchema } from '@/libs/mongoose/schemas/user'
+import { TaskSchema } from '@/libs/mongoose/schemas/task'
 
 export function sortTasks(tasks: TaskSchema[]) {
 	return tasks.sort((a, b) => {

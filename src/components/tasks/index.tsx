@@ -1,22 +1,22 @@
 'use client'
 
-import { getAuthenticatedUser } from '@/actions/auth'
-import { createTask } from '@/actions/task'
+import { createTask, getTasks } from '@/actions/task'
 import { Column, Grid } from '@/components/grid'
 import { Tag } from '@/components/tag'
-import { useAuth } from '@/hooks/use-auth'
+import { useTasks } from '@/hooks/use-tasks'
 import { cn } from '@/libs/utils'
 import dayjs from 'dayjs'
 import { Calendar, X } from 'lucide-react'
 import { motion } from 'motion/react'
 import { useState } from 'react'
+import { toast } from 'sonner'
 import { useServerAction } from 'zsa-react'
 import { Calendar as CalendarUI } from './calendar'
 import { TaskForm } from './form'
 import { TaskList } from './list'
 
 export type Props = {
-	tasks: NonNullable<Awaited<ReturnType<typeof getAuthenticatedUser>>['0']>['tasks']
+	tasks: NonNullable<Awaited<ReturnType<typeof getTasks>>['0']>
 }
 
 const MotionColumn = motion.create(Column)
@@ -25,16 +25,19 @@ export function TasksUI() {
 	const [filterTags, setFilterTags] = useState<string[]>([])
 	const [currentDate, setCurrentDate] = useState(new Date())
 	const [showCalendar, setShowCalendar] = useState(false)
-	const { tasks, tags, refetch } = useAuth()
+	const { tasks, tags, refetch } = useTasks()
 
-	const { execute } = useServerAction(createTask, {
-		onSuccess: () => refetch(),
+	const createTaskAction = useServerAction(createTask, {
+		onSuccess: async () => {
+			await refetch()
+			toast.success('Task created with success')
+		},
 	})
 
 	return (
 		<main>
 			<Grid>
-				<Column size={12} className="flex justify-between gap-2">
+				<Column size={12} className="flex justify-between gap-2 flex-col md:flex-row">
 					<h1 className="text-5xl font-semiboldd">Tasks</h1>
 					<div className="flex items-center border p-1 rounded-lg gap-2 font-semibold">
 						<button className={cn('w-full h-full rounded-sm px-2 relative')} onClick={() => setShowCalendar(false)}>
@@ -44,8 +47,13 @@ export function TasksUI() {
 									className="absolute rounded-sm bg-primary inset-0 bg- w-full h-full bg-red-499"
 								/>
 							)}
-							<span className={cn('duration-1000 relative z-10', !showCalendar && 'text-primary-foreground')}>
-								Timeline
+							<span
+								className={cn(
+									'duration-1000 relative z-10 flex items-center',
+									!showCalendar && 'text-primary-foreground',
+								)}
+							>
+								Tasks <span className="hidden md:block">list</span>
 							</span>
 						</button>
 
@@ -73,14 +81,23 @@ export function TasksUI() {
 				</Column>
 
 				{showCalendar && (
-					<CalendarUI
-						onChangeDate={(date) => {
-							setCurrentDate(date)
-							setShowCalendar(false)
-						}}
-						selectedDate={currentDate}
-						tasks={tasks}
-					/>
+					<MotionColumn
+						size={12}
+						className="overflow-hidden"
+						initial={{ opacity: 0, x: -250 }}
+						animate={{ opacity: 1, x: 0 }}
+						exit={{ opacity: 0, x: -250 }}
+						transition={{ duration: 0.5 }}
+					>
+						<CalendarUI
+							onChangeDate={(date) => {
+								setCurrentDate(date)
+								setShowCalendar(false)
+							}}
+							selectedDate={currentDate}
+							tasks={tasks}
+						/>
+					</MotionColumn>
 				)}
 
 				{!showCalendar && (
@@ -133,8 +150,9 @@ export function TasksUI() {
 							transition={{ duration: 0.5 }}
 						>
 							<TaskForm
+								isSubmitting={createTaskAction.isPending}
 								onSubmit={(note) => {
-									execute({
+									createTaskAction.execute({
 										title: note.title!,
 										tags: note.tags,
 										date: note.date,

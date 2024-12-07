@@ -8,6 +8,7 @@ import { useTheme } from 'next-themes'
 import NextLink from 'next/link'
 import { type ReactNode } from 'react'
 import Link from './Link'
+import { Badge } from './ui/badge'
 
 const AnimatedLink = motion(NextLink)
 
@@ -30,6 +31,7 @@ const navItemStyles =
 export function Navbar() {
 	const { theme, setTheme } = useTheme()
 	const { showOnNavbar } = useMainCTA()
+	const synced = false
 
 	return (
 		<nav className="w-full sticky top-0 backdrop-blur-lg h-16 py-2 px-8 flex justify-between items-center gap-4 z-50 font-semibold">
@@ -40,6 +42,17 @@ export function Navbar() {
 				</Link>
 			</Section>
 			<div className="flex items-center gap-2 h-full">
+				<Link href="/sync">
+					<Badge
+						className={cn(
+							'duration-500',
+							synced ? 'bg-green-300 text-green-900 hover:bg-gree-400' : 'hover:bg-red-400 bg-red-300 text-red-900',
+						)}
+					>
+						{synced ? 'Synced' : 'Not synced'}
+					</Badge>
+				</Link>
+
 				<Section>
 					<button
 						type="button"

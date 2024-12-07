@@ -2,12 +2,11 @@
 
 import { Column, Grid } from '@/components/grid'
 
-import { getAuthenticatedUser } from '@/actions/auth'
-import { useEffect, useState } from 'react'
-
+import { TaskSchema } from '@/libs/mongoose/schemas/task'
 import dayjs from 'dayjs'
 import duration from 'dayjs/plugin/duration'
 import relativeTime from 'dayjs/plugin/relativeTime'
+import { useEffect, useState } from 'react'
 import { TaskItem } from './item'
 import { ScreenStatus } from './types'
 
@@ -15,7 +14,7 @@ dayjs.extend(duration)
 dayjs.extend(relativeTime)
 
 type Props = {
-	list: NonNullable<Awaited<ReturnType<typeof getAuthenticatedUser>>['0']>['tasks']
+	list: TaskSchema[]
 	currentDate: Date
 }
 
@@ -40,14 +39,6 @@ export function TaskList({ list, currentDate }: Props) {
 	const daysFromToday = dayjs(currentDate).diff(dayjs(), 'days')
 	const tasksWithoutDate = list.filter((task) => !task.date)
 	const daysTasks = list.filter((task) => task.date && dayjs(task.date).isSame(currentDate, 'day'))
-
-	if (list.length === 0) {
-		return (
-			<div className="flex items-center justify-center h-full">
-				<p className="text-center">No tasks found</p>
-			</div>
-		)
-	}
 
 	return (
 		<Grid>
