@@ -14,6 +14,7 @@ import { useServerAction } from 'zsa-react'
 import { Calendar as CalendarUI } from './calendar'
 import { TaskForm } from './form'
 import { TaskList } from './list'
+import { list } from 'postcss'
 
 export type Props = {
 	tasks: NonNullable<Awaited<ReturnType<typeof getTasks>>['0']>
@@ -39,7 +40,7 @@ export function TasksUI() {
 			<Grid>
 				<Column size={12} className="flex justify-between gap-2 flex-col md:flex-row">
 					<h1 className="text-5xl font-semiboldd">Tasks</h1>
-					<div className="flex items-center border p-1 rounded-lg gap-2 font-semibold">
+					<div className="flex items-center border p-1 rounded-lg gap-2 font-semibold w-max h-12">
 						<button className={cn('w-full h-full rounded-sm px-2 relative')} onClick={() => setShowCalendar(false)}>
 							{!showCalendar && (
 								<motion.div
@@ -53,7 +54,7 @@ export function TasksUI() {
 									!showCalendar && 'text-primary-foreground',
 								)}
 							>
-								Tasks <span className="hidden md:block">list</span>
+								Tasks ({tasks.filter((x) => !x.date || dayjs(x.date).isSame(currentDate, 'day')).length})
 							</span>
 						</button>
 
@@ -148,6 +149,7 @@ export function TasksUI() {
 							animate={{ opacity: 1, x: 0 }}
 							exit={{ opacity: 0, x: 250 }}
 							transition={{ duration: 0.5 }}
+							className="pb-4"
 						>
 							<TaskForm
 								isSubmitting={createTaskAction.isPending}
