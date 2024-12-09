@@ -7,7 +7,7 @@ import { requiredField } from '@/utils/messages'
 import { X } from 'lucide-react'
 // import { Combobox } from '@/components/combobox'
 import { useEffect } from 'react'
-import { Controller, useForm, useWatch } from 'react-hook-form'
+import { Controller, useForm } from 'react-hook-form'
 import { InputTags } from '../../input-tags'
 import { Input } from '../../ui/input'
 
