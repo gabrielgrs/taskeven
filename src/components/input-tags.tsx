@@ -49,7 +49,7 @@ export function InputTags({
 	return (
 		<div
 			className={cn(
-				'relative bg-secondary w-full h-10 px-3 py-2 rounded border border-input grid grid-cols-[max-content,auto] items-center gap-2 flex-wrap',
+				'relative bg-secondary w-full h-10 px-1 py-2 rounded border border-input grid grid-cols-[max-content,auto] items-center gap-2 flex-wrap',
 				isActive && 'ring-2 ring-ring ring-offset-2',
 				className,
 			)}

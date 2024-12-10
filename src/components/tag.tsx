@@ -20,7 +20,7 @@ export function Tag({ children, className }: Props) {
 	// const fontColor = getContrastColor(backgroundColor)
 
 	return (
-		<div className={cn('px-2 py-1 font-medium text-sm rounded-lg', 'bg-foreground/5 text-foreground/90', className)}>
+		<div className={cn('px-1 py-0 font-medium text-sm rounded-lg', 'bg-foreground/5 text-foreground/80', className)}>
 			{children}
 		</div>
 	)

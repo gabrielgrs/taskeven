@@ -7,7 +7,7 @@ import dayjs from 'dayjs'
 import duration from 'dayjs/plugin/duration'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import { useEffect, useState } from 'react'
-import { TaskItem } from './item'
+import { TaskCard } from '../card'
 import { ScreenStatus } from './types'
 
 dayjs.extend(duration)
@@ -59,7 +59,7 @@ export function TaskList({ list, currentDate }: Props) {
 					{daysTasks.map((task) => {
 						return (
 							<Column size={12} key={task._id}>
-								<TaskItem
+								<TaskCard
 									task={task}
 									setScreenStatus={setScreenStatus}
 									screenStatus={screenStatus}
@@ -80,13 +80,13 @@ export function TaskList({ list, currentDate }: Props) {
 			{tasksWithoutDate.length > 0 && (
 				<>
 					<Column size={12}>
-						<span className="text-lg font-semibold">Without date</span>
+						<hr />
 					</Column>
 
 					{tasksWithoutDate.map((task) => {
 						return (
 							<Column size={12} key={task._id}>
-								<TaskItem
+								<TaskCard
 									task={task}
 									setScreenStatus={setScreenStatus}
 									screenStatus={screenStatus}

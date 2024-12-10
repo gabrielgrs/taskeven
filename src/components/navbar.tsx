@@ -43,16 +43,18 @@ export function Navbar() {
 					<div className="h-8 w-8 rounded-full bg-foreground" />
 					<span className="font-semibold hidden md:flex">Taskeven</span>
 				</Link>
-				<Link href="/sync">
-					<Badge
-						className={cn(
-							'duration-500',
-							synced ? 'bg-green-300 text-green-900 hover:bg-gree-400' : 'hover:bg-red-400 bg-red-300 text-red-900',
-						)}
-					>
-						{synced ? 'Synced' : 'Not synced'}
-					</Badge>
-				</Link>
+				{user && (
+					<Link href="/sync">
+						<Badge
+							className={cn(
+								'duration-500',
+								synced ? 'bg-green-300 text-green-900 hover:bg-gree-400' : 'hover:bg-red-400 bg-red-300 text-red-900',
+							)}
+						>
+							{synced ? 'Synced' : 'Not synced'}
+						</Badge>
+					</Link>
+				)}
 			</div>
 			<div className="flex items-center gap-1 h-full">
 				<Button

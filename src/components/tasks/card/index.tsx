@@ -1,52 +1,86 @@
+import { onCompleteOrUncompleteTask, removeTask, updateTask } from '@/actions/task'
+import { Modal } from '@/components/modal'
 import { Tag } from '@/components/tag'
+import { TaskForm } from '@/components/tasks/form'
 import { Button } from '@/components/ui/button'
+import { Checkbox } from '@/components/ui/checkbox'
+import { useTasks } from '@/hooks/use-tasks'
 import { TaskSchema } from '@/libs/mongoose/schemas/task'
 import { cn } from '@/libs/utils'
 import dayjs from 'dayjs'
 import { Edit, Ellipsis, Trash, X } from 'lucide-react'
 import { motion } from 'motion/react'
 import { Dispatch } from 'react'
-import { Checkbox } from '../../ui/checkbox'
+import { toast } from 'sonner'
+import { useServerAction } from 'zsa-react'
 import { ScreenStatus } from '../list/types'
 
-type Props = Pick<TaskSchema, 'title' | 'tags' | 'date' | 'completed'> & {
-	identifier: string
-	onClickExpand: () => void
-	onComplete: (complete: boolean) => void
-	setScreenStatus: Dispatch<ScreenStatus | null>
-	screenStatus: ScreenStatus | null
+type Props = {
 	isExpanded: boolean
-	onRemove: () => void
+	screenStatus: ScreenStatus | null
+	onCancel: () => void
+	task: TaskSchema
+	setScreenStatus: Dispatch<ScreenStatus | null>
+	onExpand: () => void
 }
 
-export function TaskCard({
-	identifier,
-	title,
-	tags,
-	date,
-	completed,
-	onComplete,
-	onClickExpand,
-	onRemove,
-	setScreenStatus,
-	isExpanded,
-	screenStatus,
-}: Props) {
+export function TaskCard({ screenStatus, isExpanded, task, setScreenStatus, onExpand }: Props) {
+	const { refetch, tags } = useTasks()
+
+	const onCompleteOrUncompleteTaskAction = useServerAction(onCompleteOrUncompleteTask, {
+		onError: () => toast.error('Failed to update task'),
+		onSuccess: async () => {
+			await refetch()
+			toast.success('Task updated with success')
+		},
+	})
+
+	const updateTaskAction = useServerAction(updateTask, {
+		onError: () => toast.error('Failed to update task'),
+		onSuccess: async () => {
+			await refetch()
+			toast.success('Task updated with success')
+		},
+	})
+
+	const removeTaskAction = useServerAction(removeTask, {
+		onStart: () => setScreenStatus('deleting'),
+		onError: () => {
+			setScreenStatus('selected_to_delete')
+			toast.error('Failed to remove task')
+		},
+		onSuccess: async () => {
+			await refetch()
+			setScreenStatus(null)
+			toast.success('Task removed with success')
+		},
+	})
+
 	return (
 		<motion.div
-			layoutId={identifier}
+			layoutId={task._id}
 			className={cn(
 				'bg-secondary flex items-center justify-between gap-2 p-2 rounded border border-secondary-foreground/10 shadow',
 				isExpanded ? 'z-50' : 'z-10',
 			)}
 		>
 			<div className="flex items-center gap-1">
-				<Checkbox className="w-5 h-5" checked={completed} onCheckedChange={onComplete} />
+				<Checkbox
+					className="w-5 h-5"
+					checked={task.completed}
+					onCheckedChange={(state) =>
+						onCompleteOrUncompleteTaskAction.execute({ _id: task._id, completed: Boolean(state) })
+					}
+				/>
 
 				<div>
-					<div className={cn('font-semibold', completed && 'line-through text-muted-foreground')}>{title}</div>
-					<div className="flex pl-6 items-center gap-2">
-						<span className="font-medium opacity-50 text-sm">{date ? dayjs(date).format('MM/DD/YYYY') : '-'}</span>
+					<div className={cn('font-semibold', task.completed && 'line-through text-muted-foreground')}>
+						{task.title}
+					</div>
+					<div className="flex items-center gap-2">
+						<span className="font-medium opacity-50 text-sm">
+							{task.date ? dayjs(task.date).format('MM/DD/YYYY') : '-'}
+						</span>
 						{tags.map((tag, index) => (
 							<Tag key={`${tag}_${index}`}>{tag}</Tag>
 						))}
@@ -64,9 +98,30 @@ export function TaskCard({
 								transition={{ delay: 0.2, duration: 0.3 }}
 								className="flex items-center gap-2"
 							>
-								<Button size="icon" variant="outline" onClick={() => setScreenStatus('editing')}>
-									<Edit />
-								</Button>
+								<Modal
+									title="Update task"
+									trigger={
+										<Button size="icon" variant="outline">
+											<Edit />
+										</Button>
+									}
+								>
+									<TaskForm
+										isSubmitting={updateTaskAction.isPending}
+										onSubmit={(note) => {
+											updateTaskAction.execute({
+												_id: task._id,
+												...note,
+											})
+										}}
+										initialValues={{
+											_id: task._id,
+											title: task.title,
+											tags: task.tags.map((x) => ({ label: x, value: x })),
+										}}
+										suggestions={tags}
+									/>
+								</Modal>
 								<Button size="icon" variant="outline" onClick={() => setScreenStatus('selected_to_delete')}>
 									<Trash className="text-destructive" />
 								</Button>
@@ -86,7 +141,7 @@ export function TaskCard({
 								</Button>
 								<Button
 									variant="outline"
-									onClick={() => onRemove()}
+									onClick={() => removeTaskAction.execute({ _id: task._id })}
 									className="text-destructive"
 									loading={screenStatus === 'deleting'}
 								>
@@ -100,7 +155,7 @@ export function TaskCard({
 					size="icon"
 					variant="ghost"
 					onClick={() => {
-						onClickExpand()
+						onExpand()
 					}}
 				>
 					{isExpanded ? <X /> : <Ellipsis />}

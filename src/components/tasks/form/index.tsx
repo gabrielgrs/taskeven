@@ -3,6 +3,7 @@
 import { DatePicker } from '@/components/date-picker'
 import { Button } from '@/components/ui/button'
 import { TaskSchema } from '@/libs/mongoose/schemas/task'
+import { cn } from '@/libs/utils'
 import { requiredField } from '@/utils/messages'
 import { X } from 'lucide-react'
 // import { Combobox } from '@/components/combobox'
@@ -20,6 +21,7 @@ type Props = {
 	suggestions: string[]
 	isExpanded?: boolean
 	isSubmitting: boolean
+	className?: string
 }
 
 const defaultValues: TaskForm = {
@@ -28,7 +30,14 @@ const defaultValues: TaskForm = {
 	date: undefined,
 }
 
-export function TaskForm({ onSubmit: onSubmitFromParent, initialValues, onCancel, suggestions, isSubmitting }: Props) {
+export function TaskForm({
+	onSubmit: onSubmitFromParent,
+	initialValues,
+	onCancel,
+	suggestions,
+	isSubmitting,
+	className,
+}: Props) {
 	const { handleSubmit, register, control, reset } = useForm<typeof defaultValues>({
 		mode: 'all',
 		defaultValues: {
@@ -66,9 +75,12 @@ export function TaskForm({ onSubmit: onSubmitFromParent, initialValues, onCancel
 	}
 
 	return (
-		<form onSubmit={handleSubmit((values) => onSubmit(values))} className="relative flex gap-2 flex-col">
+		<form
+			onSubmit={handleSubmit((values) => onSubmit(values))}
+			className={cn('relative flex gap-2 flex-col p-2 rounded-lg', className)}
+		>
 			{isEdition && onCancel && (
-				<button className="text-muted-foreground  flex items-center text-sm place-self-end" onClick={() => onCancel()}>
+				<button className="text-muted-foreground flex items-center text-sm place-self-end" onClick={() => onCancel()}>
 					Close <X size={16} />
 				</button>
 			)}
@@ -76,6 +88,20 @@ export function TaskForm({ onSubmit: onSubmitFromParent, initialValues, onCancel
 				{...register('title', { required: requiredField })}
 				placeholder="Type your task"
 				className="bg-secondary col-span-2"
+			/>
+
+			<Controller
+				control={control}
+				name="tags"
+				render={({ field }) => {
+					return (
+						<InputTags
+							options={suggestions.map((item) => ({ value: item, label: item }))}
+							value={field.value}
+							onChange={(tags) => field.onChange(tags)}
+						/>
+					)
+				}}
 			/>
 
 			<div className="flex flex-col md:flex-row items-center gap-2">
@@ -90,19 +116,6 @@ export function TaskForm({ onSubmit: onSubmitFromParent, initialValues, onCancel
 								onChange={(event) => field.onChange(event.target.value)}
 								placeholder="Date"
 								triggerClassName="w-full md:w-[200px] bg-secondary"
-							/>
-						)
-					}}
-				/>
-				<Controller
-					control={control}
-					name="tags"
-					render={({ field }) => {
-						return (
-							<InputTags
-								options={suggestions.map((item) => ({ value: item, label: item }))}
-								value={field.value}
-								onChange={(tags) => field.onChange(tags)}
 							/>
 						)
 					}}
