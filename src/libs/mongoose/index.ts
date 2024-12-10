@@ -1,6 +1,8 @@
 import mongoose from 'mongoose'
 
+import { session } from './schemas/session'
 import { task } from './schemas/task'
+import { user } from './schemas/user'
 
 let connection: typeof mongoose | null = null
 
@@ -12,4 +14,4 @@ export const connectDatabase = async (): Promise<typeof mongoose> => {
 
 connectDatabase()
 
-export const db = { task }
+export const db = { user, task, session }

@@ -1,7 +1,8 @@
 import * as jose from 'jose'
 import { cookies } from 'next/headers'
+import { UserSchema } from './mongoose/schemas/user'
 
-export type TokenData = { email: string }
+export type TokenData = Pick<UserSchema, '_id' | 'role'>
 
 export async function decodeToken(token: string) {
 	return jose

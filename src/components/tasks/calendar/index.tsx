@@ -3,12 +3,14 @@
 import { TaskSchema } from '@/libs/mongoose/schemas/task'
 import { cn } from '@/libs/utils'
 import dayjs from 'dayjs'
-import { Column, Grid } from '../grid'
+import { ChevronsLeft, ChevronsRight } from 'lucide-react'
+import { Column, Grid } from '../../grid'
+import { Button } from '../../ui/button'
 
 type Props = {
 	selectedDate: Date
 	tasks: TaskSchema[]
-	onChangeDate: (date: Date) => void
+	onChangeDate: (date: Date, keepCalendarVisible: boolean) => void
 }
 
 function getDaysOfMonth(selectedDate: Date, tasks: TaskSchema[]) {
@@ -37,8 +39,27 @@ export function Calendar({ selectedDate, tasks, onChangeDate }: Props) {
 	return (
 		<Grid>
 			<Column size={12}>
-				<div className="text-center text-2xl">
-					{month} / {year}
+				<div className="text-center flex justify-between items-center gap-2 h-12">
+					<div className="flex items-center gap-2">
+						<button
+							onClick={() => onChangeDate(dayjs(selectedDate).subtract(1, 'month').toDate(), true)}
+							className="duration-500 hover:scale-110 opacity-50 hover:opacity-70"
+						>
+							<ChevronsLeft />
+						</button>
+						{month} / {year}
+						<button
+							onClick={() => onChangeDate(dayjs(selectedDate).add(1, 'month').toDate(), true)}
+							className="duration-500 hover:scale-110 opacity-50 hover:opacity-70"
+						>
+							<ChevronsRight />
+						</button>
+					</div>
+					{!dayjs(selectedDate).isSame(new Date(), 'month') && (
+						<Button size="sm" variant="outline" onClick={() => onChangeDate(new Date(), true)}>
+							Back to today
+						</Button>
+					)}
 				</div>
 			</Column>
 			<Column size={12} className="grid grid-cols-7 gap-4">
@@ -54,7 +75,7 @@ export function Calendar({ selectedDate, tasks, onChangeDate }: Props) {
 								item.tasksQuantity >= 3 && 'border-b-2 border-b-red-500',
 							)}
 							onClick={() => {
-								onChangeDate(item.date.toDate())
+								onChangeDate(item.date.toDate(), false)
 							}}
 						>
 							{item.date.format('D')}

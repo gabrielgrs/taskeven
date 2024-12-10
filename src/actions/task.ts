@@ -2,11 +2,23 @@
 
 import { db } from '@/libs/mongoose'
 import { parseData } from '@/utils/action'
+import { headers } from 'next/headers'
 import { z } from 'zod'
 import { authProcedure } from './procedures'
 
+async function getIP() {
+	const headersData = await headers()
+	return headersData.get('x-forwarded-for') as string
+}
+
 export const getTasks = authProcedure.handler(async ({ ctx }) => {
-	const tasks = await db.task.find({ $or: [{ email: ctx.email }, { ip: ctx.ip }] })
+	if (!ctx.user.stripeSubscriptionId) {
+		const ip = await getIP()
+		const tasks = await db.task.find({ user: ctx.user._id, ip })
+		return parseData(tasks)
+	}
+
+	const tasks = await db.task.find({ user: ctx.user._id })
 
 	return parseData(tasks)
 })
@@ -19,11 +31,14 @@ export const createTask = authProcedure
 			tags: z.array(z.string()),
 		}),
 	)
+	.onError(console.error)
 	.handler(async ({ input, ctx }) => {
+		const ip = await getIP()
+
 		const data = await db.task.create({
 			...input,
-			email: ctx.email,
-			ip: ctx.ip,
+			ip,
+			user: ctx.user._id,
 		})
 
 		return parseData(data)
@@ -38,7 +53,7 @@ export const onCompleteOrUncompleteTask = authProcedure
 	)
 	.handler(async ({ input, ctx }) => {
 		const data = await db.task.findOneAndUpdate(
-			{ $and: [{ _id: input._id }, { $or: [{ email: ctx.email }, { ip: ctx.ip }] }] },
+			{ _id: input._id, user: ctx.user._id },
 			{ completed: input.completed },
 			{ new: true },
 		)
@@ -57,7 +72,7 @@ export const updateTask = authProcedure
 	)
 	.handler(async ({ input, ctx }) => {
 		const data = await db.task.findOneAndUpdate(
-			{ $and: [{ _id: input._id }, { $or: [{ email: ctx.email }, { ip: ctx.ip }] }] },
+			{ _id: input._id, user: ctx.user._id },
 			{ title: input.title, date: input.date, tags: input.tags },
 			{ new: true },
 		)
@@ -72,7 +87,7 @@ export const removeTask = authProcedure
 		}),
 	)
 	.handler(async ({ input, ctx }) => {
-		await db.task.findOneAndDelete({ $and: [{ _id: input._id }, { $or: [{ email: ctx.email }, { ip: ctx.ip }] }] })
+		await db.task.findOneAndDelete({ _id: input._id, user: ctx.user._id })
 
 		return true
 	})

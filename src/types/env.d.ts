@@ -4,5 +4,8 @@ declare namespace NodeJS {
 		JWT_SECRET: string
 		RESEND_KEY: string
 		MONGODB_URI: string
+		STRIPE_SECRET_KEY: string
+		STRIPE_WEBHOOK_SECRET: string
+		STRIPE_CUSTOMER_PORTAL: string
 	}
 }

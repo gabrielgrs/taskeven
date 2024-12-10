@@ -75,3 +75,24 @@
 html {
 	scroll-behavior: smooth;
 }
+
+.square-bg::before {
+	--size: 48px;
+	--line: color-mix(in lch, canvasText, transparent 90%);
+	content: '';
+	height: 100svh;
+	width: 100%;
+	position: fixed;
+	background: linear-gradient(
+				90deg,
+				var(--line) 1px,
+				transparent 1px var(--size)
+			)
+			50% 50% / var(--size) var(--size),
+		linear-gradient(var(--line) 1px, transparent 1px var(--size)) 50% 50% /
+			var(--size) var(--size);
+	mask: linear-gradient(-20deg, transparent 50%, white);
+	top: 0;
+	transform-style: flat;
+	pointer-events: none;
+}

@@ -1,47 +1,48 @@
 'use client'
 
-import { useMainCTA } from '@/hooks/use-main-cta'
 import { cn } from '@/libs/utils'
-import { ArrowRight } from 'lucide-react'
-import { motion } from 'motion/react'
+
+import { signOut } from '@/actions/auth'
+import { useAuth } from '@/hooks/use-auth'
+import { ArrowRight, Lightbulb, LightbulbOff, Loader2, LogOut } from 'lucide-react'
 import { useTheme } from 'next-themes'
-import NextLink from 'next/link'
-import { type ReactNode } from 'react'
+import { useEffect, useState } from 'react'
 import Link from './Link'
 import { Badge } from './ui/badge'
-
-const AnimatedLink = motion(NextLink)
-
-function Section({ children, className }: { children: ReactNode; className?: string }) {
-	return (
-		<div
-			className={cn(
-				'flex items-center justify-center bg-card h-full p-2 shadow rounded-full duration-500 hover:shadow-lg',
-				className,
-			)}
-		>
-			{children}
-		</div>
-	)
-}
-
-const navItemStyles =
-	'relative hover:bg-foreground/10 duration-500 h-full px-4 rounded-full flex items-center justify-center'
+import { Button, buttonVariants } from './ui/button'
 
 export function Navbar() {
+	const [isFarFromTop, setIsFarmFromTop] = useState(false)
+	const { user, isLoading, refetch } = useAuth()
 	const { theme, setTheme } = useTheme()
-	const { showOnNavbar } = useMainCTA()
-	const synced = false
+
+	const synced = Boolean(user?.stripeSubscriptionId)
+
+	useEffect(() => {
+		const onScroll = () => {
+			setIsFarmFromTop(window.scrollY > 30)
+		}
+
+		onScroll()
+
+		window.addEventListener('scroll', onScroll)
+		return () => {
+			window.removeEventListener('scroll', onScroll)
+		}
+	}, [])
 
 	return (
-		<nav className="w-full sticky top-0 backdrop-blur-lg h-16 py-2 px-8 flex justify-between items-center gap-4 z-50 font-semibold">
-			<Section>
+		<nav
+			className={cn(
+				'w-full sticky top-0 py-2 px-8 flex justify-between items-center gap-4 z-50 font-semibold',
+				isFarFromTop ? 'bg-background/80 backdrop-blur-lg h-16' : 'bg-primary/0 h-20',
+			)}
+		>
+			<div className="flex items-center gap-2">
 				<Link href="/" className="flex items-center gap-2">
 					<div className="h-8 w-8 rounded-full bg-foreground" />
 					<span className="font-semibold hidden md:flex">Taskeven</span>
 				</Link>
-			</Section>
-			<div className="flex items-center gap-2 h-full">
 				<Link href="/sync">
 					<Badge
 						className={cn(
@@ -52,28 +53,28 @@ export function Navbar() {
 						{synced ? 'Synced' : 'Not synced'}
 					</Badge>
 				</Link>
+			</div>
+			<div className="flex items-center gap-1 h-full">
+				<Button
+					type="button"
+					variant="outline"
+					size="icon"
+					onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}
+				>
+					{theme === 'dark' ? <Lightbulb /> : <LightbulbOff />}
+				</Button>
+				{user && (
+					<Button variant="link" className="group" onClick={() => signOut().then(() => refetch())}>
+						Sign out <LogOut className="group-hover:translate-x-1 duration-500" />
+					</Button>
+				)}
 
-				<Section>
-					<button
-						type="button"
-						className={cn(navItemStyles, 'h-8')}
-						onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}
-					>
-						{theme === 'dark' ? 'Turn on lights' : 'Turn off lights'}
-					</button>
-				</Section>
-				{showOnNavbar && (
-					<AnimatedLink
-						whileHover={{ rotate: -3, scale: 1.1 }}
-						layoutId="main-cta"
-						href="/auth"
-						className="bg-foreground flex items-center gap-2 group text-background h-full px-4 rounded-full"
-					>
-						Access
-						<span className="group-hover:translate-x-1 duration-500">
-							<ArrowRight size={20} />
-						</span>
-					</AnimatedLink>
+				{isLoading && <Loader2 className="animate-spin" />}
+
+				{!user && !isLoading && (
+					<Link href="/auth" className={cn(buttonVariants(), 'group')}>
+						Sign in <ArrowRight className="group-hover:translate-x-1 duration-500" />
+					</Link>
 				)}
 			</div>
 		</nav>

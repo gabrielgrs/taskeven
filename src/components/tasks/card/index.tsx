@@ -40,13 +40,18 @@ export function TaskCard({
 				isExpanded ? 'z-50' : 'z-10',
 			)}
 		>
-			<div className="flex items-center gap-2">
+			<div className="flex items-center gap-1">
 				<Checkbox className="w-5 h-5" checked={completed} onCheckedChange={onComplete} />
-				<div className={cn('font-semibold', completed && 'line-through text-muted-foreground')}>{title}</div>
-				<span className="font-medium opacity-50 text-sm">{date ? dayjs(date).format('MM/DD/YYYY') : '-'}</span>
-				{tags.map((tag, index) => (
-					<Tag key={`${tag}_${index}`}>{tag}</Tag>
-				))}
+
+				<div>
+					<div className={cn('font-semibold', completed && 'line-through text-muted-foreground')}>{title}</div>
+					<div className="flex pl-6 items-center gap-2">
+						<span className="font-medium opacity-50 text-sm">{date ? dayjs(date).format('MM/DD/YYYY') : '-'}</span>
+						{tags.map((tag, index) => (
+							<Tag key={`${tag}_${index}`}>{tag}</Tag>
+						))}
+					</div>
+				</div>
 			</div>
 			<div className="flex items-end gap-2">
 				{isExpanded && (
@@ -93,6 +98,7 @@ export function TaskCard({
 				)}
 				<Button
 					size="icon"
+					variant="ghost"
 					onClick={() => {
 						onClickExpand()
 					}}

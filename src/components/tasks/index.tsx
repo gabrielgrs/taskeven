@@ -6,11 +6,12 @@ import { Tag } from '@/components/tag'
 import { useTasks } from '@/hooks/use-tasks'
 import { cn } from '@/libs/utils'
 import dayjs from 'dayjs'
-import { Calendar, X } from 'lucide-react'
-import { motion } from 'motion/react'
+import { Calendar, Filter, X } from 'lucide-react'
+import { AnimatePresence, motion } from 'motion/react'
 import { useState } from 'react'
 import { toast } from 'sonner'
 import { useServerAction } from 'zsa-react'
+import { Button } from '../ui/button'
 import { Calendar as CalendarUI } from './calendar'
 import { TaskForm } from './form'
 import { TaskList } from './list'
@@ -25,6 +26,9 @@ export function TasksUI() {
 	const [filterTags, setFilterTags] = useState<string[]>([])
 	const [currentDate, setCurrentDate] = useState(new Date())
 	const [showCalendar, setShowCalendar] = useState(false)
+	const [showFilters, setShowFilters] = useState(false)
+	const [hideWithoutDate, setHideWithoutDate] = useState(false)
+	const [hideCompleted, setHideCompleted] = useState(false)
 	const { tasks, tags, refetch } = useTasks()
 
 	const createTaskAction = useServerAction(createTask, {
@@ -37,8 +41,7 @@ export function TasksUI() {
 	return (
 		<main>
 			<Grid>
-				<Column size={12} className="flex justify-between gap-2 flex-col md:flex-row">
-					<h1 className="text-5xl font-semiboldd">Tasks</h1>
+				<Column size={12} className="flex justify-end gap-2">
 					<div className="flex items-center border p-1 rounded-lg gap-2 font-semibold w-max h-12">
 						<button className={cn('w-full h-full rounded-sm px-2 relative')} onClick={() => setShowCalendar(false)}>
 							{!showCalendar && (
@@ -90,9 +93,9 @@ export function TasksUI() {
 						transition={{ duration: 0.5 }}
 					>
 						<CalendarUI
-							onChangeDate={(date) => {
+							onChangeDate={(date, keepCalendar) => {
 								setCurrentDate(date)
-								setShowCalendar(false)
+								setShowCalendar(keepCalendar)
 							}}
 							selectedDate={currentDate}
 							tasks={tasks}
@@ -148,7 +151,6 @@ export function TasksUI() {
 							animate={{ opacity: 1, x: 0 }}
 							exit={{ opacity: 0, x: 250 }}
 							transition={{ duration: 0.5 }}
-							className="pb-4"
 						>
 							<TaskForm
 								isSubmitting={createTaskAction.isPending}
@@ -165,6 +167,50 @@ export function TasksUI() {
 
 						<MotionColumn
 							size={12}
+							initial={{ opacity: 0, x: -50 }}
+							animate={{ opacity: 1, x: 0 }}
+							exit={{ opacity: 0, x: -50 }}
+							transition={{ duration: 0.5 }}
+							className="flex gap-2 justify-end"
+						>
+							<AnimatePresence>
+								{showFilters && (
+									<motion.div
+										initial={{ opacity: 0, x: -50 }}
+										animate={{ opacity: 1, x: 0 }}
+										exit={{ opacity: 0, x: -50 }}
+										transition={{ duration: 0.5 }}
+										className="flex gap-2 justify-end"
+									>
+										<Button
+											onClick={() => setHideCompleted((p) => !p)}
+											variant="link"
+											className="p-0 text-muted-foreground hover:text-foreground duration-500"
+										>
+											{hideCompleted ? 'Show' : 'Hide'} completed
+										</Button>
+										<Button
+											onClick={() => setHideWithoutDate((p) => !p)}
+											variant="link"
+											className="p-0 text-muted-foreground hover:text-foreground duration-500"
+										>
+											{hideWithoutDate ? 'Show' : 'Hide'} without date
+										</Button>
+									</motion.div>
+								)}
+							</AnimatePresence>
+
+							<Button
+								onClick={() => setShowFilters((p) => !p)}
+								variant="link"
+								className="p-0 text-muted-foreground hover:text-foreground duration-500"
+							>
+								<Filter size={20} />
+							</Button>
+						</MotionColumn>
+
+						<MotionColumn
+							size={12}
 							initial={{ opacity: 0, x: 250 }}
 							animate={{ opacity: 1, x: 0 }}
 							exit={{ opacity: 0, x: 250 }}
@@ -177,6 +223,8 @@ export function TasksUI() {
 										if (filterTags.length === 0) return true
 										return x.tags.some((tag) => filterTags.includes(tag))
 									})
+									.filter((x) => (hideCompleted ? !x.completed : true))
+									.filter((x) => (hideWithoutDate ? x.date : true))
 									.filter((x) => {
 										if (!x.date) return true
 

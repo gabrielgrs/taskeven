@@ -1,9 +1,9 @@
-import { Schema } from 'mongoose'
+import { ObjectId, Schema } from 'mongoose'
 import { createMongooseSchema } from '../helpers'
 
 export type TaskSchema = {
 	_id: string
-	email?: string
+	user: ObjectId
 	ip: string
 	paid: boolean
 	completed: boolean
@@ -18,9 +18,10 @@ export const task = createMongooseSchema<TaskSchema>(
 	'Task',
 	new Schema<TaskSchema>(
 		{
-			email: {
-				type: String,
-				required: false,
+			user: {
+				type: Schema.Types.ObjectId,
+				ref: 'User',
+				required: true,
 			},
 			ip: {
 				type: String,
