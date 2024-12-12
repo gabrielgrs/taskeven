@@ -1,4 +1,4 @@
-import { createToken, decodeToken } from '@/libs/jose'
+import { decodeToken } from '@/libs/jose'
 import { db } from '@/libs/mongoose'
 import { parseData } from '@/utils/action'
 import { cookies } from 'next/headers'
@@ -16,16 +16,6 @@ export const authProcedure = createServerActionProcedure()
 
 		const user = await db.user.findOne({ _id: tokenData._id })
 		if (!user) throw new Error('Unauthorized')
-
-		const newToken = await createToken({ _id: user._id, role: user.role })
-
-		cookiesData.set('token', newToken, {
-			httpOnly: true,
-			sameSite: 'lax',
-			path: '/',
-			maxAge: 60 * 60 * 24 * 30,
-			secure: process.env.NODE_ENV === 'production',
-		})
 
 		return parseData({ user: user.toJSON() })
 	})
