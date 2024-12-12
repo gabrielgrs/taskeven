@@ -64,7 +64,7 @@ export function TaskCard({ screenStatus, isExpanded, task, setScreenStatus, onEx
 				isExpanded ? 'z-50' : 'z-10',
 			)}
 		>
-			<div className="flex items-center gap-1">
+			<div className="flex items-center gap-2">
 				<Checkbox
 					className="w-5 h-5"
 					checked={task.completed}
@@ -78,16 +78,13 @@ export function TaskCard({ screenStatus, isExpanded, task, setScreenStatus, onEx
 						{task.title}
 					</div>
 					<div className="flex items-center gap-2">
-						<span className="font-medium opacity-50 text-sm">
-							{task.date ? dayjs(task.date).format('MM/DD/YYYY') : '-'}
-						</span>
 						{tags.map((tag, index) => (
 							<Tag key={`${tag}_${index}`}>{tag}</Tag>
 						))}
 					</div>
 				</div>
 			</div>
-			<div className="flex items-end gap-2">
+			<div className="flex items-center gap-2">
 				{isExpanded && (
 					<div className="flex items-center">
 						{!screenStatus && (
@@ -150,6 +147,9 @@ export function TaskCard({ screenStatus, isExpanded, task, setScreenStatus, onEx
 							</motion.div>
 						)}
 					</div>
+				)}
+				{!isExpanded && task.date && (
+					<span className="font-semibold opacity-50 text-sm">{dayjs(task.date).format('HH:mm')}</span>
 				)}
 				<Button
 					size="icon"

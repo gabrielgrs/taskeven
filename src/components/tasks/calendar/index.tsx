@@ -65,21 +65,29 @@ export function Calendar({ selectedDate, tasks, onChangeDate }: Props) {
 			<Column size={12} className="grid grid-cols-7 gap-4">
 				{calendar.map((item) => {
 					return (
-						<button
-							key={`day_${item.date.toISOString()}`}
-							className={cn(
-								'duration-500 hover:opacity-90 hover:translate-x-0.5 hover:-translate-y-0.5 w-8 h-8 md:w-12 md:h-12 flex text-foreground/70 items-center justify-center rounded bg-foreground/10 border border-bg-foreground/20',
-								dayjs(new Date()).isSame(item.date, 'day') && 'font-bold',
-								item.tasksQuantity === 1 && 'border-b-2 border-b-green-500',
-								item.tasksQuantity === 2 && 'border-b-2 border-b-yellow-500',
-								item.tasksQuantity >= 3 && 'border-b-2 border-b-red-500',
-							)}
-							onClick={() => {
-								onChangeDate(item.date.toDate(), false)
-							}}
-						>
-							{item.date.format('D')}
-						</button>
+						<div key={`day_${item.date.toISOString()}`} className="flex flex-col gap-1 items-center justify-center">
+							<button
+								className={cn(
+									'duration-500 hover:opacity-90 hover:translate-x-0.5 hover:-translate-y-0.5 w-8 h-8 md:w-12 md:h-12 flex text-foreground/70 items-center justify-center rounded bg-foreground/10 border border-bg-foreground/20',
+									dayjs(new Date()).isSame(item.date, 'day') && 'font-bold',
+									item.tasksQuantity === 1 && 'border-b-2 border-b-green-500',
+									item.tasksQuantity === 2 && 'border-b-2 border-b-yellow-500',
+									item.tasksQuantity >= 3 && 'border-b-2 border-b-red-500',
+								)}
+								onClick={() => {
+									onChangeDate(item.date.toDate(), false)
+								}}
+							>
+								{item.date.format('D')}
+							</button>
+							<div className="flex items-center gap-1">
+								{Array(item.tasksQuantity)
+									.fill(null)
+									.map((_, index) => {
+										return <div className="w-2 h-2 rounded-full bg-foreground/30" key={`item_mark_${index}`} />
+									})}
+							</div>
+						</div>
 					)
 				})}
 			</Column>

@@ -71,3 +71,11 @@ export const signOut = createServerAction().handler(async () => {
 
 	return true
 })
+
+export const updateUser = authProcedure
+	.input(z.object({ capacity: z.number(), wakeUpTime: z.number().optional(), sleepTime: z.number().optional() }))
+	.handler(async ({ ctx, input }) => {
+		await db.user.findOneAndUpdate({ _id: ctx.user._id }, input)
+
+		return true
+	})

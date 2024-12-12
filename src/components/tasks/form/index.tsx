@@ -12,7 +12,10 @@ import { Controller, useForm } from 'react-hook-form'
 import { InputTags } from '../../input-tags'
 import { Input } from '../../ui/input'
 
-type TaskForm = Pick<TaskSchema, 'title' | 'date'> & { tags: { value: string; label: string }[]; _id?: string }
+type TaskForm = Pick<TaskSchema, 'title' | 'date' | 'duration'> & {
+	tags: { value: string; label: string }[]
+	_id?: string
+}
 
 type Props = {
 	onCancel?: () => void
@@ -27,6 +30,7 @@ type Props = {
 const defaultValues: TaskForm = {
 	title: '',
 	tags: [],
+	duration: 0,
 	date: undefined,
 }
 
@@ -115,13 +119,19 @@ export function TaskForm({
 								value={field.value}
 								onChange={(event) => field.onChange(event.target.value)}
 								placeholder="Date"
-								triggerClassName="w-full md:w-[200px] bg-secondary"
+								triggerClassName="bg-secondary w-full"
 							/>
 						)
 					}}
 				/>
 
-				<Button loading={isSubmitting} className="col-span-2 w-full md:w-max">
+				<Input
+					{...register('duration', { min: 0, max: 24 })}
+					className="bg-secondary w-full"
+					placeholder="Duration hours"
+				/>
+
+				<Button loading={isSubmitting} className="col-span-2 w-full md:w-max min-w-lg self-end">
 					{isEdition ? 'Update' : 'Add'} task
 				</Button>
 			</div>

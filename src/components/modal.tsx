@@ -7,7 +7,7 @@ export function Modal({ trigger, children, title }: { trigger: ReactNode; childr
 		<Dialog>
 			<DialogTrigger asChild>{trigger}</DialogTrigger>
 			<DialogContent className="bg-foreground/5 backdrop-blur-sm">
-				<DialogTitle>{title}</DialogTitle>
+				<DialogTitle className="pb-4">{title}</DialogTitle>
 				{children}
 			</DialogContent>
 		</Dialog>

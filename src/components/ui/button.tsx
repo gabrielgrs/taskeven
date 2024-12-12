@@ -6,7 +6,7 @@ import { cn } from '@/libs/utils'
 import { Loader2 } from 'lucide-react'
 
 const buttonVariants = cva(
-	'inline-flex border items-center justify-center gap-2 whitespace-nowrap rounded-md font-semibold ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0',
+	'relative inline-flex border items-center justify-center gap-2 whitespace-nowrap rounded-md font-semibold ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0',
 	{
 		variants: {
 			variant: {
@@ -14,7 +14,7 @@ const buttonVariants = cva(
 				destructive: 'bg-destructive text-destructive-foreground hover:bg-destructive/90',
 				outline: 'border border-input bg-background hover:bg-accent hover:text-accent-foreground',
 				secondary: 'bg-secondary text-secondary-foreground hover:bg-secondary/80',
-				ghost: 'hover:bg-accent hover:text-accent-foreground',
+				ghost: 'hover:bg-accent hover:text-accent-foreground border-none',
 				link: 'text-foreground underline-offset-8 underline border-none',
 			},
 			size: {
@@ -43,7 +43,14 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
 		const Comp = asChild ? Slot : 'button'
 		return (
 			<Comp className={cn(buttonVariants({ variant, size, className }))} ref={ref} {...props}>
-				{loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : children}
+				<span className={cn('duration-300 flex items-center gap-2', loading ? 'opacity-0' : 'opacity-100')}>
+					{children}
+				</span>
+				{loading && (
+					<span className="absolute inset-0 flex items-center justify-center">
+						<Loader2 size={20} className="animate-spin" />
+					</span>
+				)}
 			</Comp>
 		)
 	},

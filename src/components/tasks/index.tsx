@@ -3,19 +3,21 @@
 import { createTask, getTasks } from '@/actions/task'
 import { Column, Grid } from '@/components/grid'
 import { Tag } from '@/components/tag'
+import { useAuth } from '@/hooks/use-auth'
 import { useTasks } from '@/hooks/use-tasks'
 import { cn } from '@/libs/utils'
+import { timeValueToMinutes } from '@/utils/date'
 import dayjs from 'dayjs'
-import { Calendar, X } from 'lucide-react'
+import { Calendar, Settings, X } from 'lucide-react'
 import { motion } from 'motion/react'
 import { useState } from 'react'
 import { toast } from 'sonner'
 import { useServerAction } from 'zsa-react'
-import { Modal } from '../modal'
 import { Button } from '../ui/button'
 import { Calendar as CalendarUI } from './calendar'
 import { TaskForm } from './form'
 import { TaskList } from './list'
+import { SettingsUI } from './settings'
 
 export type Props = {
 	tasks: NonNullable<Awaited<ReturnType<typeof getTasks>>['0']>
@@ -23,14 +25,16 @@ export type Props = {
 
 const MotionColumn = motion.create(Column)
 
+type ScreenState = 'task_list' | 'task_form' | 'settings' | 'calendar'
 export function TasksUI() {
+	const [screenState, setScreenState] = useState<ScreenState>('task_list')
 	const [filterTags, setFilterTags] = useState<string[]>([])
 	const [currentDate, setCurrentDate] = useState(new Date())
 	// const [showForm, setShowForm] = useState(false)
-	const [showCalendar, setShowCalendar] = useState(false)
 	const [hideWithoutDate, setHideWithoutDate] = useState(false)
 	const [hideCompleted, setHideCompleted] = useState(false)
 	const { tasks, tags, refetch } = useTasks()
+	const { onUpdateUser, isUpdating, user } = useAuth()
 
 	const createTaskAction = useServerAction(createTask, {
 		onSuccess: async () => {
@@ -42,19 +46,25 @@ export function TasksUI() {
 	return (
 		<main className="relative">
 			<Grid className="relative">
-				<Column size={12} className="flex justify-between gap-2 items-center">
+				<Column
+					size={12}
+					className="flex flex-col-reverse md:flex-row justify-between gap-2 items-start md:items-center"
+				>
 					<div className="flex items-center border p-1 rounded-lg gap-2 font-semibold w-max h-12">
-						<button className={cn('w-full h-full rounded-sm px-2 relative')} onClick={() => setShowCalendar(false)}>
-							{!showCalendar && (
+						<button
+							className={cn('w-full h-full rounded-sm px-2 relative')}
+							onClick={() => setScreenState('task_list')}
+						>
+							{screenState === 'task_list' && (
 								<motion.div
 									layoutId="layour_selector_bg"
-									className="absolute rounded-sm bg-primary inset-0 bg- w-full h-full bg-red-499"
+									className="absolute rounded-sm bg-secondary inset-0 bg- w-full h-full bg-red-499"
 								/>
 							)}
 							<span
 								className={cn(
 									'duration-1000 relative z-10 flex items-center',
-									!showCalendar && 'text-primary-foreground',
+									screenState === 'task_list' && 'text-foreground',
 								)}
 							>
 								Tasks ({tasks.filter((x) => !x.date || dayjs(x.date).isSame(currentDate, 'day')).length})
@@ -63,18 +73,18 @@ export function TasksUI() {
 
 						<button
 							className={cn('w-full h-full rounded-sm px-2 relative flex items-center gap-1')}
-							onClick={() => setShowCalendar(true)}
+							onClick={() => setScreenState('calendar')}
 						>
-							{showCalendar && (
+							{screenState === 'calendar' && (
 								<motion.div
 									layoutId="layour_selector_bg"
-									className="absolute rounded-sm bg-primary inset-0 w-full h-full"
+									className="absolute rounded-sm bg-secondary inset-0 bg- w-full h-full bg-red-499"
 								/>
 							)}
 							<span
 								className={cn(
 									'duration-1000 relative z-10 flex items-center gap-2',
-									showCalendar && 'text-primary-foreground',
+									screenState === 'calendar' && 'text-foreground',
 								)}
 							>
 								{dayjs(currentDate).format('MM/DD/YYYY')}
@@ -82,7 +92,61 @@ export function TasksUI() {
 							</span>
 						</button>
 					</div>
-					<Modal title="Create task" trigger={<Button>New Task</Button>}>
+
+					<div className="flex items-center gap-1">
+						<Button type="button" size="sm" variant="outline" onClick={() => setScreenState('settings')}>
+							<Settings />
+						</Button>
+						<Button type="button" onClick={() => setScreenState('task_form')}>
+							Create task
+						</Button>
+					</div>
+				</Column>
+
+				{screenState === 'settings' && (
+					<MotionColumn
+						size={12}
+						className="overflow-hidden bg-primary/5 rounded-md p-4"
+						initial={{ opacity: 0, y: 50 }}
+						animate={{ opacity: 1, y: 0 }}
+						exit={{ opacity: 0, y: 50 }}
+					>
+						<SettingsUI
+							initialValues={
+								user
+									? {
+											capacity: user.capacity,
+											hasSleepTime: user.sleepTime !== -1,
+											hasWakeUpTime: user.wakeUpTime !== -1,
+											sleepTime: user.sleepTime === -1 ? '' : dayjs(user.sleepTime, 'HH:mm').format('HH:mm'),
+											wakeUpTime: user.wakeUpTime === -1 ? '' : dayjs(user.wakeUpTime, 'HH:mm').format('HH:mm'),
+											showOnlyDated: !hideWithoutDate,
+											showUncompleted: !hideCompleted,
+										}
+									: undefined
+							}
+							isSubmitting={isUpdating}
+							onSubmit={async (values) => {
+								await onUpdateUser({
+									capacity: values.capacity,
+									wakeUpTime: timeValueToMinutes(values.wakeUpTime),
+									sleepTime: timeValueToMinutes(values.sleepTime),
+								})
+								setHideWithoutDate(values.showOnlyDated)
+								setHideCompleted(values.showUncompleted)
+							}}
+						/>
+					</MotionColumn>
+				)}
+
+				{screenState === 'task_form' && (
+					<MotionColumn
+						size={12}
+						className="overflow-hidden bg-primary/5 rounded-md"
+						initial={{ opacity: 0, y: 50 }}
+						animate={{ opacity: 1, y: 0 }}
+						exit={{ opacity: 0, y: 50 }}
+					>
 						<TaskForm
 							isSubmitting={createTaskAction.isPending}
 							onSubmit={(note) => {
@@ -94,10 +158,10 @@ export function TasksUI() {
 							}}
 							suggestions={tags}
 						/>
-					</Modal>
-				</Column>
+					</MotionColumn>
+				)}
 
-				{showCalendar && (
+				{screenState === 'calendar' && (
 					<MotionColumn
 						size={12}
 						className="overflow-hidden"
@@ -109,7 +173,7 @@ export function TasksUI() {
 						<CalendarUI
 							onChangeDate={(date, keepCalendar) => {
 								setCurrentDate(date)
-								setShowCalendar(keepCalendar)
+								setScreenState(keepCalendar ? 'calendar' : 'task_list')
 							}}
 							selectedDate={currentDate}
 							tasks={tasks}
@@ -117,7 +181,7 @@ export function TasksUI() {
 					</MotionColumn>
 				)}
 
-				{!showCalendar && (
+				{screenState === 'task_list' && (
 					<>
 						{/* <MotionColumn
 							size={12}
@@ -148,29 +212,6 @@ export function TasksUI() {
 							transition={{ duration: 0.5 }}
 							className="grid grid-cols-[max-content,auto] gap-4 items-center"
 						>
-							<div className="flex gap-2 items-center">
-								<Button
-									onClick={() => setHideCompleted((p) => !p)}
-									variant="link"
-									className={cn(
-										'p-0 text-muted-foreground hover:text-foreground duration-500',
-										hideCompleted && 'line-through',
-									)}
-								>
-									Completed
-								</Button>
-								<Button
-									onClick={() => setHideWithoutDate((p) => !p)}
-									variant="link"
-									className={cn(
-										'p-0 text-muted-foreground hover:text-foreground duration-500',
-										hideWithoutDate && 'line-through',
-									)}
-								>
-									Dated
-								</Button>
-							</div>
-
 							<div className="flex gap-2 flex-wrap text-center">
 								{tags.map((tag) => (
 									<button
