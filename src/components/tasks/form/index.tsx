@@ -4,15 +4,18 @@ import { DatePicker } from '@/components/date-picker'
 import { Button } from '@/components/ui/button'
 import { TaskSchema } from '@/libs/mongoose/schemas/task'
 import { cn } from '@/libs/utils'
+import { timeValueToMinutes } from '@/utils/date'
 import { requiredField } from '@/utils/messages'
+import dayjs from 'dayjs'
 import { X } from 'lucide-react'
 // import { Combobox } from '@/components/combobox'
 import { useEffect } from 'react'
-import { Controller, useForm } from 'react-hook-form'
+import { Controller, useForm, useWatch } from 'react-hook-form'
 import { InputTags } from '../../input-tags'
 import { Input } from '../../ui/input'
 
 type TaskForm = Pick<TaskSchema, 'title' | 'date' | 'duration'> & {
+	time: string
 	tags: { value: string; label: string }[]
 	_id?: string
 }
@@ -32,6 +35,7 @@ const defaultValues: TaskForm = {
 	tags: [],
 	duration: 0,
 	date: undefined,
+	time: '',
 }
 
 export function TaskForm({
@@ -51,6 +55,8 @@ export function TaskForm({
 		},
 	})
 
+	const dateValue = useWatch({ control, name: 'date' })
+
 	const isEdition = Boolean(initialValues?._id)
 
 	useEffect(() => {
@@ -68,14 +74,16 @@ export function TaskForm({
 	}, [onCancel, reset])
 
 	const onSubmit = async (values: typeof defaultValues) => {
-		try {
-			await onSubmitFromParent({
-				...values,
-				tags: values.tags.map((tag) => tag.label),
-			})
-			reset()
-			if (onCancel) onCancel()
-		} catch {}
+		const timeInMinutes = timeValueToMinutes(values.time)
+
+		const date = values.date ? dayjs(values.date).startOf('day').add(timeInMinutes, 'minute').toDate() : undefined
+		await onSubmitFromParent({
+			...values,
+			tags: values.tags.map((tag) => tag.label),
+			date,
+		})
+		reset()
+		if (onCancel) onCancel()
 	}
 
 	return (
@@ -108,7 +116,7 @@ export function TaskForm({
 				}}
 			/>
 
-			<div className="flex flex-col md:flex-row items-center gap-2">
+			<div className="grid grid-cols-1 md:grid-cols-[1fr,1fr,120px,max-content] gap-2">
 				<Controller
 					control={control}
 					name="date"
@@ -126,12 +134,14 @@ export function TaskForm({
 				/>
 
 				<Input
-					{...register('duration', { min: 0, max: 24 })}
+					{...register('time', { required: Boolean(dateValue) && requiredField })}
 					className="bg-secondary w-full"
-					placeholder="Duration hours"
+					type="time"
 				/>
 
-				<Button loading={isSubmitting} className="col-span-2 w-full md:w-max min-w-lg self-end">
+				<Input {...register('duration', { min: 0, max: 24 })} className="bg-secondary w-full" placeholder="Duration" />
+
+				<Button loading={isSubmitting} className="w-full md:w-max min-w-lg self-end">
 					{isEdition ? 'Update' : 'Add'} task
 				</Button>
 			</div>

@@ -31,7 +31,6 @@ export const createTask = authProcedure
 			tags: z.array(z.string()),
 		}),
 	)
-	.onError(console.error)
 	.handler(async ({ input, ctx }) => {
 		const ip = await getIP()
 

@@ -5,9 +5,8 @@ export type UserSchema = {
 	_id: string
 	email: string
 	role: 'USER' | 'ADMIN'
-	sleepTime: number
-	wakeUpTime: number
-	capacity: number
+	startTime: string
+	endTime: string
 	stripeCustomerId: string
 	stripeSubscriptionId?: string
 	createdAt: Date
@@ -23,17 +22,13 @@ export const user = createMongooseSchema<UserSchema>(
 				required: true,
 				unique: true,
 			},
-			wakeUpTime: {
-				type: Number,
-				default: -1,
+			startTime: {
+				type: String,
+				default: '00:00',
 			},
-			sleepTime: {
-				type: Number,
-				default: -1,
-			},
-			capacity: {
-				type: Number,
-				default: 8,
+			endTime: {
+				type: String,
+				default: '23:59',
 			},
 			role: {
 				type: String,

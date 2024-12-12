@@ -149,7 +149,10 @@ export function TaskCard({ screenStatus, isExpanded, task, setScreenStatus, onEx
 					</div>
 				)}
 				{!isExpanded && task.date && (
-					<span className="font-semibold opacity-50 text-sm">{dayjs(task.date).format('HH:mm')}</span>
+					<div className="flex flex-col items-end">
+						<span className="font-semibold opacity-50 text-sm">{dayjs(task.date).format('HH:mm')}</span>
+						{<span className="font-semibold opacity-50 text-sm">{task.duration}h duration</span>}
+					</div>
 				)}
 				<Button
 					size="icon"

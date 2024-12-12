@@ -4,8 +4,6 @@ import { createMongooseSchema } from '../helpers'
 export type TaskSchema = {
 	_id: string
 	user: ObjectId
-	ip: string
-	paid: boolean
 	completed: boolean
 	tags: string[]
 	title: string
@@ -23,15 +21,6 @@ export const task = createMongooseSchema<TaskSchema>(
 				type: Schema.Types.ObjectId,
 				ref: 'User',
 				required: true,
-			},
-			ip: {
-				type: String,
-				required: true,
-			},
-			paid: {
-				type: Boolean,
-				default: false,
-				required: false,
 			},
 			title: {
 				type: String,

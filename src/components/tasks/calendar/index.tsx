@@ -1,5 +1,6 @@
 'use client'
 
+import { useAuth } from '@/hooks/use-auth'
 import { TaskSchema } from '@/libs/mongoose/schemas/task'
 import { cn } from '@/libs/utils'
 import dayjs from 'dayjs'
@@ -21,15 +22,23 @@ function getDaysOfMonth(selectedDate: Date, tasks: TaskSchema[]) {
 		.fill(null)
 		.map((_, index) => {
 			const date = dayjs(firstDayOfMonth).add(index + 1, 'day')
+			const dailyTasks = tasks.filter((item) => item.date).filter((item) => dayjs(item.date).isSame(date, 'day'))
+
 			return {
 				date,
-				tasksQuantity: tasks.filter((item) => item.date).filter((item) => dayjs(item.date).isSame(date, 'day')).length,
+				dailyActivity: dailyTasks
+					.filter((x) => x.duration > 0)
+					.reduce((acc: number, curr) => (acc += curr.duration), 0),
+				tasksQuantity: dailyTasks.length,
 			}
 		})
 }
 
 export function Calendar({ selectedDate, tasks, onChangeDate }: Props) {
 	const [month, _, year] = dayjs(selectedDate).format('MMMM/DD/YYYY').split('/')
+	const { user } = useAuth()
+
+	const capacity = user?.capacity ?? 0
 
 	const calendar = getDaysOfMonth(
 		selectedDate,
@@ -64,15 +73,18 @@ export function Calendar({ selectedDate, tasks, onChangeDate }: Props) {
 			</Column>
 			<Column size={12} className="grid grid-cols-7 gap-4">
 				{calendar.map((item) => {
+					const dailyCapacityPercentage = (item.dailyActivity / capacity) * 100
+
 					return (
 						<div key={`day_${item.date.toISOString()}`} className="flex flex-col gap-1 items-center justify-center">
 							<button
 								className={cn(
 									'duration-500 hover:opacity-90 hover:translate-x-0.5 hover:-translate-y-0.5 w-8 h-8 md:w-12 md:h-12 flex text-foreground/70 items-center justify-center rounded bg-foreground/10 border border-bg-foreground/20',
 									dayjs(new Date()).isSame(item.date, 'day') && 'font-bold',
-									item.tasksQuantity === 1 && 'border-b-2 border-b-green-500',
-									item.tasksQuantity === 2 && 'border-b-2 border-b-yellow-500',
-									item.tasksQuantity >= 3 && 'border-b-2 border-b-red-500',
+									dailyCapacityPercentage >= 90 && 'border-b-2 border-b-red-500',
+									dailyCapacityPercentage >= 60 && 'border-b-2 border-b-yellow-500',
+									dailyCapacityPercentage >= 30 && 'border-b-2 border-b-green-500',
+									dailyCapacityPercentage === 0 && 'border-b-2 border-b-primary/10',
 								)}
 								onClick={() => {
 									onChangeDate(item.date.toDate(), false)

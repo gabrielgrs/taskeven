@@ -20,9 +20,7 @@ type Props = {
 	currentDate: Date
 }
 
-function WakeUpAndSleepCard({ icon: Icon, text, time = -1 }: { icon: LucideIcon; text: string; time?: number }) {
-	if (!time || time < 0) return null
-
+function StartEndCard({ icon: Icon, text, time }: { icon: LucideIcon; text: string; time: string }) {
 	return (
 		<Column
 			size={12}
@@ -32,7 +30,7 @@ function WakeUpAndSleepCard({ icon: Icon, text, time = -1 }: { icon: LucideIcon;
 				<Icon size={16} />
 				{text}
 			</div>
-			{dayjs(new Date()).startOf('day').add(time, 'minutes').format('HH:mm')}
+			{time}
 		</Column>
 	)
 }
@@ -56,7 +54,6 @@ export function TaskList({ list, currentDate }: Props) {
 		}
 	}, [])
 
-	const daysFromToday = dayjs(currentDate).diff(dayjs(), 'days')
 	const tasksWithoutDate = list.filter((task) => !task.date)
 	const daysTasks = list.filter((task) => task.date && dayjs(task.date).isSame(currentDate, 'day'))
 
@@ -70,13 +67,7 @@ export function TaskList({ list, currentDate }: Props) {
 
 			{daysTasks.length > 0 && (
 				<>
-					<Column size={12}>
-						<span className="text-lg font-semibold">
-							{daysFromToday === 0 ? 'Today' : dayjs.duration(daysFromToday, 'days').humanize(true)} tasks
-						</span>
-					</Column>
-
-					<WakeUpAndSleepCard icon={Sun} text="Wake up time" time={user?.wakeUpTime} />
+					{user?.startTime && <StartEndCard icon={Sun} text="Start time" time={user.startTime} />}
 
 					{daysTasks.map((task) => {
 						return (
@@ -97,7 +88,7 @@ export function TaskList({ list, currentDate }: Props) {
 						)
 					})}
 
-					<WakeUpAndSleepCard icon={Moon} text="Sleep time" time={user?.sleepTime} />
+					{user?.endTime && <StartEndCard icon={Moon} text="End time" time={user.endTime} />}
 				</>
 			)}
 
