@@ -16,7 +16,7 @@ export function Navbar() {
 	const { user, isLoading, refetch } = useAuth()
 	const { theme, setTheme } = useTheme()
 
-	const synced = Boolean(user?.stripeSubscriptionId)
+	const isPro = Boolean(user?.stripeSubscriptionId)
 
 	useEffect(() => {
 		const onScroll = () => {
@@ -45,14 +45,7 @@ export function Navbar() {
 				</Link>
 				{user && (
 					<Link href="/sync">
-						<Badge
-							className={cn(
-								'duration-500',
-								synced ? 'bg-green-300 text-green-900 hover:bg-gree-400' : 'hover:bg-red-400 bg-red-300 text-red-900',
-							)}
-						>
-							{synced ? 'Synced' : 'Not synced'}
-						</Badge>
+						<Badge className={cn('duration-500')}>{isPro ? 'Pro' : 'Free'}</Badge>
 					</Link>
 				)}
 			</div>
