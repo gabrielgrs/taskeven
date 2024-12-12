@@ -13,6 +13,7 @@ export async function decodeToken(token: string) {
 
 export async function createToken(data: TokenData) {
 	return new jose.SignJWT(data)
+		.setExpirationTime('1d')
 		.setProtectedHeader({ alg: 'HS256' })
 		.sign(new TextEncoder().encode(process.env.JWT_SECRET))
 }
