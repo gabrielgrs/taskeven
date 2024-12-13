@@ -13,8 +13,7 @@ async function getIP() {
 
 export const getTasks = authProcedure.handler(async ({ ctx }) => {
 	if (!ctx.user.stripeSubscriptionId) {
-		const ip = await getIP()
-		const tasks = await db.task.find({ user: ctx.user._id, ip })
+		const tasks = await db.task.find({ user: ctx.user._id, archived: false })
 		return parseData(tasks)
 	}
 
@@ -44,17 +43,16 @@ export const createTask = authProcedure
 		return parseData(data)
 	})
 
-export const onCompleteOrUncompleteTask = authProcedure
+export const archiveTask = authProcedure
 	.input(
 		z.object({
 			_id: z.string(),
-			completed: z.boolean(),
 		}),
 	)
 	.handler(async ({ input, ctx }) => {
 		const data = await db.task.findOneAndUpdate(
 			{ _id: input._id, user: ctx.user._id },
-			{ completed: input.completed },
+			{ archived: true },
 			{ new: true },
 		)
 

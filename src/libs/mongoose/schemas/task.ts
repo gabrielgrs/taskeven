@@ -4,7 +4,7 @@ import { createMongooseSchema } from '../helpers'
 export type TaskSchema = {
 	_id: string
 	user: ObjectId
-	completed: boolean
+	archived: boolean
 	tag: string
 	title: string
 	duration: number
@@ -26,7 +26,7 @@ export const task = createMongooseSchema<TaskSchema>(
 				type: String,
 				required: true,
 			},
-			completed: {
+			archived: {
 				type: Boolean,
 				default: false,
 			},

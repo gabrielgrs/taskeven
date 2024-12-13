@@ -131,7 +131,6 @@ export function TasksUI() {
 										if (filterTag === 'All') return true
 										return item.tag === filterTag
 									})
-									.filter((x) => (hideCompleted ? !x.completed : true))
 									.filter((x) => (hideUndated ? x.date : true))
 									.filter((x) => {
 										if (!x.date) return true

@@ -1,12 +1,12 @@
 'use client'
 
 import { Dialog, DialogClose, DialogContent, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
-import { ReactNode } from 'react'
+import { ReactNode, useState } from 'react'
 import { Button } from './ui/button'
 
 type Props = {
 	children: ReactNode
-	onConfirm: () => void
+	onConfirm: () => Promise<[unknown, unknown]>
 	title?: string
 	message?: string
 	loading: boolean
@@ -18,8 +18,10 @@ export function AreYouSure({
 	message = 'You really want to do this?',
 	loading,
 }: Props) {
+	const [isOpen, setIsOpen] = useState(false)
+
 	return (
-		<Dialog>
+		<Dialog open={isOpen} onOpenChange={setIsOpen}>
 			<DialogTrigger asChild>{children}</DialogTrigger>
 			<DialogContent className="bg-foreground/5 backdrop-blur-sm">
 				<DialogTitle className="pb-4">{title}</DialogTitle>
@@ -30,7 +32,7 @@ export function AreYouSure({
 							Cancel
 						</Button>
 					</DialogClose>
-					<Button type="button" onClick={onConfirm} loading={loading}>
+					<Button type="button" onClick={() => onConfirm().then(() => setIsOpen(false))} loading={loading}>
 						Confirm
 					</Button>
 				</div>

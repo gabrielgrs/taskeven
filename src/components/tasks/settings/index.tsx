@@ -50,26 +50,6 @@ export function SettingsUI({ onSubmit, isSubmitting, initialValues }: Props) {
 				</Column>
 
 				<Column size={12}>
-					<Controller
-						control={control}
-						name="hideCompleted"
-						render={({ field }) => {
-							return (
-								<>
-									<Label htmlFor={field.name}>Hide completed</Label>
-									<br />
-									<Switch
-										id={field.name}
-										checked={field.value}
-										onCheckedChange={(checked) => field.onChange(checked)}
-									/>
-								</>
-							)
-						}}
-					/>
-				</Column>
-
-				<Column size={12}>
 					<Label>Start time</Label>
 					<Input {...register('startTime', { required: requiredField })} type="time" className="max-w-[160px]" />
 				</Column>

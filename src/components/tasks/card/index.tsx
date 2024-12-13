@@ -1,13 +1,12 @@
-import { onCompleteOrUncompleteTask, removeTask, updateTask } from '@/actions/task'
+import { archiveTask, updateTask } from '@/actions/task'
 import { AreYouSure } from '@/components/are-you-sure'
 import { Tag } from '@/components/tag'
 import { Button } from '@/components/ui/button'
-import { Checkbox } from '@/components/ui/checkbox'
 import { useTasks } from '@/hooks/use-tasks'
 import { TaskSchema } from '@/libs/mongoose/schemas/task'
 import { cn } from '@/libs/utils'
 import dayjs from 'dayjs'
-import { Edit, Expand, Trash, X } from 'lucide-react'
+import { Archive, Edit, Expand, Trash, X } from 'lucide-react'
 import { motion } from 'motion/react'
 import { useState } from 'react'
 import { toast } from 'sonner'
@@ -23,11 +22,11 @@ export function TaskCard({ task }: Props) {
 	const [isExpanded, setIsExpanded] = useState(false)
 	const [isEditing, setIsEditing] = useState(false)
 
-	const onCompleteOrUncompleteTaskAction = useServerAction(onCompleteOrUncompleteTask, {
-		onError: () => toast.error('Failed to update task'),
+	const archiveTaskAction = useServerAction(archiveTask, {
+		onError: () => toast.error('Failed to archive'),
 		onSuccess: async () => {
 			await refetch()
-			toast.success('Task updated with success')
+			toast.success('Task archived with success')
 		},
 	})
 
@@ -36,16 +35,6 @@ export function TaskCard({ task }: Props) {
 		onSuccess: async () => {
 			await refetch()
 			toast.success('Task updated with success')
-		},
-	})
-
-	const removeTaskAction = useServerAction(removeTask, {
-		onError: () => {
-			toast.error('Failed to remove task')
-		},
-		onSuccess: async () => {
-			await refetch()
-			toast.success('Task removed with success')
 		},
 	})
 
@@ -76,18 +65,8 @@ export function TaskCard({ task }: Props) {
 		>
 			<div className="flex justify-between w-full">
 				<div className="flex items-center gap-2">
-					<Checkbox
-						className="w-5 h-5"
-						checked={task.completed}
-						onCheckedChange={(state) =>
-							onCompleteOrUncompleteTaskAction.execute({ _id: task._id, completed: Boolean(state) })
-						}
-					/>
-
 					<div>
-						<div className={cn('font-semibold', task.completed && 'line-through text-muted-foreground')}>
-							{task.title}
-						</div>
+						<div className="font-semibold">{task.title}</div>
 						<div className="flex items-center gap-2">
 							{tags.map((tag, index) => (
 								<Tag key={`${tag}_${index}`}>{tag}</Tag>
@@ -110,12 +89,12 @@ export function TaskCard({ task }: Props) {
 								</Button>
 
 								<AreYouSure
-									onConfirm={() => removeTaskAction.execute({ _id: task._id })}
-									loading={removeTaskAction.isPending}
-									message={`Are you sure you want to remove the task ${task.title}?`}
+									onConfirm={() => archiveTaskAction.execute({ _id: task._id })}
+									loading={archiveTaskAction.isPending}
+									message={`Are you sure you want to archive the task ${task.title}?`}
 								>
 									<Button size="icon" variant="outline">
-										<Trash className="text-destructive" />
+										<Archive className="text-destructive" />
 									</Button>
 								</AreYouSure>
 							</motion.div>
