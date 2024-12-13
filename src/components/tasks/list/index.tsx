@@ -5,15 +5,8 @@ import { Column, Grid } from '@/components/grid'
 import { useAuth } from '@/hooks/use-auth'
 import { TaskSchema } from '@/libs/mongoose/schemas/task'
 import dayjs from 'dayjs'
-import duration from 'dayjs/plugin/duration'
-import relativeTime from 'dayjs/plugin/relativeTime'
 import { LucideIcon, Moon, Sun } from 'lucide-react'
-import { useEffect, useState } from 'react'
 import { TaskCard } from '../card'
-import { ScreenStatus } from './types'
-
-dayjs.extend(duration)
-dayjs.extend(relativeTime)
 
 type Props = {
 	list: TaskSchema[]
@@ -36,23 +29,7 @@ function StartEndCard({ icon: Icon, text, time }: { icon: LucideIcon; text: stri
 }
 
 export function TaskList({ list, currentDate }: Props) {
-	const [expandedNoteId, setExpandedNoteId] = useState('')
-	const [screenStatus, setScreenStatus] = useState<ScreenStatus | null>(null)
 	const { user } = useAuth()
-
-	useEffect(() => {
-		const keyDownListener = (event: KeyboardEvent) => {
-			if (event.key === 'Escape') {
-				setExpandedNoteId('')
-				setScreenStatus(null)
-			}
-		}
-		window.addEventListener('keydown', keyDownListener)
-
-		return () => {
-			window.removeEventListener('keydown', keyDownListener)
-		}
-	}, [])
 
 	const tasksWithoutDate = list.filter((task) => !task.date)
 	const daysTasks = list.filter((task) => task.date && dayjs(task.date).isSame(currentDate, 'day'))
@@ -76,18 +53,7 @@ export function TaskList({ list, currentDate }: Props) {
 					{daysTasks.map((task) => {
 						return (
 							<Column size={12} key={task._id}>
-								<TaskCard
-									screenStatus={screenStatus}
-									task={task}
-									setScreenStatus={setScreenStatus}
-									isExpanded={expandedNoteId === task._id}
-									onCancel={() => {
-										setScreenStatus(null)
-									}}
-									onExpand={() => {
-										setExpandedNoteId((p) => (p === task._id ? '' : task._id))
-									}}
-								/>
+								<TaskCard task={task} />
 							</Column>
 						)
 					})}
@@ -104,18 +70,7 @@ export function TaskList({ list, currentDate }: Props) {
 				tasksWithoutDate.map((task) => {
 					return (
 						<Column size={12} key={task._id}>
-							<TaskCard
-								task={task}
-								setScreenStatus={setScreenStatus}
-								screenStatus={screenStatus}
-								isExpanded={expandedNoteId === task._id}
-								onCancel={() => {
-									setScreenStatus(null)
-								}}
-								onExpand={() => {
-									setExpandedNoteId((p) => (p === task._id ? '' : task._id))
-								}}
-							/>
+							<TaskCard task={task} />
 						</Column>
 					)
 				})}

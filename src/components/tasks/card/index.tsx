@@ -1,31 +1,27 @@
 import { onCompleteOrUncompleteTask, removeTask, updateTask } from '@/actions/task'
-import { Modal } from '@/components/modal'
+import { AreYouSure } from '@/components/are-you-sure'
 import { Tag } from '@/components/tag'
-import { TaskForm } from '@/components/tasks/form'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { useTasks } from '@/hooks/use-tasks'
 import { TaskSchema } from '@/libs/mongoose/schemas/task'
 import { cn } from '@/libs/utils'
 import dayjs from 'dayjs'
-import { Edit, Ellipsis, Trash, X } from 'lucide-react'
+import { Edit, Expand, Trash, X } from 'lucide-react'
 import { motion } from 'motion/react'
-import { Dispatch } from 'react'
+import { useState } from 'react'
 import { toast } from 'sonner'
 import { useServerAction } from 'zsa-react'
-import { ScreenStatus } from '../list/types'
+import { TaskForm } from '../form'
 
 type Props = {
-	isExpanded: boolean
-	screenStatus: ScreenStatus | null
-	onCancel: () => void
 	task: TaskSchema
-	setScreenStatus: Dispatch<ScreenStatus | null>
-	onExpand: () => void
 }
 
-export function TaskCard({ screenStatus, isExpanded, task, setScreenStatus, onExpand }: Props) {
+export function TaskCard({ task }: Props) {
 	const { refetch, tags } = useTasks()
+	const [isExpanded, setIsExpanded] = useState(false)
+	const [isEditing, setIsEditing] = useState(false)
 
 	const onCompleteOrUncompleteTaskAction = useServerAction(onCompleteOrUncompleteTask, {
 		onError: () => toast.error('Failed to update task'),
@@ -44,50 +40,64 @@ export function TaskCard({ screenStatus, isExpanded, task, setScreenStatus, onEx
 	})
 
 	const removeTaskAction = useServerAction(removeTask, {
-		onStart: () => setScreenStatus('deleting'),
 		onError: () => {
-			setScreenStatus('selected_to_delete')
 			toast.error('Failed to remove task')
 		},
 		onSuccess: async () => {
 			await refetch()
-			setScreenStatus(null)
 			toast.success('Task removed with success')
 		},
 	})
+
+	if (isEditing) {
+		return (
+			<motion.div layoutId={task._id}>
+				<TaskForm
+					isSubmitting={updateTaskAction.isPending}
+					onSubmit={(values) => updateTaskAction.execute({ ...values, _id: task._id })}
+					onCancel={() => setIsEditing(false)}
+					initialValues={{
+						...task,
+						time: dayjs(task.date).format('HH:mm'),
+					}}
+					suggestions={tags}
+				/>
+			</motion.div>
+		)
+	}
 
 	return (
 		<motion.div
 			layoutId={task._id}
 			className={cn(
-				'bg-secondary dark:bg-secondary/30 flex items-center justify-between gap-2 p-2 rounded shadow border border-secondary/20',
+				'bg-secondary dark:bg-secondary/30 p-2 rounded shadow border border-secondary/20',
 				isExpanded ? 'z-50' : 'z-10',
 			)}
 		>
-			<div className="flex items-center gap-2">
-				<Checkbox
-					className="w-5 h-5"
-					checked={task.completed}
-					onCheckedChange={(state) =>
-						onCompleteOrUncompleteTaskAction.execute({ _id: task._id, completed: Boolean(state) })
-					}
-				/>
+			<div className="flex justify-between w-full">
+				<div className="flex items-center gap-2">
+					<Checkbox
+						className="w-5 h-5"
+						checked={task.completed}
+						onCheckedChange={(state) =>
+							onCompleteOrUncompleteTaskAction.execute({ _id: task._id, completed: Boolean(state) })
+						}
+					/>
 
-				<div>
-					<div className={cn('font-semibold', task.completed && 'line-through text-muted-foreground')}>
-						{task.title}
-					</div>
-					<div className="flex items-center gap-2">
-						{tags.map((tag, index) => (
-							<Tag key={`${tag}_${index}`}>{tag}</Tag>
-						))}
+					<div>
+						<div className={cn('font-semibold', task.completed && 'line-through text-muted-foreground')}>
+							{task.title}
+						</div>
+						<div className="flex items-center gap-2">
+							{tags.map((tag, index) => (
+								<Tag key={`${tag}_${index}`}>{tag}</Tag>
+							))}
+						</div>
 					</div>
 				</div>
-			</div>
-			<div className="flex items-center gap-2">
-				{isExpanded && (
-					<div className="flex items-center">
-						{!screenStatus && (
+				<div className="flex items-center gap-2">
+					{isExpanded && (
+						<div className="flex items-center">
 							<motion.div
 								initial={{ opacity: 0, x: -10 }}
 								animate={{ opacity: 1, x: 0 }}
@@ -95,74 +105,38 @@ export function TaskCard({ screenStatus, isExpanded, task, setScreenStatus, onEx
 								transition={{ delay: 0.2, duration: 0.3 }}
 								className="flex items-center gap-2"
 							>
-								<Modal
-									title="Update task"
-									trigger={
-										<Button size="icon" variant="outline">
-											<Edit />
-										</Button>
-									}
-								>
-									<TaskForm
-										isSubmitting={updateTaskAction.isPending}
-										onSubmit={(note) => {
-											updateTaskAction.execute({
-												_id: task._id,
-												...note,
-											})
-										}}
-										initialValues={{
-											_id: task._id,
-											title: task.title,
-											tag: task.tag,
-										}}
-										suggestions={tags}
-									/>
-								</Modal>
-								<Button size="icon" variant="outline" onClick={() => setScreenStatus('selected_to_delete')}>
-									<Trash className="text-destructive" />
+								<Button size="icon" variant="outline" onClick={() => setIsEditing(true)}>
+									<Edit />
 								</Button>
-							</motion.div>
-						)}
 
-						{(screenStatus === 'selected_to_delete' || screenStatus === 'deleting') && (
-							<motion.div
-								initial={{ opacity: 0, x: 50 }}
-								animate={{ opacity: 1, x: 0 }}
-								exit={{ opacity: 0, x: 50 }}
-								transition={{ delay: 0.2, duration: 0.3 }}
-								className="flex items-center gap-2"
-							>
-								<Button variant="outline" onClick={() => setScreenStatus(null)}>
-									Cancel
-								</Button>
-								<Button
-									variant="outline"
-									onClick={() => removeTaskAction.execute({ _id: task._id })}
-									className="text-destructive"
-									loading={screenStatus === 'deleting'}
+								<AreYouSure
+									onConfirm={() => removeTaskAction.execute({ _id: task._id })}
+									loading={removeTaskAction.isPending}
+									message={`Are you sure you want to remove the task ${task.title}?`}
 								>
-									Confirm
-								</Button>
+									<Button size="icon" variant="outline">
+										<Trash className="text-destructive" />
+									</Button>
+								</AreYouSure>
 							</motion.div>
-						)}
-					</div>
-				)}
-				{!isExpanded && task.date && (
-					<div className="flex flex-col items-end">
-						<span className="font-semibold opacity-50 text-sm">{dayjs(task.date).format('HH:mm')}</span>
-						{<span className="font-semibold opacity-50 text-sm">{task.duration}h duration</span>}
-					</div>
-				)}
-				<Button
-					size="icon"
-					variant="ghost"
-					onClick={() => {
-						onExpand()
-					}}
-				>
-					{isExpanded ? <X /> : <Ellipsis />}
-				</Button>
+						</div>
+					)}
+					{!isExpanded && task.date && (
+						<div className="flex flex-col items-end">
+							<span className="font-semibold opacity-50 text-sm">{dayjs(task.date).format('HH:mm')}</span>
+							{<span className="font-semibold opacity-50 text-sm">{task.duration}h duration</span>}
+						</div>
+					)}
+					<Button
+						size="icon"
+						variant="ghost"
+						onClick={() => {
+							setIsExpanded((p) => !p)
+						}}
+					>
+						{isExpanded ? <X /> : <Expand />}
+					</Button>
+				</div>
 			</div>
 		</motion.div>
 	)

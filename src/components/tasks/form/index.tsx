@@ -22,7 +22,7 @@ type TaskForm = Pick<TaskSchema, 'title' | 'date' | 'duration'> & {
 
 type Props = {
 	onCancel?: () => void
-	onSubmit: (values: TaskForm) => void
+	onSubmit: (values: TaskForm) => Promise<[unknown, unknown]>
 	initialValues?: Partial<TaskForm>
 	suggestions: string[]
 	isExpanded?: boolean
@@ -40,7 +40,7 @@ const defaultValues: TaskForm = {
 
 export function TaskForm({
 	onSubmit: onSubmitFromParent,
-	initialValues,
+	initialValues = {},
 	onCancel,
 	suggestions,
 	isSubmitting,
@@ -50,9 +50,8 @@ export function TaskForm({
 	const { handleSubmit, register, control, reset } = useForm<typeof defaultValues>({
 		mode: 'all',
 		defaultValues: {
-			tag: initialValues?.tag ?? '',
-			title: initialValues?.title ?? '',
-			date: initialValues?.date ?? undefined,
+			...defaultValues,
+			...initialValues,
 		},
 	})
 
@@ -76,15 +75,19 @@ export function TaskForm({
 	}, [onCancel, reset])
 
 	const onSubmit = async (values: typeof defaultValues) => {
-		const timeInMinutes = timeValueToMinutes(values.time)
+		try {
+			const timeInMinutes = timeValueToMinutes(values.time)
 
-		const date = values.date ? dayjs(values.date).startOf('day').add(timeInMinutes, 'minute').toDate() : undefined
-		await onSubmitFromParent({
-			...values,
-			date,
-		})
-		reset()
-		if (onCancel) onCancel()
+			const date = values.date ? dayjs(values.date).startOf('day').add(timeInMinutes, 'minute').toDate() : undefined
+			const [, error] = await onSubmitFromParent({
+				...values,
+				duration: Number(values.duration ?? 0),
+				date,
+			})
+			if (error) throw error
+			reset()
+			if (onCancel) onCancel()
+		} catch {}
 	}
 
 	return (

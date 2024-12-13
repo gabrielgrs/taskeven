@@ -24,10 +24,12 @@ export function useTasks() {
 				}
 
 			const tasks = sortTasks(data)
-			const tags = tasks.reduce((acc: string[], curr) => {
-				if (!acc.includes(curr.tag)) acc.push(curr.tag)
-				return acc
-			}, [])
+			const tags = tasks
+				.reduce((acc: string[], curr) => {
+					if (!acc.includes(curr.tag)) acc.push(curr.tag)
+					return acc
+				}, [])
+				.filter((x) => Boolean(x))
 
 			return {
 				tasks,

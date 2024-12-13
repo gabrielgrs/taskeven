@@ -29,6 +29,7 @@ export const createTask = authProcedure
 			title: z.string(),
 			date: z.date().optional(),
 			tag: z.string(),
+			duration: z.number(),
 		}),
 	)
 	.handler(async ({ input, ctx }) => {
@@ -67,12 +68,13 @@ export const updateTask = authProcedure
 			title: z.string().optional(),
 			date: z.date().optional(),
 			tag: z.string(),
+			duration: z.number(),
 		}),
 	)
 	.handler(async ({ input, ctx }) => {
 		const data = await db.task.findOneAndUpdate(
 			{ _id: input._id, user: ctx.user._id },
-			{ title: input.title, date: input.date, tag: input.tag },
+			{ title: input.title, date: input.date, tag: input.tag, duration: input.duration },
 			{ new: true },
 		)
 

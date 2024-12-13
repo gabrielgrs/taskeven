@@ -22,7 +22,7 @@ const Input = React.forwardRef<
 				}
 
 				if (mask) {
-					event.target.value = mask ? formatStringByPattern(mask, value) : value
+					event.target.value = formatStringByPattern(mask, value)
 				}
 
 				onChange?.(event)

@@ -52,7 +52,7 @@ export function TasksUI() {
 				<MotionColumn
 					key={screenState}
 					size={12}
-					className="overflow-hidden"
+					className="overflow-hidden relative"
 					initial={{ opacity: 0, y: 50 }}
 					animate={{ opacity: 1, y: 0 }}
 					exit={{ opacity: 0, y: 50 }}
@@ -84,11 +84,12 @@ export function TasksUI() {
 					{screenState === 'form' && (
 						<TaskForm
 							isSubmitting={createTaskAction.isPending}
-							onSubmit={(note) => {
-								createTaskAction.execute({
-									title: note.title!,
-									tag: note.tag,
-									date: note.date,
+							onSubmit={(task) => {
+								return createTaskAction.execute({
+									title: task.title!,
+									tag: task.tag,
+									date: task.date,
+									duration: task.duration,
 								})
 							}}
 							suggestions={tags}
