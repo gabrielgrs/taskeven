@@ -5,7 +5,7 @@ export type TaskSchema = {
 	_id: string
 	user: ObjectId
 	completed: boolean
-	tags: string[]
+	tag: string
 	title: string
 	duration: number
 	date?: Date
@@ -30,7 +30,7 @@ export const task = createMongooseSchema<TaskSchema>(
 				type: Boolean,
 				default: false,
 			},
-			tags: [String],
+			tag: String,
 			duration: {
 				type: Number,
 				default: 0,

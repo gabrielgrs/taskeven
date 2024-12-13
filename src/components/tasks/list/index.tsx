@@ -67,7 +67,11 @@ export function TaskList({ list, currentDate }: Props) {
 
 			{daysTasks.length > 0 && (
 				<>
-					{user?.startTime && <StartEndCard icon={Sun} text="Start time" time={user.startTime} />}
+					{user?.startTime && (
+						<Column size={12}>
+							<StartEndCard icon={Sun} text="Start time" time={user.startTime} />
+						</Column>
+					)}
 
 					{daysTasks.map((task) => {
 						return (
@@ -88,36 +92,33 @@ export function TaskList({ list, currentDate }: Props) {
 						)
 					})}
 
-					{user?.endTime && <StartEndCard icon={Moon} text="End time" time={user.endTime} />}
+					{user?.endTime && (
+						<Column size={12}>
+							<StartEndCard icon={Moon} text="End time" time={user.endTime} />
+						</Column>
+					)}
 				</>
 			)}
 
-			{tasksWithoutDate.length > 0 && (
-				<>
-					<Column size={12}>
-						<hr />
-					</Column>
-
-					{tasksWithoutDate.map((task) => {
-						return (
-							<Column size={12} key={task._id}>
-								<TaskCard
-									task={task}
-									setScreenStatus={setScreenStatus}
-									screenStatus={screenStatus}
-									isExpanded={expandedNoteId === task._id}
-									onCancel={() => {
-										setScreenStatus(null)
-									}}
-									onExpand={() => {
-										setExpandedNoteId((p) => (p === task._id ? '' : task._id))
-									}}
-								/>
-							</Column>
-						)
-					})}
-				</>
-			)}
+			{tasksWithoutDate.length > 0 &&
+				tasksWithoutDate.map((task) => {
+					return (
+						<Column size={12} key={task._id}>
+							<TaskCard
+								task={task}
+								setScreenStatus={setScreenStatus}
+								screenStatus={screenStatus}
+								isExpanded={expandedNoteId === task._id}
+								onCancel={() => {
+									setScreenStatus(null)
+								}}
+								onExpand={() => {
+									setExpandedNoteId((p) => (p === task._id ? '' : task._id))
+								}}
+							/>
+						</Column>
+					)
+				})}
 		</Grid>
 	)
 }

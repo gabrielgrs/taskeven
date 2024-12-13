@@ -4,12 +4,13 @@ import { cn } from '@/libs/utils'
 
 import { signOut } from '@/actions/auth'
 import { useAuth } from '@/hooks/use-auth'
-import { ArrowRight, Lightbulb, LightbulbOff, Loader2, LogOut } from 'lucide-react'
+import { ArrowRight, Lightbulb, LightbulbOff, Loader2 } from 'lucide-react'
 import { useTheme } from 'next-themes'
 import { useEffect, useState } from 'react'
 import Link from './Link'
 import { Badge } from './ui/badge'
 import { Button, buttonVariants } from './ui/button'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from './ui/dropdown-menu'
 
 export function Navbar() {
 	const [isFarFromTop, setIsFarmFromTop] = useState(false)
@@ -50,18 +51,47 @@ export function Navbar() {
 				)}
 			</div>
 			<div className="flex items-center gap-1 h-full">
-				<Button
-					type="button"
-					variant="outline"
-					size="icon"
-					onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}
-				>
-					{theme === 'dark' ? <Lightbulb /> : <LightbulbOff />}
-				</Button>
-				{user && (
-					<Button variant="link" className="group" onClick={() => signOut().then(() => refetch())}>
-						Sign out <LogOut className="group-hover:translate-x-1 duration-500" />
+				{!user && !isLoading && (
+					<Button
+						type="button"
+						variant="outline"
+						size="icon"
+						onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}
+					>
+						{theme === 'dark' ? <Lightbulb /> : <LightbulbOff />}
 					</Button>
+				)}
+				{user && (
+					<>
+						<DropdownMenu>
+							<DropdownMenuTrigger asChild>
+								<Button variant="ghost">Menu</Button>
+							</DropdownMenuTrigger>
+
+							<DropdownMenuContent>
+								<DropdownMenuItem asChild>
+									<Button
+										type="button"
+										className="w-full justify-start"
+										variant="ghost"
+										onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}
+									>
+										{theme === 'dark' ? 'Light' : 'Dark'} theme
+									</Button>
+								</DropdownMenuItem>
+
+								<DropdownMenuItem asChild>
+									<Button
+										onClick={() => signOut().then(() => refetch())}
+										className="w-full justify-start"
+										variant="ghost"
+									>
+										Sign out
+									</Button>
+								</DropdownMenuItem>
+							</DropdownMenuContent>
+						</DropdownMenu>
+					</>
 				)}
 
 				{isLoading && <Loader2 className="animate-spin" />}

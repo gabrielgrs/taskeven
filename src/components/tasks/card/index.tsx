@@ -60,7 +60,7 @@ export function TaskCard({ screenStatus, isExpanded, task, setScreenStatus, onEx
 		<motion.div
 			layoutId={task._id}
 			className={cn(
-				'bg-secondary flex items-center justify-between gap-2 p-2 rounded border border-secondary-foreground/10 shadow',
+				'bg-secondary dark:bg-secondary/30 flex items-center justify-between gap-2 p-2 rounded shadow border border-secondary/20',
 				isExpanded ? 'z-50' : 'z-10',
 			)}
 		>
@@ -114,7 +114,7 @@ export function TaskCard({ screenStatus, isExpanded, task, setScreenStatus, onEx
 										initialValues={{
 											_id: task._id,
 											title: task.title,
-											tags: task.tags.map((x) => ({ label: x, value: x })),
+											tag: task.tag,
 										}}
 										suggestions={tags}
 									/>

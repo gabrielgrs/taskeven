@@ -25,9 +25,7 @@ export function useTasks() {
 
 			const tasks = sortTasks(data)
 			const tags = tasks.reduce((acc: string[], curr) => {
-				curr.tags.forEach((x) => {
-					if (!acc.includes(x)) acc.push(x)
-				})
+				if (!acc.includes(curr.tag)) acc.push(curr.tag)
 				return acc
 			}, [])
 
