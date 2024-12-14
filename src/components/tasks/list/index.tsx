@@ -72,6 +72,7 @@ export function TaskList({ list, currentDate }: Props) {
 							<Button
 								loading={generateInsightAction.isPending}
 								type="button"
+								variant="secondary"
 								onClick={() => {
 									generateInsightAction.execute({
 										tasks: daysTasks.map((task) => ({

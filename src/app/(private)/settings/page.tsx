@@ -1,6 +1,8 @@
 import { getAuthenticatedUser } from '@/actions/auth'
 import { SettingsClient } from './client'
 
+export const dynamic = 'force-dynamic'
+
 type Props = {
 	searchParams: {
 		type?: 'Onboarding'
