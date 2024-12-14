@@ -1,7 +1,6 @@
 'use client'
 
 import { getAuthenticatedUser, updateUser } from '@/actions/auth'
-import { UserSchema } from '@/libs/mongoose/schemas/user'
 import { timeValueToMinutes } from '@/utils/date'
 import { useQuery } from '@tanstack/react-query'
 import { toast } from 'sonner'
@@ -34,8 +33,8 @@ export function useAuth() {
 		onError: () => toast.error('Failed to update user'),
 	})
 
-	const onUpdateUser = async (data: Pick<UserSchema, 'startTime' | 'endTime'>) => {
-		updateUserAction.execute(data)
+	const onUpdateUser = async (data: { name: string; startTime: string; endTime: string }) => {
+		return updateUserAction.execute(data)
 	}
 
 	return {

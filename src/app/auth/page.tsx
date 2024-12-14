@@ -7,17 +7,16 @@ import { authenticate } from '@/actions/auth'
 import Link from '@/components/Link'
 import { Grid } from '@/components/grid'
 import { Column } from '@/components/grid/column'
+import { InputOTP, InputOTPGroup, InputOTPSeparator, InputOTPSlot } from '@/components/ui/input-otp'
 import { requiredField } from '@/utils/messages'
 import { ArrowLeft } from 'lucide-react'
 import { motion } from 'motion/react'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
-import { useForm } from 'react-hook-form'
+import { Controller, useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import { useServerAction } from 'zsa-react'
 import { DotPattern } from './dot-pattern'
-
-const AnimatedInput = motion.create(Input)
 
 export default function Page() {
 	const { push } = useRouter()
@@ -47,23 +46,40 @@ export default function Page() {
 					<form onSubmit={form.handleSubmit(action.execute)}>
 						<Grid>
 							<Column size={12} key={String(isWaitingTheCode)}>
-								{isWaitingTheCode ? (
-									<AnimatedInput
-										initial={{ opacity: 0, y: -20 }}
-										animate={{ opacity: 1, y: 0 }}
-										exit={{ opacity: 0, y: -20 }}
-										{...form.register('code', { required: requiredField })}
-										placeholder="Type the code was send to your email"
-									/>
-								) : (
-									<AnimatedInput
-										initial={{ opacity: 0, y: -20 }}
-										animate={{ opacity: 1, y: 0 }}
-										exit={{ opacity: 0, y: -20 }}
-										{...form.register('email', { required: requiredField })}
-										placeholder="Type your email"
-									/>
-								)}
+								<motion.div
+									initial={{ opacity: 0, y: -20 }}
+									animate={{ opacity: 1, y: 0 }}
+									exit={{ opacity: 0, y: -20 }}
+								>
+									{isWaitingTheCode ? (
+										<Controller
+											control={form.control}
+											name="code"
+											render={({ field }) => (
+												<InputOTP
+													maxLength={6}
+													value={field.value}
+													onChange={field.onChange}
+													containerClassName="flex justify-between w-full"
+												>
+													<InputOTPGroup>
+														<InputOTPSlot index={0} />
+														<InputOTPSlot index={1} />
+														<InputOTPSlot index={2} />
+													</InputOTPGroup>
+													<InputOTPSeparator />
+													<InputOTPGroup>
+														<InputOTPSlot index={3} />
+														<InputOTPSlot index={4} />
+														<InputOTPSlot index={5} />
+													</InputOTPGroup>
+												</InputOTP>
+											)}
+										/>
+									) : (
+										<Input {...form.register('email', { required: requiredField })} placeholder="Type your email" />
+									)}
+								</motion.div>
 							</Column>
 							<Column size={12}>
 								<Button type="submit" className="w-full" loading={action.isPending}>

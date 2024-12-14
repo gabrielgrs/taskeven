@@ -1,15 +1,10 @@
 'use client'
 
-import { useAuth } from '@/hooks/use-auth'
 import { ArrowRight } from 'lucide-react'
 import { motion } from 'motion/react'
 import Link from 'next/link'
 
 export function Main() {
-	const { user } = useAuth()
-
-	if (user) return null
-
 	return (
 		<motion.div
 			initial={{ opacity: 0, y: -20 }}

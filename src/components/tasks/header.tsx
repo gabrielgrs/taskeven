@@ -2,7 +2,7 @@
 
 import { cn } from '@/libs/utils'
 import dayjs from 'dayjs'
-import { Calendar, Settings } from 'lucide-react'
+import { Calendar } from 'lucide-react'
 import { motion } from 'motion/react'
 import { Dispatch } from 'react'
 import { Button } from '../ui/button'
@@ -54,9 +54,6 @@ export function Header({ screenState, setScreenState, currentDate }: Props) {
 			</div>
 
 			<div className="flex items-center gap-1">
-				<Button type="button" variant="outline" onClick={() => setScreenState('settings')}>
-					<Settings />
-				</Button>
 				<Button type="button" onClick={() => setScreenState('form')}>
 					Create task
 				</Button>

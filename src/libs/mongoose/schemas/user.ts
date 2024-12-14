@@ -3,6 +3,7 @@ import { createMongooseSchema } from '../helpers'
 
 export type UserSchema = {
 	_id: string
+	name?: string
 	email: string
 	role: 'USER' | 'ADMIN'
 	startTime: string
@@ -21,6 +22,11 @@ export const user = createMongooseSchema<UserSchema>(
 				type: String,
 				required: true,
 				unique: true,
+			},
+			name: {
+				type: String,
+				required: false,
+				trim: true,
 			},
 			startTime: {
 				type: String,

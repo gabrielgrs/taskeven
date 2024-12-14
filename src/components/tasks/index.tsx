@@ -3,7 +3,6 @@
 import { createTask, getTasks } from '@/actions/task'
 import { Column, Grid } from '@/components/grid'
 import { Tag } from '@/components/tag'
-import { useAuth } from '@/hooks/use-auth'
 import { useTasks } from '@/hooks/use-tasks'
 import { cn } from '@/libs/utils'
 import { ServerActionResponse } from '@/utils/action'
@@ -16,7 +15,6 @@ import { Calendar as CalendarUI } from './calendar'
 import { TaskForm } from './form'
 import { Header } from './header'
 import { TaskList } from './list'
-import { SettingsUI } from './settings'
 import { ScreenState } from './types'
 
 export type Props = {
@@ -29,10 +27,7 @@ export function TasksUI() {
 	const [screenState, setScreenState] = useState<ScreenState>('list')
 	const [filterTag, setFilterTag] = useState<'All' | string>('All')
 	const [currentDate, setCurrentDate] = useState(new Date())
-	const [hideUndated, setHideUndated] = useState(false)
-	const [hideCompleted, setHideCompleted] = useState(false)
 	const { tasks, tags, refetch } = useTasks()
-	const { onUpdateUser, isUpdating, user } = useAuth()
 
 	const createTaskAction = useServerAction(createTask, {
 		onSuccess: async () => {
@@ -57,30 +52,6 @@ export function TasksUI() {
 					animate={{ opacity: 1, y: 0 }}
 					exit={{ opacity: 0, y: 50 }}
 				>
-					{screenState === 'settings' && (
-						<SettingsUI
-							initialValues={
-								user
-									? {
-											startTime: user.startTime,
-											endTime: user.endTime,
-											hideUndated,
-											hideCompleted,
-										}
-									: undefined
-							}
-							isSubmitting={isUpdating}
-							onSubmit={async (values) => {
-								await onUpdateUser({
-									startTime: values.startTime,
-									endTime: values.endTime,
-								})
-								setHideUndated(values.hideUndated)
-								setHideCompleted(values.hideCompleted)
-							}}
-						/>
-					)}
-
 					{screenState === 'form' && (
 						<TaskForm
 							isSubmitting={createTaskAction.isPending}
@@ -131,7 +102,6 @@ export function TasksUI() {
 										if (filterTag === 'All') return true
 										return item.tag === filterTag
 									})
-									.filter((x) => (hideUndated ? x.date : true))
 									.filter((x) => {
 										if (!x.date) return true
 

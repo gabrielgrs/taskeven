@@ -7,5 +7,6 @@ declare namespace NodeJS {
 		STRIPE_SECRET_KEY: string
 		STRIPE_WEBHOOK_SECRET: string
 		STRIPE_CUSTOMER_PORTAL: string
+		OPENAI_KEY: string
 	}
 }

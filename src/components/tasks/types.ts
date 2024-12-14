@@ -1,1 +1,1 @@
-export type ScreenState = 'list' | 'form' | 'settings' | 'calendar'
+export type ScreenState = 'list' | 'form' | 'calendar'

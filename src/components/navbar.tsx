@@ -7,6 +7,7 @@ import { sendContactMessage } from '@/actions/contact'
 import { useAuth } from '@/hooks/use-auth'
 import { ArrowRight, Lightbulb, LightbulbOff, Loader2 } from 'lucide-react'
 import { useTheme } from 'next-themes'
+import { usePathname } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
 import { toast } from 'sonner'
 import { useServerAction } from 'zsa-react'
@@ -20,6 +21,7 @@ import { Textarea } from './ui/textarea'
 export function Navbar() {
 	const [isFarFromTop, setIsFarmFromTop] = useState(false)
 	const { user, isLoading, refetch } = useAuth()
+	const pathname = usePathname()
 	const { theme, setTheme } = useTheme()
 	const emailInputRef = useRef<HTMLInputElement>(null)
 	const contactTextareaRef = useRef<HTMLTextAreaElement>(null)
@@ -112,34 +114,44 @@ export function Navbar() {
 				</DropdownMenu>
 
 				{user && (
-					<DropdownMenu>
-						<DropdownMenuTrigger asChild>
-							<Button variant="ghost">Menu</Button>
-						</DropdownMenuTrigger>
+					<>
+						<DropdownMenu>
+							<DropdownMenuTrigger asChild>
+								<Button variant="ghost">Menu</Button>
+							</DropdownMenuTrigger>
 
-						<DropdownMenuContent>
-							<DropdownMenuItem asChild>
-								<Button
-									type="button"
-									className="w-full justify-start"
-									variant="ghost"
-									onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}
-								>
-									{theme === 'dark' ? 'Light' : 'Dark'} theme
-								</Button>
-							</DropdownMenuItem>
+							<DropdownMenuContent>
+								<DropdownMenuItem asChild>
+									<Link
+										href="/settings"
+										className={cn(buttonVariants({ variant: 'ghost' }), 'w-full justify-start p-0')}
+									>
+										Settings
+									</Link>
+								</DropdownMenuItem>
+								<DropdownMenuItem asChild>
+									<Button
+										type="button"
+										className="w-full justify-start"
+										variant="ghost"
+										onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}
+									>
+										{theme === 'dark' ? 'Light' : 'Dark'} theme
+									</Button>
+								</DropdownMenuItem>
 
-							<DropdownMenuItem asChild>
-								<Button
-									onClick={() => signOut().then(() => refetch())}
-									className="w-full justify-start"
-									variant="ghost"
-								>
-									Sign out
-								</Button>
-							</DropdownMenuItem>
-						</DropdownMenuContent>
-					</DropdownMenu>
+								<DropdownMenuItem asChild>
+									<Button
+										onClick={() => signOut().then(() => refetch())}
+										className="w-full justify-start"
+										variant="ghost"
+									>
+										Sign out
+									</Button>
+								</DropdownMenuItem>
+							</DropdownMenuContent>
+						</DropdownMenu>
+					</>
 				)}
 
 				{isLoading && <Loader2 className="animate-spin" />}
@@ -147,6 +159,12 @@ export function Navbar() {
 				{!user && !isLoading && (
 					<Link href="/auth" className={cn(buttonVariants(), 'group')}>
 						Sign in <ArrowRight className="group-hover:translate-x-1 duration-500" />
+					</Link>
+				)}
+
+				{user && pathname !== '/' && (
+					<Link href="/" className={cn(buttonVariants({ variant: 'link' }))}>
+						Go to app
 					</Link>
 				)}
 			</div>
