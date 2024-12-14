@@ -93,7 +93,7 @@ export function TaskForm({
 	return (
 		<form
 			onSubmit={handleSubmit((values) => onSubmit(values))}
-			className={cn('relative flex gap-2 flex-col p-2 rounded-lg', className)}
+			className={cn('relative flex gap-2 flex-col p-2 rounded-lg bg-foreground/5', className)}
 		>
 			{isEdition && onCancel && (
 				<button className="text-muted-foreground flex items-center text-sm place-self-end" onClick={() => onCancel()}>
@@ -102,11 +102,7 @@ export function TaskForm({
 			)}
 
 			<div className="flex items-center gap-2">
-				<Input
-					{...register('title', { required: requiredField })}
-					placeholder="Type your task"
-					className="bg-secondary col-span-2"
-				/>
+				<Input {...register('title', { required: requiredField })} placeholder="Type your task" />
 
 				<Controller
 					control={control}
@@ -119,7 +115,7 @@ export function TaskForm({
 										name={field.name}
 										value={field.value.toString()}
 										onChange={(event) => field.onChange(event.target.value.trim().replace(/ /g, ''))}
-										className="bg-secondary w-[160px]"
+										className="w-[160px]"
 										placeholder="Tag name"
 									/>
 									<button className="text-muted-foreground" onClick={() => setIsCreateTag(false)}>
@@ -131,7 +127,7 @@ export function TaskForm({
 
 						return (
 							<Select>
-								<SelectTrigger className={cn('w-[220px] bg-secondary', !field.value && 'text-muted-foreground')}>
+								<SelectTrigger className={cn('w-[220px] bg-card', !field.value && 'text-muted-foreground')}>
 									<SelectValue placeholder="Select" />
 								</SelectTrigger>
 								<SelectContent>
@@ -163,7 +159,7 @@ export function TaskForm({
 								value={field.value}
 								onChange={(event) => field.onChange(event.target.value)}
 								placeholder="Date"
-								triggerClassName="bg-secondary w-full"
+								triggerClassName=" w-full"
 							/>
 						)
 					}}
@@ -171,7 +167,7 @@ export function TaskForm({
 
 				<Input
 					{...register('time', { required: Boolean(dateValue) && requiredField })}
-					className="bg-secondary w-full"
+					className=" w-full"
 					type="time"
 				/>
 
@@ -180,7 +176,7 @@ export function TaskForm({
 						{...register('duration', { min: 0, max: 24 })}
 						mask="99"
 						onlyNumbers
-						className="bg-secondary w-full"
+						className=" w-full"
 						placeholder="Duration"
 					/>
 					<span className="absolute top-[50%] translate-y-[-50%] right-2 bg-background text-muted-foreground text-sm px-1 rounded">
