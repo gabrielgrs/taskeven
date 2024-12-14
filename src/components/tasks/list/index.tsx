@@ -15,14 +15,12 @@ type Props = {
 
 function StartEndCard({ icon: Icon, text, time }: { icon: LucideIcon; text: string; time: string }) {
 	return (
-		<Column
-			size={12}
-			className="h-4 w-full flex justify-between my-2 items-center bg-foreground/5 px-2 py-4 rounded-md"
-		>
+		<Column size={12} className="h-4 w-full flex justify-between gap-4 my-2 items-center px-2 py-4 rounded-md">
 			<div className="flex items-center gap-2">
 				<Icon size={16} />
-				{text}
+				<span className="whitespace-nowrap">{text}</span>
 			</div>
+			<div className="w-full h-[1px] bg-foreground/30"></div>
 			{time}
 		</Column>
 	)

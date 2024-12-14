@@ -6,7 +6,7 @@ import { useTasks } from '@/hooks/use-tasks'
 import { TaskSchema } from '@/libs/mongoose/schemas/task'
 import { cn } from '@/libs/utils'
 import dayjs from 'dayjs'
-import { Archive, Edit, Expand, Trash, X } from 'lucide-react'
+import { Archive, Edit, Expand, X } from 'lucide-react'
 import { motion } from 'motion/react'
 import { useState } from 'react'
 import { toast } from 'sonner'
@@ -67,11 +67,7 @@ export function TaskCard({ task }: Props) {
 				<div className="flex items-center gap-2">
 					<div>
 						<div className="font-semibold">{task.title}</div>
-						<div className="flex items-center gap-2">
-							{tags.map((tag, index) => (
-								<Tag key={`${tag}_${index}`}>{tag}</Tag>
-							))}
-						</div>
+						<Tag>{task.tag}</Tag>
 					</div>
 				</div>
 				<div className="flex items-center gap-2">

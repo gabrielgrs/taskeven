@@ -3,21 +3,39 @@
 import { cn } from '@/libs/utils'
 
 import { signOut } from '@/actions/auth'
+import { sendContactMessage } from '@/actions/contact'
 import { useAuth } from '@/hooks/use-auth'
 import { ArrowRight, Lightbulb, LightbulbOff, Loader2 } from 'lucide-react'
 import { useTheme } from 'next-themes'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import { toast } from 'sonner'
+import { useServerAction } from 'zsa-react'
 import Link from './Link'
 import { Badge } from './ui/badge'
 import { Button, buttonVariants } from './ui/button'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from './ui/dropdown-menu'
+import { Input } from './ui/input'
+import { Textarea } from './ui/textarea'
 
 export function Navbar() {
 	const [isFarFromTop, setIsFarmFromTop] = useState(false)
 	const { user, isLoading, refetch } = useAuth()
 	const { theme, setTheme } = useTheme()
+	const emailInputRef = useRef<HTMLInputElement>(null)
+	const contactTextareaRef = useRef<HTMLTextAreaElement>(null)
 
 	const isPro = Boolean(user?.stripeSubscriptionId)
+
+	const sendContactMessageAction = useServerAction(sendContactMessage, {
+		onSuccess: () => {
+			if (contactTextareaRef.current && emailInputRef.current) {
+				contactTextareaRef.current.value = ''
+				emailInputRef.current.value = ''
+			}
+
+			toast.success('Message sent')
+		},
+	})
 
 	useEffect(() => {
 		const onScroll = () => {
@@ -61,37 +79,67 @@ export function Navbar() {
 						{theme === 'dark' ? <Lightbulb /> : <LightbulbOff />}
 					</Button>
 				)}
+
+				<DropdownMenu>
+					<DropdownMenuTrigger asChild>
+						<Button variant="ghost">Contact</Button>
+					</DropdownMenuTrigger>
+
+					<DropdownMenuContent className="flex flex-col gap-2">
+						<Input ref={emailInputRef} placeholder="Type your email" className="text-sm" />
+						<Textarea
+							ref={contactTextareaRef}
+							placeholder="Type your feedback, suggestion or bug here"
+							className="text-sm"
+						/>
+						<div className="pt-2">
+							<Button
+								type="button"
+								loading={sendContactMessageAction.isPending}
+								onClick={() =>
+									sendContactMessageAction.execute({
+										email: emailInputRef.current?.value || '',
+										message: contactTextareaRef.current?.value || '',
+									})
+								}
+								className="w-full h-6"
+								variant="ghost"
+							>
+								Send
+							</Button>
+						</div>
+					</DropdownMenuContent>
+				</DropdownMenu>
+
 				{user && (
-					<>
-						<DropdownMenu>
-							<DropdownMenuTrigger asChild>
-								<Button variant="ghost">Menu</Button>
-							</DropdownMenuTrigger>
+					<DropdownMenu>
+						<DropdownMenuTrigger asChild>
+							<Button variant="ghost">Menu</Button>
+						</DropdownMenuTrigger>
 
-							<DropdownMenuContent>
-								<DropdownMenuItem asChild>
-									<Button
-										type="button"
-										className="w-full justify-start"
-										variant="ghost"
-										onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}
-									>
-										{theme === 'dark' ? 'Light' : 'Dark'} theme
-									</Button>
-								</DropdownMenuItem>
+						<DropdownMenuContent>
+							<DropdownMenuItem asChild>
+								<Button
+									type="button"
+									className="w-full justify-start"
+									variant="ghost"
+									onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}
+								>
+									{theme === 'dark' ? 'Light' : 'Dark'} theme
+								</Button>
+							</DropdownMenuItem>
 
-								<DropdownMenuItem asChild>
-									<Button
-										onClick={() => signOut().then(() => refetch())}
-										className="w-full justify-start"
-										variant="ghost"
-									>
-										Sign out
-									</Button>
-								</DropdownMenuItem>
-							</DropdownMenuContent>
-						</DropdownMenu>
-					</>
+							<DropdownMenuItem asChild>
+								<Button
+									onClick={() => signOut().then(() => refetch())}
+									className="w-full justify-start"
+									variant="ghost"
+								>
+									Sign out
+								</Button>
+							</DropdownMenuItem>
+						</DropdownMenuContent>
+					</DropdownMenu>
 				)}
 
 				{isLoading && <Loader2 className="animate-spin" />}

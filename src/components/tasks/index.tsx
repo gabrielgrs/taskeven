@@ -109,7 +109,7 @@ export function TasksUI() {
 
 					{screenState === 'list' && (
 						<>
-							<Column size={12} className="flex gap-2 flex-wrap text-center">
+							<Column size={12} className="flex gap-2 flex-wrap text-center p-2">
 								{['All', ...tags].map((tag) => (
 									<button key={tag} type="button" onClick={() => setFilterTag(tag)} className="cursor-pointer">
 										<Tag
