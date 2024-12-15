@@ -2,17 +2,16 @@
 
 import { DatePicker } from '@/components/date-picker'
 import { Button } from '@/components/ui/button'
-import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { TaskSchema } from '@/libs/mongoose/schemas/task'
 import { cn } from '@/libs/utils'
 import { timeValueToMinutes } from '@/utils/date'
 import { requiredField } from '@/utils/messages'
 import dayjs from 'dayjs'
 import { X } from 'lucide-react'
-// import { Combobox } from '@/components/combobox'
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import { Controller, useForm, useWatch } from 'react-hook-form'
 import { Input } from '../../ui/input'
+import { TagDropdown } from './tag-dropdown'
 
 type TaskForm = Pick<TaskSchema, 'title' | 'date' | 'duration'> & {
 	time: string
@@ -46,7 +45,6 @@ export function TaskForm({
 	isSubmitting,
 	className,
 }: Props) {
-	const [isCreateTag, setIsCreateTag] = useState(false)
 	const { handleSubmit, register, control, reset } = useForm<typeof defaultValues>({
 		mode: 'all',
 		defaultValues: {
@@ -107,41 +105,13 @@ export function TaskForm({
 					control={control}
 					name="tag"
 					render={({ field }) => {
-						if (isCreateTag) {
-							return (
-								<div className="flex items-center gap-1">
-									<Input
-										name={field.name}
-										value={field.value.toString()}
-										onChange={(event) => field.onChange(event.target.value.trim().replace(/ /g, ''))}
-										className="w-[160px]"
-										placeholder="Tag name"
-									/>
-									<button className="text-muted-foreground" onClick={() => setIsCreateTag(false)}>
-										<X />
-									</button>
-								</div>
-							)
-						}
-
 						return (
-							<Select>
-								<SelectTrigger className={cn('w-[220px] bg-card', !field.value && 'text-muted-foreground')}>
-									<SelectValue placeholder="Select" />
-								</SelectTrigger>
-								<SelectContent>
-									<SelectGroup>
-										{suggestions.map((suggestion) => (
-											<SelectItem value={suggestion} key={suggestion}>
-												{suggestion}
-											</SelectItem>
-										))}
-									</SelectGroup>
-									<Button size="sm" variant="outline" className="w-full" onClick={() => setIsCreateTag(true)}>
-										New tag
-									</Button>
-								</SelectContent>
-							</Select>
+							<TagDropdown
+								name={field.name}
+								value={field.value}
+								onChange={field.onChange}
+								options={suggestions.map((item) => ({ label: item, value: item }))}
+							/>
 						)
 					}}
 				/>

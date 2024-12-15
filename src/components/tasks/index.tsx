@@ -98,14 +98,8 @@ export function TasksUI() {
 							<TaskList
 								currentDate={currentDate}
 								list={tasks
-									.filter((item) => {
-										if (filterTag === 'All') return true
-										return item.tag === filterTag
-									})
-									.filter((x) => {
-										if (!x.date) return true
-										return dayjs(x.date).isSame(currentDate, 'day')
-									})}
+									.filter((item) => filterTag === 'All' || item.tag === filterTag)
+									.filter((x) => dayjs(x.date).isSame(currentDate, 'day'))}
 							/>
 						</>
 					)}

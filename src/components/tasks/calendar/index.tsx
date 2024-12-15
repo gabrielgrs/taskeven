@@ -46,10 +46,7 @@ export function Calendar({ selectedDate, tasks, onChangeDate }: Props) {
 
 	const capacity = user?.capacity ?? 0
 
-	const calendar = getDaysOfMonth(
-		selectedDate,
-		tasks.filter((x) => x.date),
-	)
+	const calendar = getDaysOfMonth(selectedDate, tasks)
 
 	return (
 		<Grid>
