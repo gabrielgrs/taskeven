@@ -104,7 +104,6 @@ export function TasksUI() {
 									})
 									.filter((x) => {
 										if (!x.date) return true
-
 										return dayjs(x.date).isSame(currentDate, 'day')
 									})}
 							/>

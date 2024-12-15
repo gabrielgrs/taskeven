@@ -1,5 +1,6 @@
 import mongoose from 'mongoose'
 
+import { insight } from './schemas/insight'
 import { session } from './schemas/session'
 import { task } from './schemas/task'
 import { user } from './schemas/user'
@@ -14,4 +15,4 @@ export const connectDatabase = async (): Promise<typeof mongoose> => {
 
 connectDatabase()
 
-export const db = { user, task, session }
+export const db = { user, task, insight, session }

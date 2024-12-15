@@ -2,14 +2,16 @@
 
 import { Column, Grid } from '@/components/grid'
 
-import { generateInsight } from '@/actions/ai'
+import { generateInsight } from '@/actions/insight'
 import { Button } from '@/components/ui/button'
 import { useAuth } from '@/hooks/use-auth'
+import { useInsights } from '@/hooks/use-insights'
 import { TaskSchema } from '@/libs/mongoose/schemas/task'
 import dayjs from 'dayjs'
 import { LucideIcon, Moon, Sparkles, Sun } from 'lucide-react'
 import { useServerAction } from 'zsa-react'
 import { TaskCard } from '../card'
+import { timeValueToMinutes } from '@/utils/date'
 
 type Props = {
 	list: TaskSchema[]
@@ -34,8 +36,14 @@ export function TaskList({ list, currentDate }: Props) {
 
 	const tasksWithoutDate = list.filter((task) => !task.date)
 	const daysTasks = list.filter((task) => task.date && dayjs(task.date).isSame(currentDate, 'day'))
+	const { insights, refetch: refetchInsights } = useInsights()
+	const todayInsight = insights.find((x) => dayjs(x.date).isSame(currentDate, 'day'))
 
-	const generateInsightAction = useServerAction(generateInsight)
+	const generateInsightAction = useServerAction(generateInsight, {
+		onSuccess: () => {
+			refetchInsights()
+		},
+	})
 
 	return (
 		<Grid>
@@ -74,7 +82,10 @@ export function TaskList({ list, currentDate }: Props) {
 								type="button"
 								variant="secondary"
 								onClick={() => {
+									const minutes = timeValueToMinutes(dayjs(new Date()).format('HH:mm'))
+
 									generateInsightAction.execute({
+										date: dayjs(currentDate).add(minutes, 'minute').toDate(),
 										tasks: daysTasks.map((task) => ({
 											date: task.date ? new Date(task.date) : undefined,
 											title: task.title,
@@ -87,11 +98,11 @@ export function TaskList({ list, currentDate }: Props) {
 							</Button>
 						</Column>
 					)}
-					{generateInsightAction.data && (
+					{todayInsight && (
 						<Column size={12}>
 							<div className="bg-secondary/50 p-2 rounded-lg">
 								<span className="font-semibold">Insight:</span>
-								<p className="text-muted-foreground">{generateInsightAction.data}</p>
+								<p className="text-muted-foreground">{todayInsight.content}</p>
 							</div>
 						</Column>
 					)}

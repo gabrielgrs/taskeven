@@ -1,17 +1,16 @@
 'use server'
 
+import { db } from '@/libs/mongoose'
+import { openaiClient } from '@/libs/openai'
+import { parseData } from '@/utils/action'
 import { timeValueToMinutes } from '@/utils/date'
-import OpenAI from 'openai'
 import { z } from 'zod'
 import { authProcedure } from './procedures'
-
-const openai = new OpenAI({
-	apiKey: process.env.OPENAI_KEY,
-})
 
 export const generateInsight = authProcedure
 	.input(
 		z.object({
+			date: z.date(),
 			tasks: z.array(z.object({ title: z.string(), date: z.date().optional(), duration: z.number() })),
 		}),
 	)
@@ -29,7 +28,7 @@ export const generateInsight = authProcedure
 		}, '')}
     `
 
-		const completion = await openai.chat.completions.create({
+		const completion = await openaiClient.chat.completions.create({
 			model: 'gpt-4o-mini',
 			messages: [
 				{
@@ -43,5 +42,17 @@ export const generateInsight = authProcedure
 			],
 		})
 
-		return completion.choices[0].message.content
+		const data = await db.insight.create({
+			user: ctx.user._id,
+			date: input.date,
+			content: completion.choices[0].message.content,
+		})
+
+		return data.content
 	})
+
+export const getInsights = authProcedure.handler(async ({ ctx }) => {
+	const insights = await db.insight.find({ user: ctx.user._id }).sort({ date: -1 })
+
+	return parseData(insights)
+})
