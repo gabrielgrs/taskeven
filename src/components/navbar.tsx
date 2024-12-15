@@ -55,12 +55,12 @@ export function Navbar() {
 	return (
 		<nav
 			className={cn(
-				'w-full sticky top-0 py-2 px-8 flex justify-between items-center gap-4 z-50 font-semibold',
+				'w-full sticky top-0 py-2 px-2 md:px-8 flex justify-between items-center gap-4 z-50 font-semibold',
 				isFarFromTop ? 'bg-background/80 backdrop-blur-lg h-16' : 'bg-primary/0 h-20',
 			)}
 		>
-			<div className="flex items-center gap-2">
-				<Link href="/" className="flex items-center gap-2">
+			<div className="flex items-center gap-1">
+				<Link href="/" className="flex items-center gap-1">
 					<div className="h-8 w-8 rounded-full bg-foreground" />
 					<span className="font-semibold hidden md:flex">Taskeven</span>
 				</Link>
@@ -164,7 +164,7 @@ export function Navbar() {
 
 				{user && pathname !== '/' && (
 					<Link href="/" className={cn(buttonVariants({ variant: 'link' }))}>
-						Go to app
+						Tasks
 					</Link>
 				)}
 			</div>

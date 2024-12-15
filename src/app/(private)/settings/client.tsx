@@ -38,7 +38,8 @@ export function SettingsClient({ defaultValues, type, subscriptionUsage }: Props
 		})
 
 		if (err) toast.error('Failed to update user')
-		return push('/')
+		if (type === 'Onboarding') push('/')
+		toast.success('Data saved with success')
 	}
 
 	return (
@@ -46,6 +47,7 @@ export function SettingsClient({ defaultValues, type, subscriptionUsage }: Props
 			<Grid>
 				<Column size={12}>
 					<h1 className="text-2xl">{type || 'Settings'}</h1>
+					{type === 'Onboarding' && <p>Fill fields to finish onboarding</p>}
 				</Column>
 				<Column size={12}>
 					<form onSubmit={handleSubmit(onSubmit)}>
@@ -82,62 +84,69 @@ export function SettingsClient({ defaultValues, type, subscriptionUsage }: Props
 					</form>
 				</Column>
 
-				<Column size={12}>
-					<Grid className="bg-foreground/10 rounded-lg p-4">
-						<Column size={12}>
-							<h1 className="text-lg font-semibold">Subscription</h1>
-						</Column>
-
-						{defaultValues.stripeSubscriptionId && (
-							<Column size={12} className="flex justify-end">
-								<Link href={process.env.STRIPE_CUSTOMER_PORTAL} className={cn(buttonVariants({ variant: 'outline' }))}>
-									Manager subscription
-								</Link>
+				{type !== 'Onboarding' && (
+					<Column size={12}>
+						<Grid className="bg-foreground/10 rounded-lg p-4">
+							<Column size={12}>
+								<h1 className="text-lg font-semibold">Subscription</h1>
 							</Column>
-						)}
 
-						{!defaultValues.stripeSubscriptionId && (
-							<>
-								<Column size={12}>Subscription advantages:</Column>
-								<Column size={12}>
-									<ul>
-										<li>Teste</li>
-										<li>Teste</li>
-										<li>Teste</li>
-										<li>Teste</li>
-									</ul>
-								</Column>
+							{defaultValues.stripeSubscriptionId && (
 								<Column size={12} className="flex justify-end">
-									<Button variant="outline">
-										Get subscribed! <Rocket />
-									</Button>
+									<Link
+										href={process.env.STRIPE_CUSTOMER_PORTAL}
+										className={cn(buttonVariants({ variant: 'outline' }))}
+									>
+										Manager subscription
+									</Link>
 								</Column>
-							</>
-						)}
-					</Grid>
-				</Column>
+							)}
 
-				<Column size={12}>
-					<Grid className="bg-foreground/10 rounded-lg p-4">
-						<Column size={12}>
-							<h1 className="text-lg font-semibold">Usage</h1>
-						</Column>
-						<Column size={12}>Montly tasks</Column>
-						<Column size={12}>
-							<span>
-								{subscriptionUsage.tasks.current} / {subscriptionUsage.tasks.total}
-							</span>
-							<Progress value={getPercentage(subscriptionUsage.tasks.current, subscriptionUsage.tasks.total)} />
-						</Column>
-						<Column size={12}>Montly Insights</Column>
-						<Column size={12}>
-							<span>
-								{subscriptionUsage.insights.current} / {subscriptionUsage.insights.total}
-							</span>
-							<Progress value={getPercentage(subscriptionUsage.insights.current, subscriptionUsage.insights.total)} />
-						</Column>
-					</Grid>
-				</Column>
+							{!defaultValues.stripeSubscriptionId && (
+								<>
+									<Column size={12}>Subscription advantages:</Column>
+									<Column size={12}>
+										<ul>
+											<li>Teste</li>
+											<li>Teste</li>
+											<li>Teste</li>
+											<li>Teste</li>
+										</ul>
+									</Column>
+									<Column size={12} className="flex justify-end">
+										<Button variant="outline">
+											Get subscribed! <Rocket />
+										</Button>
+									</Column>
+								</>
+							)}
+						</Grid>
+					</Column>
+				)}
+
+				{type !== 'Onboarding' && (
+					<Column size={12}>
+						<Grid className="bg-foreground/10 rounded-lg p-4">
+							<Column size={12}>
+								<h1 className="text-lg font-semibold">Usage</h1>
+							</Column>
+							<Column size={12}>Montly tasks</Column>
+							<Column size={12}>
+								<span>
+									{subscriptionUsage.tasks.current} / {subscriptionUsage.tasks.total}
+								</span>
+								<Progress value={getPercentage(subscriptionUsage.tasks.current, subscriptionUsage.tasks.total)} />
+							</Column>
+							<Column size={12}>Montly Insights</Column>
+							<Column size={12}>
+								<span>
+									{subscriptionUsage.insights.current} / {subscriptionUsage.insights.total}
+								</span>
+								<Progress value={getPercentage(subscriptionUsage.insights.current, subscriptionUsage.insights.total)} />
+							</Column>
+						</Grid>
+					</Column>
+				)}
 			</Grid>
 		</main>
 	)

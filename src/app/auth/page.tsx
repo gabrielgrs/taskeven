@@ -38,7 +38,7 @@ export default function Page() {
 	})
 
 	return (
-		<div className="min-h-max md:min-h-screen flex flex-col-reverse md:grid grid-cols-2">
+		<div className="min-h-max md:min-h-screen flex flex-col-reverse md:grid grid-cols-2 px-4">
 			<main className="w-full h-full flex flex-col items-center justify-center py-20 md:py-0">
 				<div className="w-full mx-auto max-w-sm">
 					<h1>Welcome to Taskeven</h1>
