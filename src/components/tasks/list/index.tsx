@@ -7,11 +7,11 @@ import { Button } from '@/components/ui/button'
 import { useAuth } from '@/hooks/use-auth'
 import { useInsights } from '@/hooks/use-insights'
 import { TaskSchema } from '@/libs/mongoose/schemas/task'
+import { timeValueToMinutes } from '@/utils/date'
 import dayjs from 'dayjs'
 import { LucideIcon, Moon, Sparkles, Sun } from 'lucide-react'
 import { useServerAction } from 'zsa-react'
 import { TaskCard } from '../card'
-import { timeValueToMinutes } from '@/utils/date'
 
 type Props = {
 	list: TaskSchema[]

@@ -1,6 +1,7 @@
 'use client'
 
-import { getAuthenticatedUser, updateUser } from '@/actions/auth'
+import { getAuthenticatedUser } from '@/actions/auth'
+import { updateUser } from '@/actions/user'
 import { timeValueToMinutes } from '@/utils/date'
 import { useQuery } from '@tanstack/react-query'
 import { toast } from 'sonner'

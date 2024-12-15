@@ -1,24 +1,31 @@
 'use client'
 
+import { getUserSettingsData } from '@/actions/user'
 import { Column, Grid } from '@/components/grid'
 import { Button, buttonVariants } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { Progress } from '@/components/ui/progress'
 import { useAuth } from '@/hooks/use-auth'
 import { UserSchema } from '@/libs/mongoose/schemas/user'
 import { cn } from '@/libs/utils'
+import { ServerActionResponse } from '@/utils/action'
 import { Rocket } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 
+function getPercentage(current: number, total: number) {
+	return Math.round((current / total) * 100)
+}
 type Props = {
 	defaultValues: Partial<UserSchema>
 	type?: 'Onboarding'
+	subscriptionUsage: ServerActionResponse<typeof getUserSettingsData>['subscriptionUsage']
 }
 
-export function SettingsClient({ defaultValues, type }: Props) {
+export function SettingsClient({ defaultValues, type, subscriptionUsage }: Props) {
 	const { register, handleSubmit } = useForm({ defaultValues })
 	const { onUpdateUser, isUpdating } = useAuth()
 	const { push } = useRouter()
@@ -40,7 +47,7 @@ export function SettingsClient({ defaultValues, type }: Props) {
 				<Column size={12}>
 					<h1 className="text-2xl">{type || 'Settings'}</h1>
 				</Column>
-				<Column size={6}>
+				<Column size={12}>
 					<form onSubmit={handleSubmit(onSubmit)}>
 						<Grid className="bg-foreground/10 rounded-lg p-4">
 							<Column size={12}>
@@ -75,7 +82,7 @@ export function SettingsClient({ defaultValues, type }: Props) {
 					</form>
 				</Column>
 
-				<Column size={6}>
+				<Column size={12}>
 					<Grid className="bg-foreground/10 rounded-lg p-4">
 						<Column size={12}>
 							<h1 className="text-lg font-semibold">Subscription</h1>
@@ -107,6 +114,28 @@ export function SettingsClient({ defaultValues, type }: Props) {
 								</Column>
 							</>
 						)}
+					</Grid>
+				</Column>
+
+				<Column size={12}>
+					<Grid className="bg-foreground/10 rounded-lg p-4">
+						<Column size={12}>
+							<h1 className="text-lg font-semibold">Usage</h1>
+						</Column>
+						<Column size={12}>Montly tasks</Column>
+						<Column size={12}>
+							<span>
+								{subscriptionUsage.tasks.current} / {subscriptionUsage.tasks.total}
+							</span>
+							<Progress value={getPercentage(subscriptionUsage.tasks.current, subscriptionUsage.tasks.total)} />
+						</Column>
+						<Column size={12}>Montly Insights</Column>
+						<Column size={12}>
+							<span>
+								{subscriptionUsage.insights.current} / {subscriptionUsage.insights.total}
+							</span>
+							<Progress value={getPercentage(subscriptionUsage.insights.current, subscriptionUsage.insights.total)} />
+						</Column>
 					</Grid>
 				</Column>
 			</Grid>

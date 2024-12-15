@@ -1,4 +1,4 @@
-import { getAuthenticatedUser } from '@/actions/auth'
+import { getUserSettingsData } from '@/actions/user'
 import { SettingsClient } from './client'
 
 export const dynamic = 'force-dynamic'
@@ -9,8 +9,10 @@ type Props = {
 	}
 }
 export default async function Page({ searchParams }: Props) {
-	const [user, error] = await getAuthenticatedUser()
+	const [data, error] = await getUserSettingsData()
 	if (error) throw error
 
-	return <SettingsClient defaultValues={user} type={searchParams.type} />
+	return (
+		<SettingsClient defaultValues={data.user} type={searchParams.type} subscriptionUsage={data.subscriptionUsage} />
+	)
 }

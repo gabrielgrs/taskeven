@@ -34,7 +34,7 @@ const defaultValues: TaskForm = {
 	title: '',
 	tag: '',
 	duration: 0,
-	date: undefined,
+	date: new Date(),
 	time: '',
 }
 
@@ -55,7 +55,6 @@ export function TaskForm({
 		},
 	})
 
-	const dateValue = useWatch({ control, name: 'date' })
 	const durationValue = useWatch({ control, name: 'duration' })
 
 	const isEdition = Boolean(initialValues?._id)
@@ -78,7 +77,7 @@ export function TaskForm({
 		try {
 			const timeInMinutes = timeValueToMinutes(values.time)
 
-			const date = values.date ? dayjs(values.date).startOf('day').add(timeInMinutes, 'minute').toDate() : undefined
+			const date = dayjs(values.date).startOf('day').add(timeInMinutes, 'minute').toDate()
 			const [, error] = await onSubmitFromParent({
 				...values,
 				duration: Number(values.duration ?? 0),
@@ -151,6 +150,9 @@ export function TaskForm({
 			<div className="grid grid-cols-1 md:grid-cols-[1fr,1fr,180px,max-content] gap-2">
 				<Controller
 					control={control}
+					rules={{
+						required: requiredField,
+					}}
 					name="date"
 					render={({ field }) => {
 						return (
@@ -165,11 +167,7 @@ export function TaskForm({
 					}}
 				/>
 
-				<Input
-					{...register('time', { required: Boolean(dateValue) && requiredField })}
-					className=" w-full"
-					type="time"
-				/>
+				<Input {...register('time', { required: requiredField })} className=" w-full" type="time" />
 
 				<div className="relative">
 					<Input

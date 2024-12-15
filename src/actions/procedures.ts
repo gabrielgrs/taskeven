@@ -1,6 +1,7 @@
 import { decodeToken } from '@/libs/jose'
 import { db } from '@/libs/mongoose'
 import { parseData } from '@/utils/action'
+import { subscription } from '@/utils/subscription'
 import { cookies } from 'next/headers'
 import { createServerActionProcedure } from 'zsa'
 
@@ -17,6 +18,11 @@ export const authProcedure = createServerActionProcedure()
 		const user = await db.user.findOne({ _id: tokenData._id })
 		if (!user) throw new Error('Unauthorized')
 
-		return parseData({ user: user.toJSON() })
+		return parseData({
+			user: {
+				...user.toJSON(),
+				subscription: user.stripeSubscriptionId ? subscription.paid : subscription.free,
+			},
+		})
 	})
 	.createServerAction()

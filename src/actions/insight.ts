@@ -4,8 +4,24 @@ import { db } from '@/libs/mongoose'
 import { openaiClient } from '@/libs/openai'
 import { parseData } from '@/utils/action'
 import { timeValueToMinutes } from '@/utils/date'
+import dayjs from 'dayjs'
 import { z } from 'zod'
+import { createServerAction } from 'zsa'
 import { authProcedure } from './procedures'
+
+export const getMontlyInsightsCount = createServerAction()
+	.input(z.object({ userId: z.string() }))
+	.handler(async ({ input }) => {
+		const totalInsights = await db.insight.countDocuments({
+			user: input.userId,
+			createdAt: {
+				$gte: dayjs(new Date()).startOf('month').toDate(),
+				$lt: dayjs(new Date()).endOf('month').toDate(),
+			},
+		})
+
+		return totalInsights
+	})
 
 export const generateInsight = authProcedure
 	.input(
@@ -16,6 +32,13 @@ export const generateInsight = authProcedure
 	)
 	.handler(async ({ input, ctx }) => {
 		const { name, startTime, endTime } = ctx.user
+
+		const [montlyInsightsCount, error] = await getMontlyInsightsCount({ userId: ctx.user._id })
+		if (error) throw error
+
+		if (montlyInsightsCount >= ctx.user.subscription.montlyInsights) {
+			throw new Error('You have reached your daily task limit')
+		}
 
 		const dailyCapacity = timeValueToMinutes(endTime) - timeValueToMinutes(startTime)
 

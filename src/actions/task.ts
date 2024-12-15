@@ -2,14 +2,10 @@
 
 import { db } from '@/libs/mongoose'
 import { parseData } from '@/utils/action'
-import { headers } from 'next/headers'
+import dayjs from 'dayjs'
 import { z } from 'zod'
+import { createServerAction } from 'zsa'
 import { authProcedure } from './procedures'
-
-async function getIP() {
-	const headersData = await headers()
-	return headersData.get('x-forwarded-for') as string
-}
 
 export const getTasks = authProcedure.handler(async ({ ctx }) => {
 	if (!ctx.user.stripeSubscriptionId) {
@@ -22,21 +18,40 @@ export const getTasks = authProcedure.handler(async ({ ctx }) => {
 	return parseData(tasks)
 })
 
+export const getMonthlyTasksCount = createServerAction()
+	.input(z.object({ userId: z.string() }))
+	.handler(async ({ input }) => {
+		const totalTasks = await db.task.countDocuments({
+			user: input.userId,
+			archived: false,
+			createdAt: {
+				$gte: dayjs(new Date()).startOf('day').toDate(),
+				$lt: dayjs(new Date()).endOf('day').toDate(),
+			},
+		})
+
+		return totalTasks
+	})
+
 export const createTask = authProcedure
 	.input(
 		z.object({
 			title: z.string(),
-			date: z.date().optional(),
+			date: z.date(),
 			tag: z.string(),
 			duration: z.number(),
 		}),
 	)
 	.handler(async ({ input, ctx }) => {
-		const ip = await getIP()
+		const [totalTasks, err] = await getMonthlyTasksCount({ userId: ctx.user._id })
+		if (err) throw err
+
+		if (totalTasks >= ctx.user.subscription.monlyTasks) {
+			throw new Error('You have reached your montly task limit')
+		}
 
 		const data = await db.task.create({
 			...input,
-			ip,
 			user: ctx.user._id,
 		})
 
