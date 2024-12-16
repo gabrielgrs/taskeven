@@ -17,6 +17,7 @@ import { Button, buttonVariants } from './ui/button'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from './ui/dropdown-menu'
 import { Input } from './ui/input'
 import { Textarea } from './ui/textarea'
+import { APP_NAME } from '@/utils/constants'
 
 const navItemClassName = 'duration-500 px-2 py-1 hover:text-muted-foreground'
 export function Navbar() {
@@ -62,7 +63,7 @@ export function Navbar() {
 		>
 			<div className="flex items-center gap-2">
 				<Link href="/" className="flex items-center gap-1">
-					<span className="font-semibold hidden md:flex tezt-lg">Taskeven</span>
+					<span className="font-semibold hidden md:flex tezt-lg">{APP_NAME}</span>
 				</Link>
 				{user && (
 					<Link href="/sync">
