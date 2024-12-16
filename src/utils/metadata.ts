@@ -1,9 +1,9 @@
 import type { Metadata } from 'next'
-import { APP_DOMAIN, APP_NAME, DESCRIPTION } from './constants'
+import { APP_DESCRIPTION, APP_DOMAIN, APP_NAME } from './constants'
 
 const meta = {
 	title: APP_NAME,
-	description: DESCRIPTION,
+	description: APP_DESCRIPTION,
 } as const
 
 const image = `${APP_DOMAIN}/{${APP_NAME.toLowerCase()}/assets/thumb.png`
