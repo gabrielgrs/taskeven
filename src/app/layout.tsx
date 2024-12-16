@@ -17,6 +17,9 @@ export const metadata = generateMetadata()
 export default function RootLayout({ children }: { children: ReactNode }) {
 	return (
 		<html lang="en">
+			<head>
+				<link rel="icon" href="/favicon.ico" sizes="any" />
+			</head>
 			<body className={`${font.className} min-h-screen bg-background text-foreground antialiased tracking-tighter	`}>
 				<ClientLayout>
 					<NextTopLoader color="hsl(var(--primary))" showSpinner={false} />
