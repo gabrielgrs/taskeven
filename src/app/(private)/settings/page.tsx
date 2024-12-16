@@ -4,7 +4,7 @@ import { SettingsClient } from './client'
 export const dynamic = 'force-dynamic'
 
 type Props = {
-	searchParams: {
+	searchParams?: {
 		type?: 'Onboarding'
 	}
 }
@@ -13,6 +13,6 @@ export default async function Page({ searchParams }: Props) {
 	if (error) throw error
 
 	return (
-		<SettingsClient defaultValues={data.user} type={searchParams.type} subscriptionUsage={data.subscriptionUsage} />
+		<SettingsClient defaultValues={data.user} type={searchParams?.type} subscriptionUsage={data.subscriptionUsage} />
 	)
 }

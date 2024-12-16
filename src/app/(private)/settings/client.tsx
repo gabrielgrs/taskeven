@@ -2,6 +2,7 @@
 
 import { getUserSettingsData } from '@/actions/user'
 import { Column, Grid } from '@/components/grid'
+import { InputDropdown } from '@/components/input-dropdown'
 import { Button, buttonVariants } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -10,10 +11,12 @@ import { useAuth } from '@/hooks/use-auth'
 import { UserSchema } from '@/libs/mongoose/schemas/user'
 import { cn } from '@/libs/utils'
 import { ServerActionResponse } from '@/utils/action'
+import { generateTimeValuesArray, timeValueToMinutes } from '@/utils/date'
+import { invalidValue, requiredField } from '@/utils/messages'
 import { Rocket } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { useForm } from 'react-hook-form'
+import { Controller, useForm, useWatch } from 'react-hook-form'
 import { toast } from 'sonner'
 
 function getPercentage(current: number, total: number) {
@@ -26,9 +29,11 @@ type Props = {
 }
 
 export function SettingsClient({ defaultValues, type, subscriptionUsage }: Props) {
-	const { register, handleSubmit } = useForm({ defaultValues })
+	const { register, handleSubmit, control } = useForm({ defaultValues })
 	const { onUpdateUser, isUpdating } = useAuth()
 	const { push } = useRouter()
+	const startTimeValue = useWatch({ control, name: 'startTime' })
+	const timeOptions = generateTimeValuesArray(15)
 
 	const onSubmit = async (values: typeof defaultValues) => {
 		const [, err] = await onUpdateUser({
@@ -67,12 +72,64 @@ export function SettingsClient({ defaultValues, type, subscriptionUsage }: Props
 
 							<Column size={6}>
 								<Label>Start day time</Label>
-								<Input {...register('startTime', { required: true })} type="time" />
+								<Controller
+									control={control}
+									name="startTime"
+									rules={{
+										required: requiredField,
+										validate: (value) => {
+											if (!value) return requiredField
+											const a = timeValueToMinutes(value)
+											if (a === -1) return invalidValue
+											return undefined
+										},
+									}}
+									render={({ field }) => {
+										return (
+											<InputDropdown
+												ref={register(field.name).ref}
+												value={field.value}
+												onChange={field.onChange}
+												options={timeOptions}
+												mask="99:99"
+												placeholder="hh:mm"
+												onlyNumbers
+											/>
+										)
+									}}
+								/>
 							</Column>
 
 							<Column size={6}>
 								<Label>End day time</Label>
-								<Input {...register('endTime', { required: true })} type="time" />
+								<Controller
+									control={control}
+									name="endTime"
+									rules={{
+										required: requiredField,
+										validate: (value) => {
+											if (!value) return requiredField
+											const endTimeMinutes = timeValueToMinutes(value)
+											if (endTimeMinutes === -1) return invalidValue
+											const startTimeMinutes = timeValueToMinutes(startTimeValue ?? '')
+											if (startTimeMinutes >= endTimeMinutes) return invalidValue
+											return undefined
+										},
+									}}
+									render={({ field }) => {
+										return (
+											<InputDropdown
+												ref={register(field.name).ref}
+												value={field.value}
+												onChange={field.onChange}
+												options={timeOptions}
+												mask="99:99"
+												placeholder="hh:mm"
+												onlyNumbers
+											/>
+										)
+									}}
+								/>
 							</Column>
 
 							<Column size={12} className="flex justify-end">

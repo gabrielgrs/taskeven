@@ -47,7 +47,7 @@ export function TasksUI() {
 				<MotionColumn
 					key={screenState}
 					size={12}
-					className="overflow-hidden relative"
+					className="relative"
 					initial={{ opacity: 0, y: 50 }}
 					animate={{ opacity: 1, y: 0 }}
 					exit={{ opacity: 0, y: 50 }}

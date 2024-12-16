@@ -27,10 +27,7 @@ export function useAuth() {
 	})
 
 	const updateUserAction = useServerAction(updateUser, {
-		onSuccess: async () => {
-			await refetch()
-			toast.success('User updated with success')
-		},
+		onSuccess: async () => refetch(),
 		onError: () => toast.error('Failed to update user'),
 	})
 

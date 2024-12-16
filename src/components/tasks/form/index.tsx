@@ -1,17 +1,16 @@
 'use client'
 
 import { DatePicker } from '@/components/date-picker'
+import { InputDropdown } from '@/components/input-dropdown'
 import { Button } from '@/components/ui/button'
 import { TaskSchema } from '@/libs/mongoose/schemas/task'
 import { cn } from '@/libs/utils'
-import { timeValueToMinutes } from '@/utils/date'
+import { generateTimeValuesArray, timeValueToMinutes } from '@/utils/date'
 import { requiredField } from '@/utils/messages'
 import dayjs from 'dayjs'
 import { X } from 'lucide-react'
-import { useEffect } from 'react'
 import { Controller, useForm, useWatch } from 'react-hook-form'
 import { Input } from '../../ui/input'
-import { TagDropdown } from './tag-dropdown'
 
 type TaskForm = Pick<TaskSchema, 'title' | 'date' | 'duration'> & {
 	time: string
@@ -54,22 +53,8 @@ export function TaskForm({
 	})
 
 	const durationValue = useWatch({ control, name: 'duration' })
-
+	const timeOptions = generateTimeValuesArray(15)
 	const isEdition = Boolean(initialValues?._id)
-
-	useEffect(() => {
-		const event = (event: KeyboardEvent) => {
-			if (event.code === 'Escape') {
-				if (onCancel) onCancel()
-				reset({ title: '' })
-			}
-		}
-
-		window.addEventListener('keydown', event)
-		return () => {
-			window.removeEventListener('keydown', event)
-		}
-	}, [onCancel, reset])
 
 	const onSubmit = async (values: typeof defaultValues) => {
 		try {
@@ -106,7 +91,8 @@ export function TaskForm({
 					name="tag"
 					render={({ field }) => {
 						return (
-							<TagDropdown
+							<InputDropdown
+								placeholder="Tag name"
 								name={field.name}
 								value={field.value}
 								onChange={field.onChange}
@@ -131,20 +117,38 @@ export function TaskForm({
 								value={field.value}
 								onChange={(event) => field.onChange(event.target.value)}
 								placeholder="Date"
-								triggerClassName=" w-full"
+								triggerClassName="w-full"
 							/>
 						)
 					}}
 				/>
 
-				<Input {...register('time', { required: requiredField })} className=" w-full" type="time" />
+				{/* <Input {...register('time', { required: requiredField })} className=" w-full" type="time" /> */}
+				<Controller
+					control={control}
+					name="time"
+					render={({ field }) => {
+						return (
+							<InputDropdown
+								autoComplete="off"
+								placeholder="hh:mm"
+								mask="99:99"
+								onlyNumbers
+								name={field.name}
+								value={field.value}
+								onChange={field.onChange}
+								options={timeOptions}
+							/>
+						)
+					}}
+				/>
 
 				<div className="relative">
 					<Input
 						{...register('duration', { min: 0, max: 24 })}
 						mask="99"
 						onlyNumbers
-						className=" w-full"
+						className="w-full"
 						placeholder="Duration"
 					/>
 					<span className="absolute top-[50%] translate-y-[-50%] right-2 bg-background text-muted-foreground text-sm px-1 rounded">

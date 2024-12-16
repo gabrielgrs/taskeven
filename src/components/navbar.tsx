@@ -18,6 +18,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Input } from './ui/input'
 import { Textarea } from './ui/textarea'
 
+const navItemClassName = 'duration-500 px-2 py-1 hover:text-muted-foreground'
 export function Navbar() {
 	const [isFarFromTop, setIsFarmFromTop] = useState(false)
 	const { user, isLoading, refetch } = useAuth()
@@ -59,32 +60,30 @@ export function Navbar() {
 				isFarFromTop ? 'bg-background/80 backdrop-blur-lg h-16' : 'bg-primary/0 h-20',
 			)}
 		>
-			<div className="flex items-center gap-1">
+			<div className="flex items-center gap-2">
 				<Link href="/" className="flex items-center gap-1">
-					<div className="h-8 w-8 rounded-full bg-foreground" />
-					<span className="font-semibold hidden md:flex">Taskeven</span>
+					<span className="font-semibold hidden md:flex tezt-lg">Taskeven</span>
 				</Link>
 				{user && (
 					<Link href="/sync">
-						<Badge className={cn('duration-500')}>{isPro ? 'Pro' : 'Free'}</Badge>
+						<Badge>{isPro ? 'Pro' : 'Free'}</Badge>
 					</Link>
 				)}
 			</div>
-			<div className="flex items-center gap-1 h-full">
+			<div className="flex items-center h-full">
 				{!user && !isLoading && (
-					<Button
+					<button
+						className={navItemClassName}
 						type="button"
-						variant="outline"
-						size="icon"
 						onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}
 					>
 						{theme === 'dark' ? <Lightbulb /> : <LightbulbOff />}
-					</Button>
+					</button>
 				)}
 
 				<DropdownMenu>
 					<DropdownMenuTrigger asChild>
-						<Button variant="ghost">Contact</Button>
+						<button className={navItemClassName}>Contact</button>
 					</DropdownMenuTrigger>
 
 					<DropdownMenuContent className="flex flex-col gap-2">
@@ -117,7 +116,7 @@ export function Navbar() {
 					<>
 						<DropdownMenu>
 							<DropdownMenuTrigger asChild>
-								<Button variant="ghost">Menu</Button>
+								<button className={navItemClassName}>Menu</button>
 							</DropdownMenuTrigger>
 
 							<DropdownMenuContent>
@@ -163,7 +162,7 @@ export function Navbar() {
 				)}
 
 				{user && pathname !== '/' && (
-					<Link href="/" className={cn(buttonVariants({ variant: 'link' }))}>
+					<Link href="/" className={navItemClassName}>
 						Tasks
 					</Link>
 				)}

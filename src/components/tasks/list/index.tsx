@@ -20,7 +20,10 @@ type Props = {
 
 function StartEndCard({ icon: Icon, text, time }: { icon: LucideIcon; text: string; time: string }) {
 	return (
-		<Column size={12} className="h-4 w-full flex justify-between gap-4 my-2 items-center px-2 py-4 rounded-md">
+		<Column
+			size={12}
+			className="h-4 w-full flex justify-between gap-4 my-2 items-center px-2 py-4 rounded-md text-muted-foreground"
+		>
 			<div className="flex items-center gap-2">
 				<Icon size={16} />
 				<span className="whitespace-nowrap">{text}</span>
@@ -33,9 +36,8 @@ function StartEndCard({ icon: Icon, text, time }: { icon: LucideIcon; text: stri
 
 export function TaskList({ list, currentDate }: Props) {
 	const { user } = useAuth()
-
-	const tasksWithoutDate = list.filter((task) => !task.date)
-	const daysTasks = list.filter((task) => task.date && dayjs(task.date).isSame(currentDate, 'day'))
+	const daysTasks = list.filter((task) => dayjs(task.date).isSame(currentDate, 'day'))
+	const dailyCapacityUsage = daysTasks.reduce((acc, curr) => (acc += curr.duration), 0)
 	const { insights, refetch: refetchInsights } = useInsights()
 	const todayInsight = insights.find((x) => dayjs(x.date).isSame(currentDate, 'day'))
 
@@ -75,6 +77,17 @@ export function TaskList({ list, currentDate }: Props) {
 						</Column>
 					)}
 
+					{user && (
+						<>
+							<Column size={12} className="">
+								<span>Daily capacity</span>
+								<p className="text-muted-foreground">
+									{dailyCapacityUsage}h / {Number(user.capacity / 60).toFixed(2)}h
+								</p>
+							</Column>
+						</>
+					)}
+
 					{daysTasks.length > 0 && (
 						<Column size={12} className="flex justify-end">
 							<Button
@@ -108,15 +121,6 @@ export function TaskList({ list, currentDate }: Props) {
 					)}
 				</>
 			)}
-
-			{tasksWithoutDate.length > 0 &&
-				tasksWithoutDate.map((task) => {
-					return (
-						<Column size={12} key={task._id}>
-							<TaskCard task={task} />
-						</Column>
-					)
-				})}
 		</Grid>
 	)
 }
