@@ -3,6 +3,7 @@
 import { useAuth } from '@/hooks/use-auth'
 import { TaskSchema } from '@/libs/mongoose/schemas/task'
 import { cn } from '@/libs/utils'
+import { calculatePercentage } from '@/utils/number'
 import dayjs from 'dayjs'
 import localeData from 'dayjs/plugin/localeData'
 import { ChevronsLeft, ChevronsRight } from 'lucide-react'
@@ -27,14 +28,12 @@ function getDaysOfMonth(selectedDate: Date, tasks: TaskSchema[]) {
 		.fill(null)
 		.map((_, index) => {
 			const date = dayjs(firstDate).add(index + 1, 'day')
-			const dailyTasks = tasks.filter((item) => item.date).filter((item) => dayjs(item.date).isSame(date, 'day'))
+			const dailyTasks = tasks.filter((item) => dayjs(item.date).isSame(date, 'day'))
 
 			return {
 				date,
 				isAnotherMonth: index < weekDay,
-				dailyActivity: dailyTasks
-					.filter((x) => x.duration > 0)
-					.reduce((acc: number, curr) => (acc += curr.duration), 0),
+				dailyActivityInMinutes: dailyTasks.reduce((acc: number, curr) => (acc += curr.duration), 0) * 60,
 				tasksQuantity: dailyTasks.length,
 			}
 		})
@@ -82,7 +81,7 @@ export function Calendar({ selectedDate, tasks, onChangeDate }: Props) {
 				))}
 
 				{calendar.map((item) => {
-					const dailyCapacityPercentage = (item.dailyActivity / capacity) * 100
+					const dailyCapacityPercentage = calculatePercentage(item.dailyActivityInMinutes, capacity)
 
 					if (item.isAnotherMonth) {
 						return <div key={`day_${item.date.toISOString()}`} />
@@ -92,12 +91,12 @@ export function Calendar({ selectedDate, tasks, onChangeDate }: Props) {
 						<div key={`day_${item.date.toISOString()}`} className="flex flex-col gap-1 items-center justify-center">
 							<button
 								className={cn(
-									'duration-500 hover:opacity-90 hover:translate-x-0.5 hover:-translate-y-0.5 w-8 h-8 md:w-12 md:h-12 flex text-foreground/70 items-center justify-center rounded bg-foreground/10 border border-bg-foreground/20',
+									'duration-500 hover:opacity-90 hover:translate-x-0.5 hover:-translate-y-0.5 w-8 h-8 md:w-12 md:h-12 flex text-foreground/70 items-center justify-center rounded bg-foreground/5 border border-bg-foreground/20',
 									dayjs(new Date()).isSame(item.date, 'day') && 'font-bold',
-									dailyCapacityPercentage >= 90 && 'border-b-2 border-b-red-500',
-									dailyCapacityPercentage >= 60 && 'border-b-2 border-b-yellow-500',
 									dailyCapacityPercentage >= 30 && 'border-b-2 border-b-green-500',
-									dailyCapacityPercentage === 0 && 'border-b-2 border-b-primary/10',
+									dailyCapacityPercentage >= 60 && 'border-b-2 border-b-yellow-500',
+									dailyCapacityPercentage >= 90 && 'border-b-2 border-b-red-500',
+									dailyCapacityPercentage === 0 && 'border-b-2 border-b-primary/10 bg-foreground/10',
 								)}
 								onClick={() => {
 									onChangeDate(item.date.toDate(), false)

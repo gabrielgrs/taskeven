@@ -13,15 +13,13 @@ import { cn } from '@/libs/utils'
 import { ServerActionResponse } from '@/utils/action'
 import { generateTimeValuesArray, timeValueToMinutes } from '@/utils/date'
 import { invalidValue, requiredField } from '@/utils/messages'
+import { calculatePercentage } from '@/utils/number'
 import { Rocket } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { Controller, useForm, useWatch } from 'react-hook-form'
 import { toast } from 'sonner'
 
-function getPercentage(current: number, total: number) {
-	return Math.round((current / total) * 100)
-}
 type Props = {
 	defaultValues: Partial<UserSchema>
 	type?: 'Onboarding'
@@ -192,14 +190,16 @@ export function SettingsClient({ defaultValues, type, subscriptionUsage }: Props
 								<span>
 									{subscriptionUsage.tasks.current} / {subscriptionUsage.tasks.total}
 								</span>
-								<Progress value={getPercentage(subscriptionUsage.tasks.current, subscriptionUsage.tasks.total)} />
+								<Progress value={calculatePercentage(subscriptionUsage.tasks.current, subscriptionUsage.tasks.total)} />
 							</Column>
 							<Column size={12}>Montly Insights</Column>
 							<Column size={12}>
 								<span>
 									{subscriptionUsage.insights.current} / {subscriptionUsage.insights.total}
 								</span>
-								<Progress value={getPercentage(subscriptionUsage.insights.current, subscriptionUsage.insights.total)} />
+								<Progress
+									value={calculatePercentage(subscriptionUsage.insights.current, subscriptionUsage.insights.total)}
+								/>
 							</Column>
 						</Grid>
 					</Column>

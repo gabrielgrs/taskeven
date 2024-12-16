@@ -43,11 +43,11 @@ export const InputDropdown = forwardRef<HTMLInputElement, Props>(
 
 				<div
 					className={cn(
-						'absolute top-[100%] left-0 w-full z-10 bg-background border mt-2 rounded-lg duration-500 z-20',
+						'absolute top-[100%] left-0 w-full bg-background border mt-2 rounded-lg duration-500 z-20',
 						open ? 'h-auto max-h-40 p-1 opacity-100 overflow-y-auto' : 'h-0 p-0 pointer-events-none opacity-0',
 					)}
 				>
-					{open
+					{open && filteredOptions.length > 0
 						? filteredOptions.map((op) => (
 								<button
 									type="button"
