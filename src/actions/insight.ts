@@ -37,16 +37,16 @@ export const generateInsight = authProcedure
 		if (error) throw error
 
 		if (montlyInsightsCount >= ctx.user.subscription.montlyInsights) {
-			throw new Error('You have reached your daily task limit')
+			throw new Error('You have reached your montly insights limit')
 		}
 
 		const dailyCapacity = timeValueToMinutes(endTime) - timeValueToMinutes(startTime)
 
 		const message = `
     ${name ? `User name is ${name}` : ''}
-    ${dailyCapacity > 0 ? `Daily capacity is ${dailyCapacity}` : ''}
+    ${dailyCapacity > 0 ? `Daily capacity is ${dailyCapacity / 60} hours` : ''}
     ${input.tasks.reduce((acc: string, curr) => {
-			acc += `${curr.title} ${curr.date ? `on ${curr.date}` : ''} ${curr.duration ? `for ${curr.duration}` : ''}\n`
+			acc += `${curr.title} ${curr.date ? `on ${curr.date}` : ''} ${curr.duration ? `for ${curr.duration} hours` : ''}\n`
 			return acc
 		}, '')}
     `
@@ -56,7 +56,7 @@ export const generateInsight = authProcedure
 			messages: [
 				{
 					role: 'system',
-					content: `You are a helpful assistant that helps me with insights of how improve my daily tasks. Try to generate with a max of 200 characters.`,
+					content: `You are a helpful assistant that helps me with insights of how improve my daily tasks. Try to generate with a max of 200 characters. Try to convert time values to hours.`,
 				},
 				{
 					role: 'user',

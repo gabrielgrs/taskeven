@@ -30,6 +30,7 @@ export function TasksUI() {
 	const { tasks, tags, refetch } = useTasks()
 
 	const createTaskAction = useServerAction(createTask, {
+		onError: (error) => toast.error(error.err.message || 'Failed to create task'),
 		onSuccess: async () => {
 			await refetch()
 			toast.success('Task created with success')
@@ -41,7 +42,12 @@ export function TasksUI() {
 		<div className="relative flex flex-col gap-4">
 			<Grid className="relative">
 				<Column size={12}>
-					<Header screenState={screenState} setScreenState={setScreenState} currentDate={currentDate} />
+					<Header
+						screenState={screenState}
+						setScreenState={setScreenState}
+						currentDate={currentDate}
+						currentDayTasks={tasks.filter((x) => dayjs(x.date).isSame(currentDate, 'day'))}
+					/>
 				</Column>
 
 				<MotionColumn

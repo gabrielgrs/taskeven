@@ -1,16 +1,11 @@
 'use client'
 
 import { Column, Grid } from '@/components/grid'
-
-import { generateInsight } from '@/actions/insight'
-import { Button } from '@/components/ui/button'
 import { useAuth } from '@/hooks/use-auth'
 import { useInsights } from '@/hooks/use-insights'
 import { TaskSchema } from '@/libs/mongoose/schemas/task'
-import { timeValueToMinutes } from '@/utils/date'
 import dayjs from 'dayjs'
-import { LucideIcon, Moon, Sparkles, Sun } from 'lucide-react'
-import { useServerAction } from 'zsa-react'
+import { LucideIcon, Moon, Sun } from 'lucide-react'
 import { TaskCard } from '../card'
 
 type Props = {
@@ -38,14 +33,8 @@ export function TaskList({ list, currentDate }: Props) {
 	const { user } = useAuth()
 	const daysTasks = list.filter((task) => dayjs(task.date).isSame(currentDate, 'day'))
 	const dailyCapacityUsage = daysTasks.reduce((acc, curr) => (acc += curr.duration), 0)
-	const { insights, refetch: refetchInsights } = useInsights()
+	const { insights } = useInsights()
 	const todayInsight = insights.find((x) => dayjs(x.date).isSame(currentDate, 'day'))
-
-	const generateInsightAction = useServerAction(generateInsight, {
-		onSuccess: () => {
-			refetchInsights()
-		},
-	})
 
 	return (
 		<Grid>
@@ -82,35 +71,12 @@ export function TaskList({ list, currentDate }: Props) {
 							<Column size={12} className="">
 								<span>Daily capacity</span>
 								<p className="text-muted-foreground">
-									{dailyCapacityUsage}h / {Number(user.capacity / 60).toFixed(2)}h
+									{dailyCapacityUsage}h / {Number(user.capacity / 60)}h
 								</p>
 							</Column>
 						</>
 					)}
 
-					{daysTasks.length > 0 && (
-						<Column size={12} className="flex justify-end">
-							<Button
-								loading={generateInsightAction.isPending}
-								type="button"
-								variant="secondary"
-								onClick={() => {
-									const minutes = timeValueToMinutes(dayjs(new Date()).format('HH:mm'))
-
-									generateInsightAction.execute({
-										date: dayjs(currentDate).add(minutes, 'minute').toDate(),
-										tasks: daysTasks.map((task) => ({
-											date: task.date ? new Date(task.date) : undefined,
-											title: task.title,
-											duration: task.duration,
-										})),
-									})
-								}}
-							>
-								Generate insights <Sparkles />
-							</Button>
-						</Column>
-					)}
 					{todayInsight && (
 						<Column size={12}>
 							<div className="bg-secondary/50 p-2 rounded-lg">

@@ -1,10 +1,16 @@
 'use client'
 
+import { generateInsight } from '@/actions/insight'
+import { useInsights } from '@/hooks/use-insights'
+import { TaskSchema } from '@/libs/mongoose/schemas/task'
 import { cn } from '@/libs/utils'
+import { timeValueToMinutes } from '@/utils/date'
 import dayjs from 'dayjs'
-import { Calendar } from 'lucide-react'
+import { Calendar, Sparkles } from 'lucide-react'
 import { motion } from 'motion/react'
 import { Dispatch } from 'react'
+import { toast } from 'sonner'
+import { useServerAction } from 'zsa-react'
 import { Button } from '../ui/button'
 import { ScreenState } from './types'
 
@@ -12,11 +18,21 @@ type Props = {
 	screenState: ScreenState
 	setScreenState: Dispatch<ScreenState>
 	currentDate: Date
+	currentDayTasks: TaskSchema[]
 }
-export function Header({ screenState, setScreenState, currentDate }: Props) {
+export function Header({ screenState, setScreenState, currentDate, currentDayTasks }: Props) {
+	const { refetch: refetchInsights } = useInsights()
+
+	const generateInsightAction = useServerAction(generateInsight, {
+		onError: (error) => toast.error(error.err.message || 'Failed to generate insight'),
+		onSuccess: () => {
+			refetchInsights()
+		},
+	})
+
 	return (
 		<div className="flex justify-between w-full">
-			<div className="flex items-center border p-1 rounded-lg gap-2 font-semibold w-max h-12">
+			<div className="flex items-center border p-1 rounded-lg gap-2 font-semibold w-max h-12 text-sm md:text-base">
 				<button className={cn('w-full h-full rounded-sm px-2 relative')} onClick={() => setScreenState('list')}>
 					{screenState === 'list' && (
 						<motion.div
@@ -25,7 +41,10 @@ export function Header({ screenState, setScreenState, currentDate }: Props) {
 						/>
 					)}
 					<p
-						className={cn('duration-1000 relative z-10 flex items-center', screenState === 'list' && 'text-foreground')}
+						className={cn(
+							'duration-1000 relative z-10 flex items-center ',
+							screenState === 'list' && 'text-foreground',
+						)}
 					>
 						Tasks
 					</p>
@@ -54,6 +73,27 @@ export function Header({ screenState, setScreenState, currentDate }: Props) {
 			</div>
 
 			<div className="flex items-center gap-1">
+				{currentDayTasks.length > 0 && (
+					<Button
+						loading={generateInsightAction.isPending}
+						type="button"
+						variant="outline"
+						onClick={() => {
+							const minutes = timeValueToMinutes(dayjs(new Date()).format('HH:mm'))
+
+							generateInsightAction.execute({
+								date: dayjs(currentDate).add(minutes, 'minute').toDate(),
+								tasks: currentDayTasks.map((task) => ({
+									date: task.date ? new Date(task.date) : undefined,
+									title: task.title,
+									duration: task.duration,
+								})),
+							})
+						}}
+					>
+						<span className="hidden md:block">Insight</span> <Sparkles className="block md:hidden" />
+					</Button>
+				)}
 				<Button type="button" onClick={() => setScreenState('form')}>
 					Create task
 				</Button>
